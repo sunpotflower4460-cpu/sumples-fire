@@ -1,0 +1,18 @@
+{
+  "name": "Sumples Fire",
+  "short_name": "Sumples",
+  "description": "小さなアイデアやタスクを火種として記録し、次の一歩まで育てるミニWebアプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7ea",
+  "theme_color": "#f26f2f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
