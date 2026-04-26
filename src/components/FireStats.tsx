@@ -4,6 +4,7 @@ type FireStatsProps = {
     active: number;
     completed: number;
     high: number;
+    flame: number;
   };
 };
 
@@ -12,6 +13,7 @@ const statItems = [
   { key: 'active', label: '未完了' },
   { key: 'completed', label: '完了' },
   { key: 'high', label: '高温' },
+  { key: 'flame', label: '炎' },
 ] as const;
 
 export function FireStats({ stats }: FireStatsProps) {
