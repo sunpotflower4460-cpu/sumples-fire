@@ -1,4 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  createSampleSeeds,
+  getFireSeedStats,
+  getFocusSeed,
+  normalizeSeed,
+  nowIso,
+} from '../lib/fireSeedModel';
 import type { FireCategory, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 
 const STORAGE_KEY = 'sumples-fire-seeds-v2';
@@ -13,46 +20,7 @@ type NewFireSeedInput = {
   stage: FireStage;
 };
 
-const now = () => new Date().toISOString();
-
-const sampleSeeds: FireSeed[] = [
-  {
-    id: 'sample-1',
-    title: '最初の火種を書く',
-    body: '小さな思いつきでも、置いておくと未来の自分が拾ってくれる。',
-    nextAction: '今日のうちに1行だけ追記する',
-    category: 'idea',
-    priority: 'medium',
-    stage: 'kindling',
-    completed: false,
-    createdAt: now(),
-    updatedAt: now(),
-  },
-  {
-    id: 'sample-2',
-    title: 'スマホで使いやすいか確認する',
-    body: 'App Store品質に近づけるには、片手操作、余白、文字サイズの確認が大切。',
-    nextAction: 'iPhone幅で追加、完了、削除を試す',
-    category: 'task',
-    priority: 'high',
-    stage: 'spark',
-    completed: false,
-    createdAt: now(),
-    updatedAt: now(),
-  },
-  {
-    id: 'sample-3',
-    title: '曲の断片を育てる',
-    body: '鼻歌、言葉、コード進行。まだ曖昧なものを消える前に置いておく。',
-    nextAction: '30秒だけ録音してメモに残す',
-    category: 'music',
-    priority: 'medium',
-    stage: 'flame',
-    completed: true,
-    createdAt: now(),
-    updatedAt: now(),
-  },
-];
+const sampleSeeds = createSampleSeeds();
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -62,23 +30,6 @@ const createId = () => {
   return `seed-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
-const normalizeSeed = (seed: Partial<FireSeed>, index: number): FireSeed => {
-  const createdAt = seed.createdAt ?? now();
-
-  return {
-    id: seed.id ?? `imported-${index}-${Date.now()}`,
-    title: seed.title?.trim() || '名前のない火種',
-    body: seed.body?.trim() ?? '',
-    nextAction: seed.nextAction?.trim() ?? '',
-    category: seed.category ?? 'idea',
-    priority: seed.priority ?? 'medium',
-    stage: seed.stage ?? (seed.completed ? 'flame' : 'spark'),
-    completed: seed.completed ?? false,
-    createdAt,
-    updatedAt: seed.updatedAt ?? createdAt,
-  };
-};
-
 const readStoredSeeds = (key: string): FireSeed[] | null => {
   const raw = window.localStorage.getItem(key);
   if (!raw) return null;
@@ -86,7 +37,7 @@ const readStoredSeeds = (key: string): FireSeed[] | null => {
   const parsed = JSON.parse(raw) as Partial<FireSeed>[];
   if (!Array.isArray(parsed)) return null;
 
-  return parsed.map(normalizeSeed);
+  return parsed.map((seed, index) => normalizeSeed(seed, index));
 };
 
 const loadSeeds = (): FireSeed[] => {
@@ -117,7 +68,7 @@ export function useFireSeeds() {
   }, [notice]);
 
   const addSeed = (input: NewFireSeedInput) => {
-    const timestamp = now();
+    const timestamp = nowIso();
     const nextSeed: FireSeed = {
       id: createId(),
       title: input.title.trim(),
@@ -143,7 +94,7 @@ export function useFireSeeds() {
               ...seed,
               completed: !seed.completed,
               stage: !seed.completed ? 'flame' : seed.stage,
-              updatedAt: now(),
+              updatedAt: nowIso(),
             }
           : seed,
       ),
@@ -166,7 +117,7 @@ export function useFireSeeds() {
     const confirmed = window.confirm('現在のメモをサンプルに戻しますか？');
     if (!confirmed) return;
 
-    setSeeds(sampleSeeds);
+    setSeeds(createSampleSeeds());
     setFilter('all');
     setNotice('サンプルに戻しました');
   };
@@ -184,25 +135,8 @@ export function useFireSeeds() {
     }
   }, [filter, seeds]);
 
-  const focusSeed = useMemo(() => {
-    return seeds
-      .filter((seed) => !seed.completed)
-      .sort((a, b) => {
-        const priorityScore = { high: 3, medium: 2, low: 1 };
-        return priorityScore[b.priority] - priorityScore[a.priority];
-      })[0];
-  }, [seeds]);
-
-  const stats = useMemo(
-    () => ({
-      total: seeds.length,
-      active: seeds.filter((seed) => !seed.completed).length,
-      completed: seeds.filter((seed) => seed.completed).length,
-      high: seeds.filter((seed) => seed.priority === 'high').length,
-      flame: seeds.filter((seed) => seed.stage === 'flame').length,
-    }),
-    [seeds],
-  );
+  const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
+  const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
 
   return {
     filteredSeeds,
