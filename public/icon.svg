@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Sumples Fire icon</title>
+  <desc id="desc">A warm flame mark for Sumples Fire.</desc>
+  <rect width="512" height="512" rx="112" fill="#fff7ea"/>
+  <circle cx="256" cy="266" r="172" fill="#2c1710" opacity="0.08"/>
+  <path d="M272 84c25 60 2 95-31 132-30 34-57 70-57 124 0 68 51 118 120 118 70 0 124-51 124-124 0-85-68-133-156-250Z" fill="#ce321d"/>
+  <path d="M250 212c18 37 0 61-22 86-18 20-30 42-30 74 0 45 35 78 82 78 44 0 80-33 80-80 0-55-45-89-110-158Z" fill="#f26f2f"/>
+  <path d="M268 304c10 22 0 37-13 51-10 12-18 24-18 42 0 27 20 46 47 46 26 0 47-20 47-47 0-32-25-52-63-92Z" fill="#ffcf69"/>
+</svg>
