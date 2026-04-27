@@ -59,8 +59,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.13em;
-  text-transform: uppercase;
 }
+
+.app-kicker { text-transform: uppercase; }
 
 .app-icon {
   display: grid;
@@ -174,7 +175,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin: 0;
 }
@@ -479,12 +480,25 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.78rem;
 }
 
-.tab-button span { font-size: 1.12rem; line-height: 1; }
+.tab-button span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+}
 
 .tab-button.is-active {
   background: #2c1710;
   color: #fff7ea;
   box-shadow: 0 10px 22px rgba(44, 23, 16, 0.18);
+}
+
+.tab-button.is-active span {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 @media (min-width: 760px) {
@@ -506,7 +520,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 380px) {
-  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .card-header, .card-footer { align-items: stretch; flex-direction: column; }
   .card-actions button { flex: 1; }
 }
