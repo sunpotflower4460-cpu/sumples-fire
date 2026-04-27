@@ -26,7 +26,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     event.preventDefault();
 
     if (!title.trim()) {
-      setError('火種の名前を入力してください');
+      setError('タイトルを入力してください');
       return;
     }
 
@@ -43,7 +43,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   return (
     <form className="fire-form" onSubmit={handleSubmit}>
       <div className="field-group">
-        <label htmlFor="seed-title">火種の名前</label>
+        <label htmlFor="seed-title">タイトル</label>
         <input
           id="seed-title"
           value={title}
@@ -62,7 +62,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           id="seed-body"
           value={body}
           onChange={(event) => setBody(event.target.value)}
-          placeholder="少しでも残しておきたいことを書く"
+          placeholder="思いついたことをそのまま残す"
           rows={4}
           maxLength={260}
         />
@@ -74,7 +74,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           id="seed-next-action"
           value={nextAction}
           onChange={(event) => setNextAction(event.target.value)}
-          placeholder="例：今日30秒だけ録音する"
+          placeholder="例：今日30秒だけ試す"
           maxLength={90}
         />
       </div>
@@ -125,7 +125,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       {error ? <p className="form-error">{error}</p> : null}
 
       <button className="primary-button" type="submit">
-        火種を追加する
+        記録する
       </button>
     </form>
   );
