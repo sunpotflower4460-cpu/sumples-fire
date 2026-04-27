@@ -20,8 +20,6 @@ type NewFireSeedInput = {
   stage: FireStage;
 };
 
-const sampleSeeds = createSampleSeeds();
-
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -42,13 +40,13 @@ const readStoredSeeds = (key: string): FireSeed[] | null => {
 
 const loadSeeds = (): FireSeed[] => {
   if (typeof window === 'undefined') {
-    return sampleSeeds;
+    return [];
   }
 
   try {
-    return readStoredSeeds(STORAGE_KEY) ?? readStoredSeeds(LEGACY_STORAGE_KEY) ?? sampleSeeds;
+    return readStoredSeeds(STORAGE_KEY) ?? readStoredSeeds(LEGACY_STORAGE_KEY) ?? [];
   } catch {
-    return sampleSeeds;
+    return [];
   }
 };
 
@@ -83,7 +81,7 @@ export function useFireSeeds() {
     };
 
     setSeeds((current) => [nextSeed, ...current]);
-    setNotice('火種を保存しました');
+    setNotice('記録しました');
   };
 
   const toggleSeed = (id: string) => {
@@ -99,7 +97,7 @@ export function useFireSeeds() {
           : seed,
       ),
     );
-    setNotice('状態を更新しました');
+    setNotice('更新しました');
   };
 
   const deleteSeed = (id: string) => {
@@ -113,13 +111,13 @@ export function useFireSeeds() {
     setNotice('削除しました');
   };
 
-  const resetSamples = () => {
-    const confirmed = window.confirm('現在のメモをサンプルに戻しますか？');
+  const showExamples = () => {
+    const confirmed = seeds.length === 0 || window.confirm('現在の記録を例に置き換えますか？');
     if (!confirmed) return;
 
     setSeeds(createSampleSeeds());
     setFilter('all');
-    setNotice('サンプルに戻しました');
+    setNotice('例を表示しました');
   };
 
   const filteredSeeds = useMemo(() => {
@@ -146,8 +144,8 @@ export function useFireSeeds() {
     stats,
     addSeed,
     deleteSeed,
-    resetSamples,
     setFilter,
+    showExamples,
     toggleSeed,
   };
 }
