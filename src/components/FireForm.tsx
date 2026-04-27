@@ -53,22 +53,11 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           }}
           placeholder="例：新しい曲のサビ案"
           maxLength={60}
+          autoFocus
         />
       </div>
 
-      <div className="field-group">
-        <label htmlFor="seed-body">メモ</label>
-        <textarea
-          id="seed-body"
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          placeholder="思いついたことをそのまま残す"
-          rows={4}
-          maxLength={260}
-        />
-      </div>
-
-      <div className="field-group">
+      <div className="field-group compact-field">
         <label htmlFor="seed-next-action">次の一歩</label>
         <input
           id="seed-next-action"
@@ -79,48 +68,64 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         />
       </div>
 
-      <div className="form-grid form-grid-three">
-        <div className="field-group">
-          <label htmlFor="seed-category">カテゴリ</label>
-          <select
-            id="seed-category"
-            value={category}
-            onChange={(event) => setCategory(event.target.value as FireCategory)}
-          >
-            {Object.entries(categoryLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <details className="advanced-fields">
+        <summary>詳しく書く</summary>
 
         <div className="field-group">
-          <label htmlFor="seed-priority">温度</label>
-          <select
-            id="seed-priority"
-            value={priority}
-            onChange={(event) => setPriority(event.target.value as FirePriority)}
-          >
-            {Object.entries(priorityLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="seed-body">メモ</label>
+          <textarea
+            id="seed-body"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="思いついたことをそのまま残す"
+            rows={3}
+            maxLength={260}
+          />
         </div>
 
-        <div className="field-group">
-          <label htmlFor="seed-stage">状態</label>
-          <select id="seed-stage" value={stage} onChange={(event) => setStage(event.target.value as FireStage)}>
-            {Object.entries(stageLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+        <div className="form-grid form-grid-three">
+          <div className="field-group">
+            <label htmlFor="seed-category">カテゴリ</label>
+            <select
+              id="seed-category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value as FireCategory)}
+            >
+              {Object.entries(categoryLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="seed-priority">大切さ</label>
+            <select
+              id="seed-priority"
+              value={priority}
+              onChange={(event) => setPriority(event.target.value as FirePriority)}
+            >
+              {Object.entries(priorityLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="seed-stage">状態</label>
+            <select id="seed-stage" value={stage} onChange={(event) => setStage(event.target.value as FireStage)}>
+              {Object.entries(stageLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      </details>
 
       {error ? <p className="form-error">{error}</p> : null}
 
