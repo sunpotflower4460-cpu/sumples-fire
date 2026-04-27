@@ -7,9 +7,9 @@ type FireFiltersProps = {
 
 const filters: { value: FireFilter; label: string }[] = [
   { value: 'all', label: 'すべて' },
-  { value: 'active', label: '未完了' },
+  { value: 'active', label: '進行中' },
   { value: 'completed', label: '完了' },
-  { value: 'high', label: '高温' },
+  { value: 'high', label: '大事' },
 ];
 
 export function FireFilters({ filter, onChangeFilter }: FireFiltersProps) {
