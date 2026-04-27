@@ -9,11 +9,10 @@ type FireStatsProps = {
 };
 
 const statItems = [
-  { key: 'total', label: '全部' },
-  { key: 'active', label: '未完了' },
+  { key: 'total', label: '合計' },
+  { key: 'active', label: '進行中' },
   { key: 'completed', label: '完了' },
   { key: 'high', label: '高温' },
-  { key: 'flame', label: '炎' },
 ] as const;
 
 export function FireStats({ stats }: FireStatsProps) {

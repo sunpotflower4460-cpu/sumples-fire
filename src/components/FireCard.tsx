@@ -40,7 +40,7 @@ export function FireCard({ seed, onToggle, onDelete }: FireCardProps) {
         </div>
       </div>
 
-      {seed.body ? <p className="card-body">{seed.body}</p> : <p className="card-body muted">本文はまだ空です。</p>}
+      {seed.body ? <p className="card-body">{seed.body}</p> : null}
 
       {seed.nextAction ? (
         <div className="next-action">
@@ -53,7 +53,7 @@ export function FireCard({ seed, onToggle, onDelete }: FireCardProps) {
         <span>{createdAt}</span>
         <div className="card-actions">
           <button type="button" className="ghost-button" onClick={() => onToggle(seed.id)}>
-            {seed.completed ? '未完了に戻す' : '炎にする'}
+            {seed.completed ? '戻す' : '今日やった'}
           </button>
           <button type="button" className="danger-button" onClick={() => onDelete(seed.id)}>
             削除
