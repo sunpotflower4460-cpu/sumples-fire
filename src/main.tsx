@@ -5,6 +5,7 @@ import './styles.css';
 import './fireTaskEffects.css';
 import './rewardEffects.css';
 import './flameMobile.css';
+import './formUx.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
