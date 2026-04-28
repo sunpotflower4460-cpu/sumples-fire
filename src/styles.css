@@ -17,7 +17,10 @@ body {
   min-height: 100vh;
   margin: 0;
   overscroll-behavior-y: none;
-  background: radial-gradient(circle at top left, rgba(255, 151, 68, 0.28), transparent 34rem), linear-gradient(135deg, #fff9ef 0%, #fff0d6 48%, #ffe4ce 100%);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 205, 120, 0.48), transparent 26rem),
+    radial-gradient(circle at 92% 18%, rgba(255, 122, 74, 0.22), transparent 22rem),
+    linear-gradient(145deg, #fffaf2 0%, #fff0d8 48%, #ffe1c7 100%);
 }
 
 button, input, select, textarea, summary { font: inherit; }
@@ -104,70 +107,95 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   box-shadow: 0 18px 36px rgba(44, 23, 16, 0.18);
 }
 
-.welcome-card {
-  padding: 18px;
-  border: 1px solid rgba(132, 64, 31, 0.1);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.64);
-  box-shadow: 0 14px 38px rgba(108, 48, 14, 0.08);
+.brand-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+  padding: 26px 22px;
+  border: 1px solid rgba(132, 64, 31, 0.12);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(255, 219, 128, 0.6), transparent 8rem),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(255, 236, 210, 0.92));
+  box-shadow: 0 26px 70px rgba(108, 48, 14, 0.13);
+  backdrop-filter: blur(16px);
 }
 
-.welcome-card span {
-  color: #b24a1d;
-  font-size: 0.78rem;
+.brand-hero::after {
+  position: absolute;
+  right: -64px;
+  bottom: -86px;
+  width: 220px;
+  height: 220px;
+  content: '';
+  border-radius: 999px;
+  background: rgba(242, 111, 47, 0.12);
+}
+
+.brand-mark {
+  z-index: 1;
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  border-radius: 22px;
+  background: radial-gradient(circle at 35% 28%, #fff6bd 0 18%, transparent 19%), radial-gradient(circle at 50% 62%, #ff8a3d 0 38%, #df4020 67%, #5a1e12 100%);
+  color: #fff7ea;
+  font-size: 1.9rem;
   font-weight: 900;
+  box-shadow: 0 16px 34px rgba(178, 74, 29, 0.28);
 }
 
-.welcome-card h2 {
-  margin: 6px 0 6px;
-  font-size: 1.45rem;
-  letter-spacing: -0.05em;
-  line-height: 1.05;
+.brand-hero h2 {
+  position: relative;
+  z-index: 1;
+  max-width: 330px;
+  margin: 0;
+  font-size: clamp(2.15rem, 11vw, 3.65rem);
+  letter-spacing: -0.085em;
+  line-height: 0.94;
 }
 
-.welcome-card p { margin: 0; color: #6e4c3d; }
+.brand-hero p:not(.app-kicker) {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  margin: 0 0 6px;
+  color: #674636;
+  font-weight: 700;
+}
 
 .today-hero {
   position: relative;
   overflow: hidden;
-  padding: 24px;
+  padding: 20px;
   border: 1px solid rgba(132, 64, 31, 0.12);
-  border-radius: 30px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 232, 200, 0.94));
-  box-shadow: 0 22px 56px rgba(108, 48, 14, 0.12);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 46px rgba(108, 48, 14, 0.09);
   backdrop-filter: blur(12px);
-}
-
-.today-hero::after {
-  position: absolute;
-  right: -56px;
-  bottom: -70px;
-  width: 180px;
-  height: 180px;
-  content: '';
-  border-radius: 999px;
-  background: rgba(242, 111, 47, 0.13);
 }
 
 .today-hero h2 {
   position: relative;
   z-index: 1;
   margin: 0;
-  font-size: clamp(2rem, 12vw, 3.2rem);
-  letter-spacing: -0.08em;
-  line-height: 0.95;
+  font-size: clamp(1.55rem, 8vw, 2.35rem);
+  letter-spacing: -0.065em;
+  line-height: 1;
 }
 
 .today-hero p {
   position: relative;
   z-index: 1;
-  margin: 14px 0 18px;
+  margin: 12px 0 0;
   color: #6e4c3d;
 }
 
 .quick-card, .stat-card, .panel, .fire-card, .empty-state {
   border: 1px solid rgba(132, 64, 31, 0.12);
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 18px 46px rgba(108, 48, 14, 0.09);
   backdrop-filter: blur(12px);
 }
