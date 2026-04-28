@@ -54,7 +54,12 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         </div>
       ) : null}
 
-      {seed.isBurning ? <div className="burn-flame" aria-hidden="true"><i /><i /><i /></div> : null}
+      {seed.isBurning ? (
+        <>
+          <div className="burn-flame" aria-hidden="true"><i /><i /><i /></div>
+          <div className="ash-reward-pop" aria-hidden="true">+{seed.ashPoints} 炭</div>
+        </>
+      ) : null}
 
       <div className="card-footer">
         <span>{seed.burned ? `燃やした日 ${createdAt}` : `追加 ${createdAt}`}</span>
