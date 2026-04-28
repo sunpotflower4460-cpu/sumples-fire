@@ -100,6 +100,7 @@ export function useFireSeeds() {
   const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
 
   return {
+    allSeeds: seeds,
     filteredSeeds,
     filter,
     focusSeed,
