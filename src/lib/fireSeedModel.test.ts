@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { burnSeed, createSampleSeeds, getFireRank, getFireSeedStats, getFocusSeed, normalizeSeed } from './fireSeedModel';
+import { burnSeed, createSampleSeeds, getFireRank, getFireSeedStats, getFocusSeed, getNextFireRank, normalizeSeed } from './fireSeedModel';
 import type { FireSeed } from '../types/fireSeed';
 
 const timestamp = '2026-04-26T00:00:00.000Z';
@@ -60,6 +60,9 @@ describe('fireSeedModel', () => {
     expect(stats.burned).toBe(1);
     expect(stats.totalAshPoints).toBe(20);
     expect(stats.rank).toBe('火付け人');
+    expect(stats.nextRank).toBe('炭集め名人');
+    expect(stats.nextRankRemaining).toBe(30);
+    expect(stats.rankProgress).toBe(14);
     expect(typeof stats.todayBurned).toBe('number');
   });
 
@@ -68,5 +71,20 @@ describe('fireSeedModel', () => {
     expect(getFireRank(15)).toBe('火付け人');
     expect(getFireRank(120)).toBe('炎の職人');
     expect(getFireRank(500)).toBe('灰の王');
+  });
+
+  it('returns next rank progress', () => {
+    expect(getNextFireRank(20)).toEqual({
+      current: '火付け人',
+      next: '炭集め名人',
+      remaining: 30,
+      progress: 14,
+    });
+    expect(getNextFireRank(500)).toEqual({
+      current: '灰の王',
+      next: '最高称号',
+      remaining: 0,
+      progress: 100,
+    });
   });
 });
