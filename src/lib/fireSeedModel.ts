@@ -106,6 +106,25 @@ const inferImportance = (seed: Partial<FireSeed>): FireLevel => {
   return seed.difficulty === 'heavy' || seed.difficulty === 'boss' || seed.priority !== 'low' ? 'high' : 'low';
 };
 
+const isSameLocalDay = (left?: string, right = new Date()) => {
+  if (!left) return false;
+  const date = new Date(left);
+  return (
+    date.getFullYear() === right.getFullYear() &&
+    date.getMonth() === right.getMonth() &&
+    date.getDate() === right.getDate()
+  );
+};
+
+export const getFireRank = (ashPoints: number) => {
+  if (ashPoints >= 500) return '灰の王';
+  if (ashPoints >= 250) return '焚火マスター';
+  if (ashPoints >= 120) return '炎の職人';
+  if (ashPoints >= 50) return '炭集め名人';
+  if (ashPoints >= 15) return '火付け人';
+  return 'はじめの火花';
+};
+
 export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp = nowIso()): FireSeed => {
   const createdAt = seed.createdAt ?? timestamp;
   const difficulty = inferDifficulty(seed);
@@ -139,19 +158,26 @@ export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp 
 
 export const getFocusSeed = (seeds: FireSeed[]) => sortFireTasks(seeds.filter((seed) => !seed.burned))[0];
 
-export const getFireSeedStats = (seeds: FireSeed[]) => ({
-  total: seeds.length,
-  active: seeds.filter((seed) => !seed.burned).length,
-  completed: seeds.filter((seed) => seed.burned).length,
-  high: seeds.filter((seed) => !seed.burned && seed.urgency === 'high').length,
-  flame: seeds.filter((seed) => seed.stage === 'flame').length,
-  burned: seeds.filter((seed) => seed.burned).length,
-  totalAshPoints: seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0),
-  doNow: seeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length,
-  schedule: seeds.filter((seed) => !seed.burned && seed.quadrant === 'schedule').length,
-  quickBurn: seeds.filter((seed) => !seed.burned && seed.quadrant === 'quickBurn').length,
-  backlog: seeds.filter((seed) => !seed.burned && seed.quadrant === 'backlog').length,
-});
+export const getFireSeedStats = (seeds: FireSeed[]) => {
+  const totalAshPoints = seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0);
+  const todayBurned = seeds.filter((seed) => seed.burned && isSameLocalDay(seed.burnedAt)).length;
+
+  return {
+    total: seeds.length,
+    active: seeds.filter((seed) => !seed.burned).length,
+    completed: seeds.filter((seed) => seed.burned).length,
+    high: seeds.filter((seed) => !seed.burned && seed.urgency === 'high').length,
+    flame: seeds.filter((seed) => seed.stage === 'flame').length,
+    burned: seeds.filter((seed) => seed.burned).length,
+    totalAshPoints,
+    todayBurned,
+    rank: getFireRank(totalAshPoints),
+    doNow: seeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length,
+    schedule: seeds.filter((seed) => !seed.burned && seed.quadrant === 'schedule').length,
+    quickBurn: seeds.filter((seed) => !seed.burned && seed.quadrant === 'quickBurn').length,
+    backlog: seeds.filter((seed) => !seed.burned && seed.quadrant === 'backlog').length,
+  };
+};
 
 export const markSeedBurning = (seed: FireSeed, timestamp = nowIso()): FireSeed => ({
   ...seed,
