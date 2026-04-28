@@ -20,6 +20,13 @@ const stageProgress = {
   flame: 100,
 };
 
+const burnMessages = {
+  small: '小さく燃えた。いい一歩。',
+  normal: 'よく燃えた。前に進んだ。',
+  heavy: '重いタスクを燃やした。強い。',
+  boss: 'ラスボス撃破。これは大きい。',
+};
+
 export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
 
@@ -58,6 +65,7 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         <>
           <div className="burn-flame" aria-hidden="true"><i /><i /><i /></div>
           <div className="ash-reward-pop" aria-hidden="true">+{seed.ashPoints} 炭</div>
+          <p className="burn-message" aria-live="polite">{burnMessages[seed.difficulty]}</p>
         </>
       ) : null}
 
@@ -66,7 +74,7 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         <div className="card-actions">
           {!seed.burned ? (
             <button type="button" className="fire-button" onClick={() => onFire(seed.id)} disabled={seed.isBurning}>
-              {seed.isBurning ? 'Burning...' : 'Fire'}
+              {seed.isBurning ? '燃焼中' : 'Fire'}
             </button>
           ) : null}
           <button type="button" className="danger-button" onClick={() => onDelete(seed.id)} disabled={seed.isBurning}>
