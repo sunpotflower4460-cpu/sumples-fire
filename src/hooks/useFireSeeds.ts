@@ -88,10 +88,8 @@ export function useFireSeeds() {
       case 'active':
         return seeds.filter((seed) => !seed.burned);
       case 'burned':
-      case 'completed':
         return seeds.filter((seed) => seed.burned);
       case 'today':
-      case 'high':
         return seeds.filter((seed) => !seed.burned && seed.priority === 'high');
       default:
         return seeds;
