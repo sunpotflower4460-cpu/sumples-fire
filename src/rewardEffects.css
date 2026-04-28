@@ -17,22 +17,25 @@
   position: absolute;
   right: 22px;
   top: 18px;
-  z-index: 4;
+  z-index: 7;
   border-radius: 999px;
   background: linear-gradient(135deg, #fff6a8, #ff9f3c);
   color: #3b1b0f;
-  padding: 8px 12px;
-  font-size: 0.88rem;
+  padding: 8px 14px;
+  font-size: 0.9rem;
   font-weight: 1000;
+  letter-spacing: 0.04em;
   box-shadow: 0 14px 28px rgba(206, 50, 29, 0.28);
-  animation: ashRewardPop 0.9s ease-out both;
+  animation: ashRewardPop 1.6s cubic-bezier(0.22, 0.8, 0.4, 1) both;
   pointer-events: none;
 }
 
 @keyframes ashRewardPop {
-  0% { opacity: 0; transform: translateY(12px) scale(0.82); }
-  25% { opacity: 1; transform: translateY(0) scale(1.06); }
-  100% { opacity: 0; transform: translateY(-34px) scale(0.96); }
+  0%   { opacity: 0; transform: translateY(16px) scale(0.76); }
+  20%  { opacity: 1; transform: translateY(-4px) scale(1.12); }
+  38%  { opacity: 1; transform: translateY(0) scale(1); }
+  78%  { opacity: 1; transform: translateY(-6px) scale(1.04); }
+  100% { opacity: 0; transform: translateY(-42px) scale(0.88); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -55,9 +55,12 @@ body {
   width: 68px;
   height: 68px;
   border-radius: 26px;
+  font-size: 2.4rem;
+  background: radial-gradient(circle at 38% 28%, rgba(255, 246, 180, 0.7) 0 14%, transparent 16%), radial-gradient(circle at 50% 62%, #ff8a3d 0 38%, #df4020 67%, #5a1e12 100%);
   box-shadow:
-    0 16px 34px rgba(201, 50, 29, 0.28),
-    0 0 0 8px rgba(255, 210, 111, 0.18);
+    0 16px 34px rgba(201, 50, 29, 0.32),
+    0 0 0 6px rgba(255, 210, 111, 0.22),
+    0 0 0 12px rgba(255, 140, 40, 0.08);
 }
 
 .ash-score-card {

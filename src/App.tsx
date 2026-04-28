@@ -23,9 +23,9 @@ type NewFireSeedInput = {
 };
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
-  { id: 'today', label: '今日', icon: '火' },
-  { id: 'ash', label: '炭', icon: '炭' },
-  { id: 'info', label: '使い方', icon: 'i' },
+  { id: 'today', label: '今日', icon: '🔥' },
+  { id: 'ash', label: '炭', icon: '🌑' },
+  { id: 'info', label: '使い方', icon: '💡' },
 ];
 
 export default function App() {
@@ -78,7 +78,7 @@ export default function App() {
         {activeTab === 'today' ? (
           <div className="screen-stack">
             <section className="brand-hero" aria-label="Fire Task の概要">
-              <div className="brand-mark" aria-hidden="true">火</div>
+              <div className="brand-mark" aria-hidden="true">🔥</div>
               <p className="app-kicker">Fire Task</p>
               <h2>嫌なタスクを、燃やして終わらせる。</h2>
               <p>緊急度と重要度で自動整理。終わったらFireして、炭ポイントに変えます。</p>
