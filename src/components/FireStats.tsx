@@ -9,6 +9,9 @@ type FireStatsProps = {
     totalAshPoints: number;
     todayBurned: number;
     rank: string;
+    nextRank: string;
+    nextRankRemaining: number;
+    rankProgress: number;
   };
 };
 
@@ -20,6 +23,10 @@ const statItems = [
 ] as const;
 
 export function FireStats({ stats }: FireStatsProps) {
+  const rankMessage = stats.nextRankRemaining > 0
+    ? `次の称号「${stats.nextRank}」まであと${stats.nextRankRemaining}炭`
+    : '最高称号に到達しています';
+
   return (
     <section className="stats-grid" aria-label="Fireタスクの統計">
       {statItems.map((item) => (
@@ -31,6 +38,10 @@ export function FireStats({ stats }: FireStatsProps) {
       <div className="stat-card rank-stat-card">
         <span>称号</span>
         <strong>{stats.rank}</strong>
+        <div className="rank-progress-track" aria-hidden="true">
+          <div className="rank-progress-fill" style={{ width: `${stats.rankProgress}%` }} />
+        </div>
+        <small>{rankMessage}</small>
       </div>
     </section>
   );
