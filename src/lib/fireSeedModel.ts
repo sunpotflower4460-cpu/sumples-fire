@@ -1,7 +1,35 @@
 import { difficultyAshPoints } from '../types/fireSeed';
-import type { FireDifficulty, FireSeed } from '../types/fireSeed';
+import type { FireDifficulty, FireLevel, FireMatrixQuadrant, FireSeed } from '../types/fireSeed';
 
 export const nowIso = () => new Date().toISOString();
+
+export const getQuadrant = (urgency: FireLevel, importance: FireLevel): FireMatrixQuadrant => {
+  if (urgency === 'high' && importance === 'high') return 'doNow';
+  if (urgency === 'low' && importance === 'high') return 'schedule';
+  if (urgency === 'high' && importance === 'low') return 'quickBurn';
+  return 'backlog';
+};
+
+const quadrantScore: Record<FireMatrixQuadrant, number> = {
+  doNow: 4,
+  schedule: 3,
+  quickBurn: 2,
+  backlog: 1,
+};
+
+export const sortFireTasks = (seeds: FireSeed[]) => {
+  const difficultyScore = { boss: 4, heavy: 3, normal: 2, small: 1 };
+
+  return [...seeds].sort((a, b) => {
+    const quadrantDiff = quadrantScore[b.quadrant] - quadrantScore[a.quadrant];
+    if (quadrantDiff !== 0) return quadrantDiff;
+
+    const difficultyDiff = difficultyScore[b.difficulty] - difficultyScore[a.difficulty];
+    if (difficultyDiff !== 0) return difficultyDiff;
+
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+};
 
 export const createSampleSeeds = (timestamp = nowIso()): FireSeed[] => [
   {
@@ -13,6 +41,9 @@ export const createSampleSeeds = (timestamp = nowIso()): FireSeed[] => [
     priority: 'high',
     stage: 'spark',
     difficulty: 'normal',
+    urgency: 'high',
+    importance: 'high',
+    quadrant: 'doNow',
     ashPoints: 5,
     burned: false,
     completed: false,
@@ -28,6 +59,9 @@ export const createSampleSeeds = (timestamp = nowIso()): FireSeed[] => [
     priority: 'medium',
     stage: 'kindling',
     difficulty: 'heavy',
+    urgency: 'low',
+    importance: 'high',
+    quadrant: 'schedule',
     ashPoints: 10,
     burned: false,
     completed: false,
@@ -43,6 +77,9 @@ export const createSampleSeeds = (timestamp = nowIso()): FireSeed[] => [
     priority: 'high',
     stage: 'flame',
     difficulty: 'boss',
+    urgency: 'high',
+    importance: 'high',
+    quadrant: 'doNow',
     ashPoints: 20,
     burned: true,
     burnedAt: timestamp,
@@ -59,9 +96,22 @@ const inferDifficulty = (seed: Partial<FireSeed>): FireDifficulty => {
   return 'normal';
 };
 
+const inferUrgency = (seed: Partial<FireSeed>): FireLevel => {
+  if (seed.urgency) return seed.urgency;
+  return seed.priority === 'high' ? 'high' : 'low';
+};
+
+const inferImportance = (seed: Partial<FireSeed>): FireLevel => {
+  if (seed.importance) return seed.importance;
+  return seed.difficulty === 'heavy' || seed.difficulty === 'boss' || seed.priority !== 'low' ? 'high' : 'low';
+};
+
 export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp = nowIso()): FireSeed => {
   const createdAt = seed.createdAt ?? timestamp;
   const difficulty = inferDifficulty(seed);
+  const urgency = inferUrgency(seed);
+  const importance = inferImportance({ ...seed, difficulty });
+  const quadrant = seed.quadrant ?? getQuadrant(urgency, importance);
   const burned = seed.burned ?? seed.completed ?? false;
   const stage = seed.stage ?? (burned ? 'flame' : 'spark');
 
@@ -71,45 +121,49 @@ export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp 
     body: seed.body?.trim() ?? '',
     nextAction: seed.nextAction?.trim() ?? '',
     category: seed.category ?? 'task',
-    priority: seed.priority ?? 'medium',
+    priority: seed.priority ?? (urgency === 'high' ? 'high' : 'medium'),
     stage,
     difficulty,
+    urgency,
+    importance,
+    quadrant,
     ashPoints: seed.ashPoints ?? difficultyAshPoints[difficulty],
     burned,
     burnedAt: seed.burnedAt,
+    isBurning: seed.isBurning ?? false,
     completed: seed.completed ?? burned,
     createdAt,
     updatedAt: seed.updatedAt ?? createdAt,
   };
 };
 
-export const getFocusSeed = (seeds: FireSeed[]) => {
-  const priorityScore = { high: 3, medium: 2, low: 1 };
-  const difficultyScore = { boss: 4, heavy: 3, normal: 2, small: 1 };
-
-  return [...seeds]
-    .filter((seed) => !seed.burned)
-    .sort((a, b) => {
-      const priorityDiff = priorityScore[b.priority] - priorityScore[a.priority];
-      if (priorityDiff !== 0) return priorityDiff;
-      return difficultyScore[b.difficulty] - difficultyScore[a.difficulty];
-    })[0];
-};
+export const getFocusSeed = (seeds: FireSeed[]) => sortFireTasks(seeds.filter((seed) => !seed.burned))[0];
 
 export const getFireSeedStats = (seeds: FireSeed[]) => ({
   total: seeds.length,
   active: seeds.filter((seed) => !seed.burned).length,
   completed: seeds.filter((seed) => seed.burned).length,
-  high: seeds.filter((seed) => !seed.burned && seed.priority === 'high').length,
+  high: seeds.filter((seed) => !seed.burned && seed.urgency === 'high').length,
   flame: seeds.filter((seed) => seed.stage === 'flame').length,
   burned: seeds.filter((seed) => seed.burned).length,
   totalAshPoints: seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0),
+  doNow: seeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length,
+  schedule: seeds.filter((seed) => !seed.burned && seed.quadrant === 'schedule').length,
+  quickBurn: seeds.filter((seed) => !seed.burned && seed.quadrant === 'quickBurn').length,
+  backlog: seeds.filter((seed) => !seed.burned && seed.quadrant === 'backlog').length,
+});
+
+export const markSeedBurning = (seed: FireSeed, timestamp = nowIso()): FireSeed => ({
+  ...seed,
+  isBurning: true,
+  updatedAt: timestamp,
 });
 
 export const burnSeed = (seed: FireSeed, timestamp = nowIso()): FireSeed => ({
   ...seed,
   burned: true,
   completed: true,
+  isBurning: false,
   stage: 'flame',
   burnedAt: timestamp,
   updatedAt: timestamp,
