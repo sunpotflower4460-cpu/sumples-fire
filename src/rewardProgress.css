@@ -28,24 +28,25 @@
   left: 16px;
   right: 16px;
   bottom: 66px;
-  z-index: 4;
+  z-index: 7;
   margin: 0;
   border-radius: 18px;
-  background: rgba(44, 23, 16, 0.84);
+  background: rgba(36, 14, 8, 0.88);
   color: #fff7ea;
-  padding: 10px 12px;
+  padding: 10px 14px;
   font-size: 0.9rem;
   font-weight: 900;
   text-align: center;
   box-shadow: 0 14px 28px rgba(44, 23, 16, 0.2);
-  animation: burnMessageLift 0.9s ease-out both;
+  animation: burnMessageLift 1.6s cubic-bezier(0.22, 0.8, 0.4, 1) both;
   pointer-events: none;
 }
 
 @keyframes burnMessageLift {
-  0% { opacity: 0; transform: translateY(14px) scale(0.96); }
-  24% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-18px) scale(0.98); }
+  0%   { opacity: 0; transform: translateY(18px) scale(0.94); }
+  18%  { opacity: 1; transform: translateY(0) scale(1); }
+  72%  { opacity: 1; transform: translateY(-4px) scale(1.01); }
+  100% { opacity: 0; transform: translateY(-22px) scale(0.97); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -85,7 +85,7 @@ export function useFireSeeds() {
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
       setNotice(`Fire! +${target.ashPoints} 炭`);
-    }, 900);
+    }, 1600);
   };
 
   const deleteSeed = (id: string) => {

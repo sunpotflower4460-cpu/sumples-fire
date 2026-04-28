@@ -63,7 +63,9 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
 
       {seed.isBurning ? (
         <>
-          <div className="burn-flame" aria-hidden="true"><i /><i /><i /></div>
+          <div className="burn-glow" aria-hidden="true" />
+          <div className="burn-flames" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
+          <div className="burn-embers" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
           <div className="ash-reward-pop" aria-hidden="true">+{seed.ashPoints} 炭</div>
           <p className="burn-message" aria-live="polite">{burnMessages[seed.difficulty]}</p>
         </>

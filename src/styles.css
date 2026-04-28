@@ -625,11 +625,11 @@ input:focus, select:focus, textarea:focus {
 
 .tab-button span {
   display: grid;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   place-items: center;
   border-radius: 10px;
-  font-size: 0.82rem;
+  font-size: 1.1rem;
   font-weight: 900;
   line-height: 1;
 }
