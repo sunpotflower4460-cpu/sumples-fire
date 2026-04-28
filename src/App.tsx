@@ -30,6 +30,7 @@ export default function App() {
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const {
     addSeed,
+    allSeeds,
     burnTask,
     deleteSeed,
     filter,
@@ -49,7 +50,7 @@ export default function App() {
   };
 
   const hasTasks = stats.total > 0;
-  const burnedTasks = filteredSeeds.filter((seed) => seed.burned);
+  const burnedTasks = allSeeds.filter((seed) => seed.burned);
   const activeTasks = filteredSeeds.filter((seed) => !seed.burned);
 
   return (
