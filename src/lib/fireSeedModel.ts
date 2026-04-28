@@ -17,6 +17,15 @@ const quadrantScore: Record<FireMatrixQuadrant, number> = {
   backlog: 1,
 };
 
+const fireRanks = [
+  { min: 0, label: 'はじめの火花' },
+  { min: 15, label: '火付け人' },
+  { min: 50, label: '炭集め名人' },
+  { min: 120, label: '炎の職人' },
+  { min: 250, label: '焚火マスター' },
+  { min: 500, label: '灰の王' },
+] as const;
+
 export const sortFireTasks = (seeds: FireSeed[]) => {
   const difficultyScore = { boss: 4, heavy: 3, normal: 2, small: 1 };
 
@@ -117,12 +126,40 @@ const isSameLocalDay = (left?: string, right = new Date()) => {
 };
 
 export const getFireRank = (ashPoints: number) => {
-  if (ashPoints >= 500) return '灰の王';
-  if (ashPoints >= 250) return '焚火マスター';
-  if (ashPoints >= 120) return '炎の職人';
-  if (ashPoints >= 50) return '炭集め名人';
-  if (ashPoints >= 15) return '火付け人';
-  return 'はじめの火花';
+  return [...fireRanks].reverse().find((rank) => ashPoints >= rank.min)?.label ?? fireRanks[0].label;
+};
+
+export const getNextFireRank = (ashPoints: number) => {
+  let currentIndex = 0;
+  for (let index = fireRanks.length - 1; index >= 0; index -= 1) {
+    if (ashPoints >= fireRanks[index].min) {
+      currentIndex = index;
+      break;
+    }
+  }
+
+  const currentRank = fireRanks[currentIndex];
+  const nextRank = fireRanks[currentIndex + 1];
+
+  if (!nextRank) {
+    return {
+      current: currentRank.label,
+      next: '最高称号',
+      remaining: 0,
+      progress: 100,
+    };
+  }
+
+  const span = nextRank.min - currentRank.min;
+  const gained = Math.max(0, ashPoints - currentRank.min);
+  const progress = Math.min(100, Math.round((gained / span) * 100));
+
+  return {
+    current: currentRank.label,
+    next: nextRank.label,
+    remaining: Math.max(0, nextRank.min - ashPoints),
+    progress,
+  };
 };
 
 export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp = nowIso()): FireSeed => {
@@ -161,6 +198,7 @@ export const getFocusSeed = (seeds: FireSeed[]) => sortFireTasks(seeds.filter((s
 export const getFireSeedStats = (seeds: FireSeed[]) => {
   const totalAshPoints = seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0);
   const todayBurned = seeds.filter((seed) => seed.burned && isSameLocalDay(seed.burnedAt)).length;
+  const nextRank = getNextFireRank(totalAshPoints);
 
   return {
     total: seeds.length,
@@ -172,6 +210,9 @@ export const getFireSeedStats = (seeds: FireSeed[]) => {
     totalAshPoints,
     todayBurned,
     rank: getFireRank(totalAshPoints),
+    nextRank: nextRank.next,
+    nextRankRemaining: nextRank.remaining,
+    rankProgress: nextRank.progress,
     doNow: seeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length,
     schedule: seeds.filter((seed) => !seed.burned && seed.quadrant === 'schedule').length,
     quickBurn: seeds.filter((seed) => !seed.burned && seed.quadrant === 'quickBurn').length,

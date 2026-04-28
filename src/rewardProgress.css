@@ -1,0 +1,55 @@
+.rank-progress-track {
+  width: 100%;
+  height: 9px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.rank-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd26f, #ff8a2a, #fff6a8);
+  box-shadow: 0 0 16px rgba(255, 210, 111, 0.42);
+}
+
+.rank-stat-card small {
+  display: block;
+  margin-top: 10px;
+  color: #ffe6c2;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.burn-message {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 66px;
+  z-index: 4;
+  margin: 0;
+  border-radius: 18px;
+  background: rgba(44, 23, 16, 0.84);
+  color: #fff7ea;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 14px 28px rgba(44, 23, 16, 0.2);
+  animation: burnMessageLift 0.9s ease-out both;
+  pointer-events: none;
+}
+
+@keyframes burnMessageLift {
+  0% { opacity: 0; transform: translateY(14px) scale(0.96); }
+  24% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burn-message {
+    animation: none;
+  }
+}
