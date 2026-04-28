@@ -21,26 +21,26 @@ export type FireSeed = {
 
 export const categoryLabels: Record<FireCategory, string> = {
   idea: 'アイデア',
-  task: 'タスク',
+  task: 'やること',
   music: '音楽',
   life: '暮らし',
   other: 'その他',
 };
 
 export const priorityLabels: Record<FirePriority, string> = {
-  low: '小さな火種',
-  medium: '育てたい火種',
-  high: '今すぐ燃やしたい',
+  low: 'いつか',
+  medium: '大事',
+  high: '今日やる',
 };
 
 export const stageLabels: Record<FireStage, string> = {
-  spark: '未着火',
-  kindling: '育成中',
-  flame: '炎になった',
+  spark: 'メモ',
+  kindling: '進行中',
+  flame: '完了',
 };
 
 export const stageDescriptions: Record<FireStage, string> = {
-  spark: 'まだ小さな断片。まずは消えないように残す段階です。',
-  kindling: '少しずつ形にしている途中。次の一歩を決める段階です。',
-  flame: '行動や作品に近づいた状態。あとで振り返る価値があります。',
+  spark: 'まずは忘れないように残した状態です。',
+  kindling: '少しずつ形にしている途中です。',
+  flame: '行動や作品につながった状態です。',
 };
