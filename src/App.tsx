@@ -4,10 +4,10 @@ import { FireFilters } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFireSeeds } from './hooks/useFireSeeds';
-import type { FireCategory, FirePriority, FireStage } from './types/fireSeed';
-import { categoryLabels, priorityLabels, stageLabels } from './types/fireSeed';
+import type { FireCategory, FireDifficulty, FirePriority, FireStage } from './types/fireSeed';
+import { categoryLabels, difficultyLabels, priorityLabels } from './types/fireSeed';
 
-type AppTab = 'today' | 'seeds' | 'info';
+type AppTab = 'today' | 'ash' | 'info';
 
 type NewFireSeedInput = {
   title: string;
@@ -16,11 +16,12 @@ type NewFireSeedInput = {
   category: FireCategory;
   priority: FirePriority;
   stage: FireStage;
+  difficulty: FireDifficulty;
 };
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
   { id: 'today', label: '今日', icon: '火' },
-  { id: 'seeds', label: 'メモ', icon: '芽' },
+  { id: 'ash', label: '炭', icon: '炭' },
   { id: 'info', label: '使い方', icon: 'i' },
 ];
 
@@ -29,6 +30,7 @@ export default function App() {
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const {
     addSeed,
+    burnTask,
     deleteSeed,
     filter,
     filteredSeeds,
@@ -36,7 +38,6 @@ export default function App() {
     notice,
     setFilter,
     stats,
-    toggleSeed,
   } = useFireSeeds();
 
   const openRecord = () => setIsRecordOpen(true);
@@ -44,19 +45,21 @@ export default function App() {
   const handleAddSeed = (input: NewFireSeedInput) => {
     addSeed(input);
     setIsRecordOpen(false);
-    setActiveTab('seeds');
+    setActiveTab('today');
   };
 
-  const hasSeeds = stats.total > 0;
+  const hasTasks = stats.total > 0;
+  const burnedTasks = filteredSeeds.filter((seed) => seed.burned);
+  const activeTasks = filteredSeeds.filter((seed) => !seed.burned);
 
   return (
-    <main className="mobile-app-shell">
+    <main className="mobile-app-shell fire-mode">
       <header className="app-topbar">
         <div>
           <p className="app-kicker">Sumples Fire</p>
-          <h1>{activeTab === 'today' ? 'ホーム' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
+          <h1>{activeTab === 'today' ? '今日燃やす' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
-        <button className="topbar-add" type="button" onClick={openRecord} aria-label="メモを書く">＋</button>
+        <button className="topbar-add" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
       </header>
 
       {notice ? <div className="toast" role="status">{notice}</div> : null}
@@ -67,59 +70,75 @@ export default function App() {
             <section className="brand-hero" aria-label="Sumples Fire の概要">
               <div className="brand-mark" aria-hidden="true">火</div>
               <p className="app-kicker">Sumples Fire</p>
-              <h2>小さなメモを、今日の一歩に。</h2>
-              <p>思いつき、やること、曲の断片をすぐ残せるシンプルなメモ帳です。</p>
-              <button className="primary-button" type="button" onClick={openRecord}>＋ メモを書く</button>
+              <h2>嫌なタスクを、燃やして終わらせる。</h2>
+              <p>やりたくないことを書いて、終わったらFire。燃えたタスクは炭ポイントになります。</p>
+              <button className="primary-button" type="button" onClick={openRecord}>＋ タスクを書く</button>
+            </section>
+
+            <section className="ash-score-card" aria-label="炭ポイント">
+              <span>炭ポイント</span>
+              <strong>{stats.totalAshPoints}</strong>
+              <p>{stats.burned}個のタスクを燃やしました</p>
             </section>
 
             <section className="today-hero">
-              <p className="eyebrow">今日のメモ</p>
-              <h2>{focusSeed?.title ?? 'まずはメモを書こう'}</h2>
-              <p>{focusSeed?.nextAction || '例：今日やること、あとで試したいこと、曲や歌詞のアイデア。'}</p>
+              <p className="eyebrow">次に燃やすもの</p>
+              <h2>{focusSeed?.title ?? '燃やしたいタスクを書こう'}</h2>
+              <p>{focusSeed?.nextAction || '例：返信する、片付ける、書類を出す。終わったらFireできます。'}</p>
             </section>
 
             {focusSeed ? (
               <section className="quick-card">
                 <div>
                   <span>{categoryLabels[focusSeed.category]}</span>
-                  <strong>{priorityLabels[focusSeed.priority]}</strong>
-                  <small>{stageLabels[focusSeed.stage]}</small>
+                  <strong>{difficultyLabels[focusSeed.difficulty]} / +{focusSeed.ashPoints} 炭</strong>
+                  <small>{priorityLabels[focusSeed.priority]}</small>
                 </div>
-                <button className="ghost-button" type="button" onClick={() => toggleSeed(focusSeed.id)}>完了にする</button>
+                <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)}>Fire</button>
               </section>
             ) : null}
 
             <FireStats stats={stats} />
+
+            <section className="panel app-panel compact-panel">
+              <div className="section-heading">
+                <p className="eyebrow">未燃焼</p>
+                <h2>今日燃やすタスク</h2>
+              </div>
+              {hasTasks ? <FireFilters filter={filter} onChangeFilter={setFilter} /> : null}
+              <div className="cards-stack">
+                {activeTasks.length > 0 ? (
+                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
+                ) : (
+                  <div className="empty-state useful-empty">
+                    <p>まだ燃やすタスクがありません。</p>
+                    <span>やりたくないことを1つ書いて、終わったらFireしましょう。</span>
+                    <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         ) : null}
 
-        {activeTab === 'seeds' ? (
+        {activeTab === 'ash' ? (
           <section className="panel app-panel">
-            <div className="list-header compact">
-              <div className="section-heading">
-                <p className="eyebrow">メモ</p>
-                <h2>保存したメモ</h2>
-              </div>
+            <div className="section-heading">
+              <p className="eyebrow">Ash Log</p>
+              <h2>燃やしたタスク</h2>
             </div>
-
-            {hasSeeds ? <FireFilters filter={filter} onChangeFilter={setFilter} /> : null}
-
+            <section className="ash-score-card compact-ash" aria-label="炭ポイント合計">
+              <span>合計</span>
+              <strong>{stats.totalAshPoints} 炭</strong>
+              <p>{stats.burned}個完了</p>
+            </section>
             <div className="cards-stack">
-              {filteredSeeds.length > 0 ? (
-                filteredSeeds.map((seed) => (
-                  <FireCard key={seed.id} seed={seed} onToggle={toggleSeed} onDelete={deleteSeed} />
-                ))
+              {burnedTasks.length > 0 ? (
+                burnedTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
               ) : (
-                <div className="empty-state useful-empty">
-                  <p>まだメモがありません。</p>
-                  <span>たとえば、こんなことを残せます。</span>
-                  <ul>
-                    <li>今日やること</li>
-                    <li>曲や歌詞のアイデア</li>
-                    <li>買い物や用事</li>
-                    <li>あとで試したいこと</li>
-                  </ul>
-                  <button className="primary-button" type="button" onClick={openRecord}>最初のメモを書く</button>
+                <div className="empty-state useful-empty ash-empty">
+                  <p>まだ炭はありません。</p>
+                  <span>タスクを終わらせてFireすると、ここに炭として残ります。</span>
                 </div>
               )}
             </div>
@@ -130,31 +149,31 @@ export default function App() {
           <section className="panel app-panel settings-panel">
             <div className="section-heading">
               <p className="eyebrow">使い方</p>
-              <h2>シンプルなメモ帳です</h2>
+              <h2>燃やして終わらせるタスク帳です</h2>
             </div>
             <div className="settings-list">
               <article>
-                <span>1. メモを書く</span>
-                <p>右上の＋、または今日画面のボタンから、思いついたことを短く残します。</p>
+                <span>1. タスクを書く</span>
+                <p>やりたくないこと、先延ばししていることを短く書きます。</p>
               </article>
               <article>
-                <span>2. 次の一歩を決める</span>
-                <p>必要なら「5分だけ試す」くらいの小さな行動を書いておけます。</p>
+                <span>2. 終わらせる</span>
+                <p>全部を完璧にしなくても大丈夫。まずは最初の一歩だけ進めます。</p>
               </article>
               <article>
-                <span>3. 完了にする</span>
-                <p>今日やったことは完了として残せます。あとで見返す時にも便利です。</p>
+                <span>3. Fireする</span>
+                <p>終わったらFireボタンを押します。タスクは炭になり、炭ポイントが増えます。</p>
               </article>
               <article>
                 <span>保存について</span>
-                <p>メモはこの端末のブラウザ内に保存され、閉じて開き直しても残ります。アカウント登録は不要です。</p>
+                <p>タスクはこの端末のブラウザ内に保存され、閉じて開き直しても残ります。アカウント登録は不要です。</p>
               </article>
             </div>
           </section>
         ) : null}
       </section>
 
-      <button className="floating-action" type="button" onClick={openRecord} aria-label="メモを書く">＋</button>
+      <button className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
 
       <nav className="bottom-tabs" aria-label="アプリの画面切り替え">
         {tabs.map((tab) => (
@@ -177,8 +196,8 @@ export default function App() {
             <div className="sheet-handle" aria-hidden="true" />
             <div className="sheet-header">
               <div>
-                <p className="eyebrow">メモ</p>
-                <h2 id="record-title">メモを書く</h2>
+                <p className="eyebrow">薪をくべる</p>
+                <h2 id="record-title">燃やしたいタスクを書く</h2>
               </div>
               <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる">×</button>
             </div>
