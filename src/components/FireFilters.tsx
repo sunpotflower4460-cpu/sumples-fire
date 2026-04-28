@@ -6,15 +6,15 @@ type FireFiltersProps = {
 };
 
 const filters: { value: FireFilter; label: string }[] = [
+  { value: 'active', label: '未燃焼' },
+  { value: 'today', label: '今日やる' },
+  { value: 'burned', label: '燃焼済み' },
   { value: 'all', label: 'すべて' },
-  { value: 'active', label: '未完了' },
-  { value: 'completed', label: '完了' },
-  { value: 'high', label: '今日やる' },
 ];
 
 export function FireFilters({ filter, onChangeFilter }: FireFiltersProps) {
   return (
-    <div className="filters" aria-label="メモの絞り込み">
+    <div className="filters" aria-label="タスクの絞り込み">
       {filters.map((item) => (
         <button
           key={item.value}
