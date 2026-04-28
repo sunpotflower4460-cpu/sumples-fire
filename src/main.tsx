@@ -4,6 +4,7 @@ import App from './App';
 import './styles.css';
 import './fireTaskEffects.css';
 import './rewardEffects.css';
+import './flameMobile.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
