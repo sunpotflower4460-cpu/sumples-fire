@@ -20,7 +20,7 @@ type NewFireSeedInput = {
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
   { id: 'today', label: '今日', icon: '火' },
-  { id: 'seeds', label: '一覧', icon: '芽' },
+  { id: 'seeds', label: 'メモ', icon: '芽' },
   { id: 'info', label: '使い方', icon: 'i' },
 ];
 
@@ -34,7 +34,6 @@ export default function App() {
     filteredSeeds,
     focusSeed,
     notice,
-    resetSamples,
     setFilter,
     stats,
     toggleSeed,
@@ -57,7 +56,7 @@ export default function App() {
           <p className="app-kicker">Sumples Fire</p>
           <h1>{tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
-        <button className="topbar-add" type="button" onClick={openRecord} aria-label="火種を記録する">＋</button>
+        <button className="topbar-add" type="button" onClick={openRecord} aria-label="メモを書く">＋</button>
       </header>
 
       {notice ? <div className="toast" role="status">{notice}</div> : null}
@@ -66,16 +65,16 @@ export default function App() {
         {activeTab === 'today' ? (
           <div className="screen-stack">
             <section className="welcome-card">
-              <span>1分で記録</span>
-              <h2>思いつきを、次の一歩に変える。</h2>
-              <p>やること、曲の断片、暮らしのメモ。まだ小さいものを忘れないうちに残せます。</p>
+              <span>小さなメモを、今日の一歩に。</span>
+              <h2>思いついたことを、すぐ残せます。</h2>
+              <p>やること、曲の断片、暮らしのメモ。あとで見返して、次の一歩にできます。</p>
             </section>
 
             <section className="today-hero">
-              <p className="eyebrow">今日やること</p>
-              <h2>{focusSeed?.title ?? 'まずは1つ記録しよう'}</h2>
-              <p>{focusSeed?.nextAction || '例：気になるアイデア、今日やる小さな作業、曲の一節を残す。'}</p>
-              <button className="primary-button" type="button" onClick={openRecord}>＋ 火種を記録</button>
+              <p className="eyebrow">今日のメモ</p>
+              <h2>{focusSeed?.title ?? 'まずはメモを書こう'}</h2>
+              <p>{focusSeed?.nextAction || '例：今日やること、あとで試したいこと、曲や歌詞のアイデア。'}</p>
+              <button className="primary-button" type="button" onClick={openRecord}>＋ メモを書く</button>
             </section>
 
             {focusSeed ? (
@@ -85,7 +84,7 @@ export default function App() {
                   <strong>{priorityLabels[focusSeed.priority]}</strong>
                   <small>{stageLabels[focusSeed.stage]}</small>
                 </div>
-                <button className="ghost-button" type="button" onClick={() => toggleSeed(focusSeed.id)}>今日やった</button>
+                <button className="ghost-button" type="button" onClick={() => toggleSeed(focusSeed.id)}>完了にする</button>
               </section>
             ) : null}
 
@@ -97,10 +96,9 @@ export default function App() {
           <section className="panel app-panel">
             <div className="list-header compact">
               <div className="section-heading">
-                <p className="eyebrow">一覧</p>
-                <h2>残した火種</h2>
+                <p className="eyebrow">メモ</p>
+                <h2>保存したメモ</h2>
               </div>
-              <button className="ghost-button" type="button" onClick={resetSamples}>例を見る</button>
             </div>
 
             {hasSeeds ? <FireFilters filter={filter} onChangeFilter={setFilter} /> : null}
@@ -112,14 +110,15 @@ export default function App() {
                 ))
               ) : (
                 <div className="empty-state useful-empty">
-                  <p>まだ火種がありません。</p>
-                  <span>まずは短いタイトルだけでも大丈夫です。</span>
+                  <p>まだメモがありません。</p>
+                  <span>たとえば、こんなことを残せます。</span>
                   <ul>
-                    <li>今日やる小さなこと</li>
-                    <li>浮かんだ曲や歌詞の断片</li>
-                    <li>あとで試したいアイデア</li>
+                    <li>今日やること</li>
+                    <li>曲や歌詞のアイデア</li>
+                    <li>買い物や用事</li>
+                    <li>あとで試したいこと</li>
                   </ul>
-                  <button className="primary-button" type="button" onClick={openRecord}>最初の火種を記録</button>
+                  <button className="primary-button" type="button" onClick={openRecord}>最初のメモを書く</button>
                 </div>
               )}
             </div>
@@ -130,31 +129,31 @@ export default function App() {
           <section className="panel app-panel settings-panel">
             <div className="section-heading">
               <p className="eyebrow">使い方</p>
-              <h2>迷わず使うために</h2>
+              <h2>シンプルなメモ帳です</h2>
             </div>
             <div className="settings-list">
               <article>
-                <span>1. すぐ記録</span>
-                <p>右上の＋、または今日画面のボタンから、思いつきを短く残します。</p>
+                <span>1. メモを書く</span>
+                <p>右上の＋、または今日画面のボタンから、思いついたことを短く残します。</p>
               </article>
               <article>
                 <span>2. 次の一歩を決める</span>
-                <p>完璧な計画はいりません。「30秒試す」くらいの小さな行動で十分です。</p>
+                <p>必要なら「5分だけ試す」くらいの小さな行動を書いておけます。</p>
               </article>
               <article>
-                <span>3. 今日やったら完了</span>
-                <p>一覧や今日画面から「今日やった」を押すと、進んだ火種として残せます。</p>
+                <span>3. 完了にする</span>
+                <p>今日やったことは完了として残せます。あとで見返す時にも便利です。</p>
               </article>
               <article>
                 <span>保存について</span>
-                <p>記録はこの端末のブラウザ内に保存されます。アカウント登録は不要です。</p>
+                <p>メモはこの端末のブラウザ内に保存されます。アカウント登録は不要です。</p>
               </article>
             </div>
           </section>
         ) : null}
       </section>
 
-      <button className="floating-action" type="button" onClick={openRecord} aria-label="火種を記録する">＋</button>
+      <button className="floating-action" type="button" onClick={openRecord} aria-label="メモを書く">＋</button>
 
       <nav className="bottom-tabs" aria-label="アプリの画面切り替え">
         {tabs.map((tab) => (
@@ -177,8 +176,8 @@ export default function App() {
             <div className="sheet-handle" aria-hidden="true" />
             <div className="sheet-header">
               <div>
-                <p className="eyebrow">記録</p>
-                <h2 id="record-title">火種を残す</h2>
+                <p className="eyebrow">メモ</p>
+                <h2 id="record-title">メモを書く</h2>
               </div>
               <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる">×</button>
             </div>
