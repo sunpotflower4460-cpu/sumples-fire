@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FireCard } from './components/FireCard';
+import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireFilters } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
@@ -173,6 +174,7 @@ export default function App() {
               <h2>燃やして終わらせるタスク帳です</h2>
             </div>
             <div className="settings-list">
+              <FireComfortSettings totalTasks={stats.total} />
               <article>
                 <span>1. タスクを書く</span>
                 <p>やりたくないこと、先延ばししていることを短く書きます。</p>
