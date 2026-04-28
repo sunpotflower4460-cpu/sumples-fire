@@ -5,19 +5,21 @@ type FireStatsProps = {
     completed: number;
     high: number;
     flame: number;
+    burned: number;
+    totalAshPoints: number;
   };
 };
 
 const statItems = [
-  { key: 'total', label: '合計' },
-  { key: 'active', label: '進行中' },
-  { key: 'completed', label: '完了' },
+  { key: 'active', label: '未燃焼' },
+  { key: 'burned', label: '燃焼済み' },
   { key: 'high', label: '今日やる' },
+  { key: 'totalAshPoints', label: '炭' },
 ] as const;
 
 export function FireStats({ stats }: FireStatsProps) {
   return (
-    <section className="stats-grid" aria-label="メモの統計">
+    <section className="stats-grid" aria-label="Fireタスクの統計">
       {statItems.map((item) => (
         <div className="stat-card" key={item.key}>
           <span>{item.label}</span>
