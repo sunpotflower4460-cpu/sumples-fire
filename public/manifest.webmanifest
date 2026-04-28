@@ -1,7 +1,7 @@
 {
   "name": "Sumples Fire",
   "short_name": "Sumples",
-  "description": "小さなアイデアやタスクを火種として記録し、次の一歩まで育てるミニWebアプリ",
+  "description": "小さなメモを、今日の一歩に変えるシンプルなメモ帳アプリ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fff7ea",
