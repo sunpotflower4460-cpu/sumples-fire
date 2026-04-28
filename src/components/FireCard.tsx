@@ -1,3 +1,4 @@
+import { playFireSequence } from '../lib/fireSoundEngine';
 import type { FireSeed } from '../types/fireSeed';
 import { categoryLabels, difficultyLabels, levelLabels, priorityLabels, quadrantLabels, stageDescriptions, stageLabels } from '../types/fireSeed';
 
@@ -22,6 +23,10 @@ const stageProgress = {
 
 export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
+  const handleFire = () => {
+    void playFireSequence();
+    onFire(seed.id);
+  };
 
   return (
     <article className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''}`}>
@@ -60,7 +65,7 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         <span>{seed.burned ? `燃やした日 ${createdAt}` : `追加 ${createdAt}`}</span>
         <div className="card-actions">
           {!seed.burned ? (
-            <button type="button" className="fire-button" onClick={() => onFire(seed.id)} disabled={seed.isBurning}>
+            <button type="button" className="fire-button" onClick={handleFire} disabled={seed.isBurning}>
               {seed.isBurning ? 'Burning...' : 'Fire'}
             </button>
           ) : null}
