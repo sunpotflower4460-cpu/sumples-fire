@@ -1,6 +1,8 @@
 import { FormEvent, useState } from 'react';
-import type { FireCategory, FireDifficulty, FirePriority, FireStage } from '../types/fireSeed';
-import { categoryLabels, difficultyAshPoints, difficultyLabels, priorityLabels, stageLabels } from '../types/fireSeed';
+import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from '../types/fireSeed';
+import { categoryLabels, difficultyAshPoints, difficultyLabels, levelLabels, priorityLabels, stageLabels } from '../types/fireSeed';
+import { getQuadrant } from '../lib/fireSeedModel';
+import { quadrantLabels } from '../types/fireSeed';
 
 type FireFormProps = {
   onAddSeed: (input: {
@@ -11,6 +13,8 @@ type FireFormProps = {
     priority: FirePriority;
     stage: FireStage;
     difficulty: FireDifficulty;
+    urgency: FireLevel;
+    importance: FireLevel;
   }) => void;
 };
 
@@ -22,7 +26,11 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const [priority, setPriority] = useState<FirePriority>('medium');
   const [stage, setStage] = useState<FireStage>('spark');
   const [difficulty, setDifficulty] = useState<FireDifficulty>('normal');
+  const [urgency, setUrgency] = useState<FireLevel>('high');
+  const [importance, setImportance] = useState<FireLevel>('high');
   const [error, setError] = useState('');
+
+  const quadrant = getQuadrant(urgency, importance);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,7 +40,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       return;
     }
 
-    onAddSeed({ title, body, nextAction, category, priority, stage, difficulty });
+    onAddSeed({ title, body, nextAction, category, priority, stage, difficulty, urgency, importance });
     setTitle('');
     setBody('');
     setNextAction('');
@@ -40,6 +48,8 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     setPriority('medium');
     setStage('spark');
     setDifficulty('normal');
+    setUrgency('high');
+    setImportance('high');
     setError('');
   };
 
@@ -69,6 +79,30 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           placeholder="例：2分だけ文面を書く"
           maxLength={90}
         />
+      </div>
+
+      <div className="matrix-picker" aria-label="緊急度と重要度">
+        <div className="field-group compact-field">
+          <label htmlFor="seed-urgency">緊急度</label>
+          <select id="seed-urgency" value={urgency} onChange={(event) => setUrgency(event.target.value as FireLevel)}>
+            {Object.entries(levelLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field-group compact-field">
+          <label htmlFor="seed-importance">重要度</label>
+          <select id="seed-importance" value={importance} onChange={(event) => setImportance(event.target.value as FireLevel)}>
+            {Object.entries(levelLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <p className="matrix-result">自動分類：{quadrantLabels[quadrant]}</p>
       </div>
 
       <div className="field-group compact-field">
