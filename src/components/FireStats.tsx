@@ -28,6 +28,10 @@ export function FireStats({ stats }: FireStatsProps) {
           <strong>{stats[item.key]}</strong>
         </div>
       ))}
+      <div className="stat-card rank-stat-card">
+        <span>称号</span>
+        <strong>{stats.rank}</strong>
+      </div>
     </section>
   );
 }
