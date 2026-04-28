@@ -9,12 +9,12 @@ const filters: { value: FireFilter; label: string }[] = [
   { value: 'all', label: 'すべて' },
   { value: 'active', label: '未完了' },
   { value: 'completed', label: '完了' },
-  { value: 'high', label: '高温' },
+  { value: 'high', label: '今日やる' },
 ];
 
 export function FireFilters({ filter, onChangeFilter }: FireFiltersProps) {
   return (
-    <div className="filters" aria-label="火種フィルター">
+    <div className="filters" aria-label="メモの絞り込み">
       {filters.map((item) => (
         <button
           key={item.value}
