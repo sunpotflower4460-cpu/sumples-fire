@@ -4,8 +4,8 @@ import { FireFilters } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFireSeeds } from './hooks/useFireSeeds';
-import type { FireCategory, FireDifficulty, FirePriority, FireStage } from './types/fireSeed';
-import { categoryLabels, difficultyLabels, priorityLabels } from './types/fireSeed';
+import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from './types/fireSeed';
+import { categoryLabels, difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
 
@@ -17,6 +17,8 @@ type NewFireSeedInput = {
   priority: FirePriority;
   stage: FireStage;
   difficulty: FireDifficulty;
+  urgency: FireLevel;
+  importance: FireLevel;
 };
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
@@ -52,12 +54,18 @@ export default function App() {
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
   const activeTasks = filteredSeeds.filter((seed) => !seed.burned);
+  const matrixItems = [
+    { key: 'doNow', count: stats.doNow },
+    { key: 'schedule', count: stats.schedule },
+    { key: 'quickBurn', count: stats.quickBurn },
+    { key: 'backlog', count: stats.backlog },
+  ] as const;
 
   return (
     <main className="mobile-app-shell fire-mode">
       <header className="app-topbar">
         <div>
-          <p className="app-kicker">Sumples Fire</p>
+          <p className="app-kicker">Fire Task</p>
           <h1>{activeTab === 'today' ? '今日燃やす' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
         <button className="topbar-add" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
@@ -68,11 +76,11 @@ export default function App() {
       <section className="app-screen" aria-live="polite">
         {activeTab === 'today' ? (
           <div className="screen-stack">
-            <section className="brand-hero" aria-label="Sumples Fire の概要">
+            <section className="brand-hero" aria-label="Fire Task の概要">
               <div className="brand-mark" aria-hidden="true">火</div>
-              <p className="app-kicker">Sumples Fire</p>
+              <p className="app-kicker">Fire Task</p>
               <h2>嫌なタスクを、燃やして終わらせる。</h2>
-              <p>やりたくないことを書いて、終わったらFire。燃えたタスクは炭ポイントになります。</p>
+              <p>緊急度と重要度で自動整理。終わったらFireして、炭ポイントに変えます。</p>
               <button className="primary-button" type="button" onClick={openRecord}>＋ タスクを書く</button>
             </section>
 
@@ -80,6 +88,16 @@ export default function App() {
               <span>炭ポイント</span>
               <strong>{stats.totalAshPoints}</strong>
               <p>{stats.burned}個のタスクを燃やしました</p>
+            </section>
+
+            <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
+              {matrixItems.map((item) => (
+                <article key={item.key} className={`matrix-cell matrix-${item.key}`}>
+                  <span>{quadrantLabels[item.key]}</span>
+                  <strong>{item.count}</strong>
+                  <p>{quadrantDescriptions[item.key]}</p>
+                </article>
+              ))}
             </section>
 
             <section className="today-hero">
@@ -93,9 +111,11 @@ export default function App() {
                 <div>
                   <span>{categoryLabels[focusSeed.category]}</span>
                   <strong>{difficultyLabels[focusSeed.difficulty]} / +{focusSeed.ashPoints} 炭</strong>
-                  <small>{priorityLabels[focusSeed.priority]}</small>
+                  <small>{quadrantLabels[focusSeed.quadrant]} ・ {priorityLabels[focusSeed.priority]}</small>
                 </div>
-                <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)}>Fire</button>
+                <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning}>
+                  {focusSeed.isBurning ? 'Burning...' : 'Fire'}
+                </button>
               </section>
             ) : null}
 
@@ -103,8 +123,8 @@ export default function App() {
 
             <section className="panel app-panel compact-panel">
               <div className="section-heading">
-                <p className="eyebrow">未燃焼</p>
-                <h2>今日燃やすタスク</h2>
+                <p className="eyebrow">Matrix Sorted</p>
+                <h2>自動で並んだタスク</h2>
               </div>
               {hasTasks ? <FireFilters filter={filter} onChangeFilter={setFilter} /> : null}
               <div className="cards-stack">
@@ -158,8 +178,8 @@ export default function App() {
                 <p>やりたくないこと、先延ばししていることを短く書きます。</p>
               </article>
               <article>
-                <span>2. 終わらせる</span>
-                <p>全部を完璧にしなくても大丈夫。まずは最初の一歩だけ進めます。</p>
+                <span>2. 緊急度と重要度を決める</span>
+                <p>高低を選ぶだけで、Fire Taskが4象限に自動分類して並べます。</p>
               </article>
               <article>
                 <span>3. Fireする</span>
