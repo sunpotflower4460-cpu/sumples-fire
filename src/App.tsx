@@ -54,7 +54,7 @@ export default function App() {
       <header className="app-topbar">
         <div>
           <p className="app-kicker">Sumples Fire</p>
-          <h1>{tabs.find((tab) => tab.id === activeTab)?.label}</h1>
+          <h1>{activeTab === 'today' ? 'ホーム' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
         <button className="topbar-add" type="button" onClick={openRecord} aria-label="メモを書く">＋</button>
       </header>
@@ -64,17 +64,18 @@ export default function App() {
       <section className="app-screen" aria-live="polite">
         {activeTab === 'today' ? (
           <div className="screen-stack">
-            <section className="welcome-card">
-              <span>小さなメモを、今日の一歩に。</span>
-              <h2>思いついたことを、すぐ残せます。</h2>
-              <p>やること、曲の断片、暮らしのメモ。あとで見返して、次の一歩にできます。</p>
+            <section className="brand-hero" aria-label="Sumples Fire の概要">
+              <div className="brand-mark" aria-hidden="true">火</div>
+              <p className="app-kicker">Sumples Fire</p>
+              <h2>小さなメモを、今日の一歩に。</h2>
+              <p>思いつき、やること、曲の断片をすぐ残せるシンプルなメモ帳です。</p>
+              <button className="primary-button" type="button" onClick={openRecord}>＋ メモを書く</button>
             </section>
 
             <section className="today-hero">
               <p className="eyebrow">今日のメモ</p>
               <h2>{focusSeed?.title ?? 'まずはメモを書こう'}</h2>
               <p>{focusSeed?.nextAction || '例：今日やること、あとで試したいこと、曲や歌詞のアイデア。'}</p>
-              <button className="primary-button" type="button" onClick={openRecord}>＋ メモを書く</button>
             </section>
 
             {focusSeed ? (
@@ -146,7 +147,7 @@ export default function App() {
               </article>
               <article>
                 <span>保存について</span>
-                <p>メモはこの端末のブラウザ内に保存されます。アカウント登録は不要です。</p>
+                <p>メモはこの端末のブラウザ内に保存され、閉じて開き直しても残ります。アカウント登録は不要です。</p>
               </article>
             </div>
           </section>
