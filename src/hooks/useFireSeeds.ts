@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { burnSeed, getFireSeedStats, getFocusSeed, nowIso } from '../lib/fireSeedModel';
+import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
-import type { FireCategory, FireDifficulty, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
+import type { FireCategory, FireDifficulty, FireFilter, FireLevel, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
 type NewFireSeedInput = {
@@ -12,6 +12,8 @@ type NewFireSeedInput = {
   priority: FirePriority;
   stage: FireStage;
   difficulty: FireDifficulty;
+  urgency: FireLevel;
+  importance: FireLevel;
 };
 
 const getBrowserStorage = () => (typeof window === 'undefined' ? undefined : window.localStorage);
@@ -25,12 +27,13 @@ const createId = () => {
 };
 
 export function useFireSeeds() {
-  const [seeds, setSeeds] = useState<FireSeed[]>(() => loadStoredSeeds(getBrowserStorage()));
+  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(getBrowserStorage())));
   const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    const saved = saveStoredSeeds(getBrowserStorage(), seeds);
+    const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
+    const saved = saveStoredSeeds(getBrowserStorage(), persistedSeeds);
     if (!saved) {
       setNotice('この端末では保存できませんでした');
     }
@@ -44,6 +47,7 @@ export function useFireSeeds() {
 
   const addSeed = (input: NewFireSeedInput) => {
     const timestamp = nowIso();
+    const quadrant = getQuadrant(input.urgency, input.importance);
     const nextSeed: FireSeed = {
       id: createId(),
       title: input.title.trim(),
@@ -53,23 +57,30 @@ export function useFireSeeds() {
       priority: input.priority,
       stage: input.stage,
       difficulty: input.difficulty,
+      urgency: input.urgency,
+      importance: input.importance,
+      quadrant,
       ashPoints: difficultyAshPoints[input.difficulty],
       burned: false,
+      isBurning: false,
       completed: false,
       createdAt: timestamp,
       updatedAt: timestamp,
     };
 
-    setSeeds((current) => [nextSeed, ...current]);
+    setSeeds((current) => sortFireTasks([nextSeed, ...current]));
     setNotice('薪を追加しました');
   };
 
   const burnTask = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
-    if (!target || target.burned) return;
+    if (!target || target.burned || target.isBurning) return;
 
-    setSeeds((current) => current.map((seed) => (seed.id === id ? burnSeed(seed) : seed)));
-    setNotice(`Fire! +${target.ashPoints} 炭`);
+    setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
+    window.setTimeout(() => {
+      setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
+      setNotice(`Fire! +${target.ashPoints} 炭`);
+    }, 900);
   };
 
   const deleteSeed = (id: string) => {
@@ -84,15 +95,16 @@ export function useFireSeeds() {
   };
 
   const filteredSeeds = useMemo(() => {
+    const sorted = sortFireTasks(seeds);
     switch (filter) {
       case 'active':
-        return seeds.filter((seed) => !seed.burned);
+        return sorted.filter((seed) => !seed.burned);
       case 'burned':
-        return seeds.filter((seed) => seed.burned);
+        return sorted.filter((seed) => seed.burned);
       case 'today':
-        return seeds.filter((seed) => !seed.burned && seed.priority === 'high');
+        return sorted.filter((seed) => !seed.burned && seed.quadrant === 'doNow');
       default:
-        return seeds;
+        return sorted;
     }
   }, [filter, seeds]);
 
@@ -100,7 +112,7 @@ export function useFireSeeds() {
   const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
 
   return {
-    allSeeds: seeds,
+    allSeeds: sortFireTasks(seeds),
     filteredSeeds,
     filter,
     focusSeed,
