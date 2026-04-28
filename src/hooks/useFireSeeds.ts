@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getFireSeedStats, getFocusSeed, nowIso } from '../lib/fireSeedModel';
+import { burnSeed, getFireSeedStats, getFocusSeed, nowIso } from '../lib/fireSeedModel';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
-import type { FireCategory, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
+import type { FireCategory, FireDifficulty, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
+import { difficultyAshPoints } from '../types/fireSeed';
 
 type NewFireSeedInput = {
   title: string;
@@ -10,6 +11,7 @@ type NewFireSeedInput = {
   category: FireCategory;
   priority: FirePriority;
   stage: FireStage;
+  difficulty: FireDifficulty;
 };
 
 const getBrowserStorage = () => (typeof window === 'undefined' ? undefined : window.localStorage);
@@ -24,7 +26,7 @@ const createId = () => {
 
 export function useFireSeeds() {
   const [seeds, setSeeds] = useState<FireSeed[]>(() => loadStoredSeeds(getBrowserStorage()));
-  const [filter, setFilter] = useState<FireFilter>('all');
+  const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
@@ -50,36 +52,31 @@ export function useFireSeeds() {
       category: input.category,
       priority: input.priority,
       stage: input.stage,
+      difficulty: input.difficulty,
+      ashPoints: difficultyAshPoints[input.difficulty],
+      burned: false,
       completed: false,
       createdAt: timestamp,
       updatedAt: timestamp,
     };
 
     setSeeds((current) => [nextSeed, ...current]);
-    setNotice('保存しました');
+    setNotice('薪を追加しました');
   };
 
-  const toggleSeed = (id: string) => {
-    setSeeds((current) =>
-      current.map((seed) =>
-        seed.id === id
-          ? {
-              ...seed,
-              completed: !seed.completed,
-              stage: !seed.completed ? 'flame' : seed.stage,
-              updatedAt: nowIso(),
-            }
-          : seed,
-      ),
-    );
-    setNotice('更新しました');
+  const burnTask = (id: string) => {
+    const target = seeds.find((seed) => seed.id === id);
+    if (!target || target.burned) return;
+
+    setSeeds((current) => current.map((seed) => (seed.id === id ? burnSeed(seed) : seed)));
+    setNotice(`Fire! +${target.ashPoints} 炭`);
   };
 
   const deleteSeed = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
     if (!target) return;
 
-    const confirmed = window.confirm(`このメモを削除しますか？\n\n「${target.title}」\n\n削除すると元に戻せません。`);
+    const confirmed = window.confirm(`このタスクを削除しますか？\n\n「${target.title}」\n\n削除すると元に戻せません。`);
     if (!confirmed) return;
 
     setSeeds((current) => current.filter((seed) => seed.id !== id));
@@ -89,11 +86,11 @@ export function useFireSeeds() {
   const filteredSeeds = useMemo(() => {
     switch (filter) {
       case 'active':
-        return seeds.filter((seed) => !seed.completed);
-      case 'completed':
-        return seeds.filter((seed) => seed.completed);
-      case 'high':
-        return seeds.filter((seed) => seed.priority === 'high');
+        return seeds.filter((seed) => !seed.burned);
+      case 'burned':
+        return seeds.filter((seed) => seed.burned);
+      case 'today':
+        return seeds.filter((seed) => !seed.burned && seed.priority === 'high');
       default:
         return seeds;
     }
@@ -103,14 +100,15 @@ export function useFireSeeds() {
   const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
 
   return {
+    allSeeds: seeds,
     filteredSeeds,
     filter,
     focusSeed,
     notice,
     stats,
     addSeed,
+    burnTask,
     deleteSeed,
     setFilter,
-    toggleSeed,
   };
 }

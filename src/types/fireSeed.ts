@@ -4,7 +4,9 @@ export type FirePriority = 'low' | 'medium' | 'high';
 
 export type FireStage = 'spark' | 'kindling' | 'flame';
 
-export type FireFilter = 'all' | 'active' | 'completed' | 'high';
+export type FireDifficulty = 'small' | 'normal' | 'heavy' | 'boss';
+
+export type FireFilter = 'all' | 'active' | 'burned' | 'today';
 
 export type FireSeed = {
   id: string;
@@ -14,6 +16,10 @@ export type FireSeed = {
   category: FireCategory;
   priority: FirePriority;
   stage: FireStage;
+  difficulty: FireDifficulty;
+  ashPoints: number;
+  burned: boolean;
+  burnedAt?: string;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,13 +40,27 @@ export const priorityLabels: Record<FirePriority, string> = {
 };
 
 export const stageLabels: Record<FireStage, string> = {
-  spark: 'メモ',
-  kindling: '進行中',
-  flame: '完了',
+  spark: '未燃焼',
+  kindling: '準備中',
+  flame: '燃焼済み',
 };
 
 export const stageDescriptions: Record<FireStage, string> = {
-  spark: 'まずは忘れないように残した状態です。',
-  kindling: '少しずつ形にしている途中です。',
-  flame: '行動や作品につながった状態です。',
+  spark: 'まだ燃やしていないタスクです。',
+  kindling: '取りかかっている途中のタスクです。',
+  flame: '完了してFireしたタスクです。',
+};
+
+export const difficultyLabels: Record<FireDifficulty, string> = {
+  small: '軽い',
+  normal: '普通',
+  heavy: '重い',
+  boss: 'ラスボス',
+};
+
+export const difficultyAshPoints: Record<FireDifficulty, number> = {
+  small: 3,
+  normal: 5,
+  heavy: 10,
+  boss: 20,
 };

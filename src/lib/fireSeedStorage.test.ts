@@ -15,7 +15,7 @@ class MemoryStorage implements SeedStorage {
 }
 
 describe('fireSeedStorage', () => {
-  it('saves memos and loads them again after a new app session', () => {
+  it('saves tasks and loads them again after a new app session', () => {
     const storage = new MemoryStorage();
     const seeds = createSampleSeeds('2026-04-28T00:00:00.000Z');
 
@@ -23,11 +23,13 @@ describe('fireSeedStorage', () => {
 
     const reloaded = loadStoredSeeds(storage);
     expect(reloaded).toHaveLength(3);
-    expect(reloaded[0].title).toBe('最初の火種を書く');
-    expect(reloaded[1].nextAction).toBe('iPhone幅で追加、完了、削除を試す');
+    expect(reloaded[0].title).toBe('先延ばししていた返信をする');
+    expect(reloaded[1].nextAction).toBe('いらない紙を3枚捨てる');
+    expect(reloaded[2].burned).toBe(true);
+    expect(reloaded[2].ashPoints).toBe(20);
   });
 
-  it('returns an empty array when there is no saved memo data', () => {
+  it('returns an empty array when there is no saved task data', () => {
     const storage = new MemoryStorage();
 
     expect(loadStoredSeeds(storage)).toEqual([]);
