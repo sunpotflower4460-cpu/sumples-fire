@@ -1,5 +1,5 @@
 import type { FireSeed } from '../types/fireSeed';
-import { categoryLabels, difficultyLabels, priorityLabels, stageDescriptions, stageLabels } from '../types/fireSeed';
+import { categoryLabels, difficultyLabels, levelLabels, priorityLabels, quadrantLabels, stageDescriptions, stageLabels } from '../types/fireSeed';
 
 type FireCardProps = {
   seed: FireSeed;
@@ -24,13 +24,18 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
 
   return (
-    <article className={`fire-card ${seed.burned ? 'is-burned' : ''}`}>
+    <article className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''}`}>
       <div className="card-header">
         <div>
           <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
           <h3>{seed.title}</h3>
         </div>
         <span className={`priority priority-${seed.priority}`}>{seed.burned ? `+${seed.ashPoints} 炭` : priorityLabels[seed.priority]}</span>
+      </div>
+
+      <div className="matrix-badge" title="緊急度と重要度で自動分類しています">
+        <span>{quadrantLabels[seed.quadrant]}</span>
+        <small>緊急{levelLabels[seed.urgency]} / 重要{levelLabels[seed.importance]}</small>
       </div>
 
       <div className="stage-row" title={stageDescriptions[seed.stage]}>
@@ -49,15 +54,17 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         </div>
       ) : null}
 
+      {seed.isBurning ? <div className="burn-flame" aria-hidden="true"><i /><i /><i /></div> : null}
+
       <div className="card-footer">
         <span>{seed.burned ? `燃やした日 ${createdAt}` : `追加 ${createdAt}`}</span>
         <div className="card-actions">
           {!seed.burned ? (
-            <button type="button" className="fire-button" onClick={() => onFire(seed.id)}>
-              Fire
+            <button type="button" className="fire-button" onClick={() => onFire(seed.id)} disabled={seed.isBurning}>
+              {seed.isBurning ? 'Burning...' : 'Fire'}
             </button>
           ) : null}
-          <button type="button" className="danger-button" onClick={() => onDelete(seed.id)}>
+          <button type="button" className="danger-button" onClick={() => onDelete(seed.id)} disabled={seed.isBurning}>
             削除
           </button>
         </div>

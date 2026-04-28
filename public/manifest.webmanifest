@@ -1,7 +1,7 @@
 {
-  "name": "Sumples Fire",
-  "short_name": "Sumples",
-  "description": "小さなメモを、今日の一歩に変えるシンプルなメモ帳アプリ",
+  "name": "Fire Task",
+  "short_name": "Fire Task",
+  "description": "やりたくないタスクを、終わったらFireして炭ポイントに変えるタスクアプリ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fff7ea",

@@ -6,6 +6,10 @@ export type FireStage = 'spark' | 'kindling' | 'flame';
 
 export type FireDifficulty = 'small' | 'normal' | 'heavy' | 'boss';
 
+export type FireLevel = 'low' | 'high';
+
+export type FireMatrixQuadrant = 'doNow' | 'schedule' | 'quickBurn' | 'backlog';
+
 export type FireFilter = 'all' | 'active' | 'burned' | 'today';
 
 export type FireSeed = {
@@ -17,9 +21,13 @@ export type FireSeed = {
   priority: FirePriority;
   stage: FireStage;
   difficulty: FireDifficulty;
+  urgency: FireLevel;
+  importance: FireLevel;
+  quadrant: FireMatrixQuadrant;
   ashPoints: number;
   burned: boolean;
   burnedAt?: string;
+  isBurning?: boolean;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
@@ -63,4 +71,23 @@ export const difficultyAshPoints: Record<FireDifficulty, number> = {
   normal: 5,
   heavy: 10,
   boss: 20,
+};
+
+export const levelLabels: Record<FireLevel, string> = {
+  low: '低',
+  high: '高',
+};
+
+export const quadrantLabels: Record<FireMatrixQuadrant, string> = {
+  doNow: '今すぐ燃やす',
+  schedule: '大事に進める',
+  quickBurn: 'すぐ片付ける',
+  backlog: 'あとで燃やす',
+};
+
+export const quadrantDescriptions: Record<FireMatrixQuadrant, string> = {
+  doNow: '緊急度も重要度も高い、最優先でFireしたいタスクです。',
+  schedule: '重要だけど急ぎすぎなくていい、時間を取って進めるタスクです。',
+  quickBurn: '緊急だけど軽め。短時間で片付けてFireする候補です。',
+  backlog: '今すぐでなくていいタスク。余力がある時に燃やします。',
 };
