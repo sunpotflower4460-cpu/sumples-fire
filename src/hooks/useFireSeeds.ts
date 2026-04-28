@@ -1,11 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  createSampleSeeds,
-  getFireSeedStats,
-  getFocusSeed,
-  normalizeSeed,
-  nowIso,
-} from '../lib/fireSeedModel';
+import { getFireSeedStats, getFocusSeed, normalizeSeed, nowIso } from '../lib/fireSeedModel';
 import type { FireCategory, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 
 const STORAGE_KEY = 'sumples-fire-seeds-v2';
@@ -19,8 +13,6 @@ type NewFireSeedInput = {
   priority: FirePriority;
   stage: FireStage;
 };
-
-const sampleSeeds = createSampleSeeds();
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -42,13 +34,13 @@ const readStoredSeeds = (key: string): FireSeed[] | null => {
 
 const loadSeeds = (): FireSeed[] => {
   if (typeof window === 'undefined') {
-    return sampleSeeds;
+    return [];
   }
 
   try {
-    return readStoredSeeds(STORAGE_KEY) ?? readStoredSeeds(LEGACY_STORAGE_KEY) ?? sampleSeeds;
+    return readStoredSeeds(STORAGE_KEY) ?? readStoredSeeds(LEGACY_STORAGE_KEY) ?? [];
   } catch {
-    return sampleSeeds;
+    return [];
   }
 };
 
@@ -83,7 +75,7 @@ export function useFireSeeds() {
     };
 
     setSeeds((current) => [nextSeed, ...current]);
-    setNotice('火種を保存しました');
+    setNotice('保存しました');
   };
 
   const toggleSeed = (id: string) => {
@@ -99,27 +91,18 @@ export function useFireSeeds() {
           : seed,
       ),
     );
-    setNotice('状態を更新しました');
+    setNotice('更新しました');
   };
 
   const deleteSeed = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
     if (!target) return;
 
-    const confirmed = window.confirm(`「${target.title}」を削除しますか？`);
+    const confirmed = window.confirm(`このメモを削除しますか？\n\n「${target.title}」\n\n削除すると元に戻せません。`);
     if (!confirmed) return;
 
     setSeeds((current) => current.filter((seed) => seed.id !== id));
     setNotice('削除しました');
-  };
-
-  const resetSamples = () => {
-    const confirmed = window.confirm('現在のメモをサンプルに戻しますか？');
-    if (!confirmed) return;
-
-    setSeeds(createSampleSeeds());
-    setFilter('all');
-    setNotice('サンプルに戻しました');
   };
 
   const filteredSeeds = useMemo(() => {
@@ -146,7 +129,6 @@ export function useFireSeeds() {
     stats,
     addSeed,
     deleteSeed,
-    resetSamples,
     setFilter,
     toggleSeed,
   };
