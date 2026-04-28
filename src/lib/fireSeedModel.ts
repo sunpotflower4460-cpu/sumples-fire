@@ -130,8 +130,15 @@ export const getFireRank = (ashPoints: number) => {
 };
 
 export const getNextFireRank = (ashPoints: number) => {
-  const currentIndex = fireRanks.findLastIndex((rank) => ashPoints >= rank.min);
-  const currentRank = fireRanks[Math.max(currentIndex, 0)];
+  let currentIndex = 0;
+  for (let index = fireRanks.length - 1; index >= 0; index -= 1) {
+    if (ashPoints >= fireRanks[index].min) {
+      currentIndex = index;
+      break;
+    }
+  }
+
+  const currentRank = fireRanks[currentIndex];
   const nextRank = fireRanks[currentIndex + 1];
 
   if (!nextRank) {
