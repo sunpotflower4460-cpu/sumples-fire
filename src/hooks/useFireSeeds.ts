@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getFireSeedStats, getFocusSeed, normalizeSeed, nowIso } from '../lib/fireSeedModel';
+import { getFireSeedStats, getFocusSeed, nowIso } from '../lib/fireSeedModel';
+import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import type { FireCategory, FireFilter, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
-
-const STORAGE_KEY = 'sumples-fire-seeds-v2';
-const LEGACY_STORAGE_KEY = 'sumples-fire-seeds-v1';
 
 type NewFireSeedInput = {
   title: string;
@@ -14,6 +12,8 @@ type NewFireSeedInput = {
   stage: FireStage;
 };
 
+const getBrowserStorage = () => (typeof window === 'undefined' ? undefined : window.localStorage);
+
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -22,35 +22,16 @@ const createId = () => {
   return `seed-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
-const readStoredSeeds = (key: string): FireSeed[] | null => {
-  const raw = window.localStorage.getItem(key);
-  if (!raw) return null;
-
-  const parsed = JSON.parse(raw) as Partial<FireSeed>[];
-  if (!Array.isArray(parsed)) return null;
-
-  return parsed.map((seed, index) => normalizeSeed(seed, index));
-};
-
-const loadSeeds = (): FireSeed[] => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
-  try {
-    return readStoredSeeds(STORAGE_KEY) ?? readStoredSeeds(LEGACY_STORAGE_KEY) ?? [];
-  } catch {
-    return [];
-  }
-};
-
 export function useFireSeeds() {
-  const [seeds, setSeeds] = useState<FireSeed[]>(loadSeeds);
+  const [seeds, setSeeds] = useState<FireSeed[]>(() => loadStoredSeeds(getBrowserStorage()));
   const [filter, setFilter] = useState<FireFilter>('all');
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seeds));
+    const saved = saveStoredSeeds(getBrowserStorage(), seeds);
+    if (!saved) {
+      setNotice('この端末では保存できませんでした');
+    }
   }, [seeds]);
 
   useEffect(() => {
