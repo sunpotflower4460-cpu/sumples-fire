@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { playFireSequence } from '../lib/fireSoundEngine';
+import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import type { FireCategory, FireDifficulty, FireFilter, FireLevel, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
@@ -77,7 +78,9 @@ export function useFireSeeds() {
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.burned || target.isBurning) return;
 
-    void playFireSequence();
+    if (isFireSoundEnabled()) {
+      void playFireSequence();
+    }
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
