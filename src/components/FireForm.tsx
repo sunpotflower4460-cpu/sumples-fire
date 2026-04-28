@@ -51,7 +51,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
             setTitle(event.target.value);
             setError('');
           }}
-          placeholder="例：新しい曲のサビ案"
+          placeholder="例：明日やること"
           maxLength={60}
           autoFocus
         />
@@ -63,7 +63,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           id="seed-next-action"
           value={nextAction}
           onChange={(event) => setNextAction(event.target.value)}
-          placeholder="例：今日30秒だけ試す"
+          placeholder="例：5分だけ試す"
           maxLength={90}
         />
       </div>
@@ -72,7 +72,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         <summary>詳しく書く</summary>
 
         <div className="field-group">
-          <label htmlFor="seed-body">メモ</label>
+          <label htmlFor="seed-body">本文</label>
           <textarea
             id="seed-body"
             value={body}
@@ -130,7 +130,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       {error ? <p className="form-error">{error}</p> : null}
 
       <button className="primary-button" type="submit">
-        記録する
+        保存
       </button>
     </form>
   );
