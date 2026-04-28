@@ -7,13 +7,15 @@ type FireStatsProps = {
     flame: number;
     burned: number;
     totalAshPoints: number;
+    todayBurned: number;
+    rank: string;
   };
 };
 
 const statItems = [
   { key: 'active', label: '未燃焼' },
+  { key: 'todayBurned', label: '今日Fire' },
   { key: 'burned', label: '燃焼済み' },
-  { key: 'high', label: '今日やる' },
   { key: 'totalAshPoints', label: '炭' },
 ] as const;
 

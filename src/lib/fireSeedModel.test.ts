@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { burnSeed, createSampleSeeds, getFireSeedStats, getFocusSeed, normalizeSeed } from './fireSeedModel';
+import { burnSeed, createSampleSeeds, getFireRank, getFireSeedStats, getFocusSeed, normalizeSeed } from './fireSeedModel';
 import type { FireSeed } from '../types/fireSeed';
 
 const timestamp = '2026-04-26T00:00:00.000Z';
@@ -48,7 +48,7 @@ describe('fireSeedModel', () => {
     expect(burned.ashPoints).toBe(5);
   });
 
-  it('calculates Fire dashboard stats', () => {
+  it('calculates dashboard stats including rank and daily progress', () => {
     const seeds = createSampleSeeds(timestamp);
     const stats = getFireSeedStats(seeds);
 
@@ -59,5 +59,14 @@ describe('fireSeedModel', () => {
     expect(stats.flame).toBe(1);
     expect(stats.burned).toBe(1);
     expect(stats.totalAshPoints).toBe(20);
+    expect(stats.rank).toBe('火付け人');
+    expect(typeof stats.todayBurned).toBe('number');
+  });
+
+  it('returns rank labels by ash points', () => {
+    expect(getFireRank(0)).toBe('はじめの火花');
+    expect(getFireRank(15)).toBe('火付け人');
+    expect(getFireRank(120)).toBe('炎の職人');
+    expect(getFireRank(500)).toBe('灰の王');
   });
 });
