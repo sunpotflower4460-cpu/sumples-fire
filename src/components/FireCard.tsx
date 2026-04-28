@@ -53,7 +53,7 @@ export function FireCard({ seed, onToggle, onDelete }: FireCardProps) {
         <span>{createdAt}</span>
         <div className="card-actions">
           <button type="button" className="ghost-button" onClick={() => onToggle(seed.id)}>
-            {seed.completed ? '戻す' : '今日やった'}
+            {seed.completed ? '未完了に戻す' : '完了にする'}
           </button>
           <button type="button" className="danger-button" onClick={() => onDelete(seed.id)}>
             削除
