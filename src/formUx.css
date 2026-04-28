@@ -1,0 +1,126 @@
+.fire-form-fast {
+  gap: 16px;
+}
+
+.choice-section {
+  display: grid;
+  gap: 9px;
+}
+
+.choice-section > span {
+  color: #5c3b2e;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.two-choice {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.difficulty-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-button {
+  min-height: 68px;
+  border: 1px solid rgba(132, 64, 31, 0.13);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #3c241a;
+  padding: 12px 10px;
+  text-align: left;
+  box-shadow: 0 10px 24px rgba(108, 48, 14, 0.07);
+}
+
+.choice-button b {
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.choice-button small {
+  display: block;
+  margin-top: 7px;
+  color: #7a5b4a;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.choice-button.is-selected {
+  border-color: rgba(206, 50, 29, 0.36);
+  background:
+    radial-gradient(circle at 88% 16%, rgba(255, 210, 111, 0.46), transparent 3.7rem),
+    linear-gradient(145deg, #fff4df, #ffd7bf);
+  box-shadow: 0 14px 30px rgba(206, 50, 29, 0.16);
+}
+
+.choice-button.is-selected b {
+  color: #b7331c;
+}
+
+.fast-matrix-picker {
+  display: grid;
+  gap: 14px;
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(255, 250, 241, 0.96), rgba(255, 235, 210, 0.9));
+  padding: 14px;
+}
+
+.matrix-result-card {
+  border-radius: 20px;
+  background: #2c1710;
+  color: #fff7ea;
+  padding: 14px;
+  box-shadow: 0 14px 28px rgba(44, 23, 16, 0.18);
+}
+
+.matrix-result-card span {
+  color: #ffd28a;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.matrix-result-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.3rem;
+  letter-spacing: -0.04em;
+}
+
+.matrix-result-card p {
+  margin: 8px 0 0;
+  color: #ffe6c2;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.matrix-result-doNow {
+  background: linear-gradient(135deg, #3a130a, #b8321c);
+}
+
+.matrix-result-schedule {
+  background: linear-gradient(135deg, #3a2410, #9c641c);
+}
+
+.matrix-result-quickBurn {
+  background: linear-gradient(135deg, #35160b, #d65a24);
+}
+
+.matrix-result-backlog {
+  background: linear-gradient(135deg, #2d2621, #6d5a49);
+}
+
+@media (max-width: 380px) {
+  .two-choice,
+  .difficulty-choice-grid {
+    grid-template-columns: 1fr;
+  }
+}

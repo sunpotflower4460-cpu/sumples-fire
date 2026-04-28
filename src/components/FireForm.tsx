@@ -1,8 +1,16 @@
 import { FormEvent, useState } from 'react';
 import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from '../types/fireSeed';
-import { categoryLabels, difficultyAshPoints, difficultyLabels, levelLabels, priorityLabels, stageLabels } from '../types/fireSeed';
+import {
+  categoryLabels,
+  difficultyAshPoints,
+  difficultyLabels,
+  levelLabels,
+  priorityLabels,
+  quadrantDescriptions,
+  quadrantLabels,
+  stageLabels,
+} from '../types/fireSeed';
 import { getQuadrant } from '../lib/fireSeedModel';
-import { quadrantLabels } from '../types/fireSeed';
 
 type FireFormProps = {
   onAddSeed: (input: {
@@ -17,6 +25,18 @@ type FireFormProps = {
     importance: FireLevel;
   }) => void;
 };
+
+const levelOptions: { value: FireLevel; label: string; hint: string }[] = [
+  { value: 'high', label: '高', hint: '今日・今週中に燃やす' },
+  { value: 'low', label: '低', hint: '急ぎすぎなくていい' },
+];
+
+const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
+  { value: 'small', hint: '5分くらい' },
+  { value: 'normal', hint: '少し面倒' },
+  { value: 'heavy', hint: '腰が重い' },
+  { value: 'boss', hint: 'ラスボス級' },
+];
 
 export function FireForm({ onAddSeed }: FireFormProps) {
   const [title, setTitle] = useState('');
@@ -54,7 +74,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   };
 
   return (
-    <form className="fire-form" onSubmit={handleSubmit}>
+    <form className="fire-form fire-form-fast" onSubmit={handleSubmit}>
       <div className="field-group">
         <label htmlFor="seed-title">燃やしたいタスク</label>
         <input
@@ -81,40 +101,67 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         />
       </div>
 
-      <div className="matrix-picker" aria-label="緊急度と重要度">
-        <div className="field-group compact-field">
-          <label htmlFor="seed-urgency">緊急度</label>
-          <select id="seed-urgency" value={urgency} onChange={(event) => setUrgency(event.target.value as FireLevel)}>
-            {Object.entries(levelLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+      <section className="fast-matrix-picker" aria-label="緊急度と重要度">
+        <div className="choice-section">
+          <span>緊急度</span>
+          <div className="choice-grid two-choice">
+            {levelOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={urgency === option.value ? 'choice-button is-selected' : 'choice-button'}
+                onClick={() => setUrgency(option.value)}
+                aria-pressed={urgency === option.value}
+              >
+                <b>{levelLabels[option.value]}</b>
+                <small>{option.hint}</small>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
-        <div className="field-group compact-field">
-          <label htmlFor="seed-importance">重要度</label>
-          <select id="seed-importance" value={importance} onChange={(event) => setImportance(event.target.value as FireLevel)}>
-            {Object.entries(levelLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <p className="matrix-result">自動分類：{quadrantLabels[quadrant]}</p>
-      </div>
 
-      <div className="field-group compact-field">
-        <label htmlFor="seed-difficulty">重さ</label>
-        <select id="seed-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as FireDifficulty)}>
-          {Object.entries(difficultyLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label} / +{difficultyAshPoints[value as FireDifficulty]} 炭
-            </option>
+        <div className="choice-section">
+          <span>重要度</span>
+          <div className="choice-grid two-choice">
+            {levelOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={importance === option.value ? 'choice-button is-selected' : 'choice-button'}
+                onClick={() => setImportance(option.value)}
+                aria-pressed={importance === option.value}
+              >
+                <b>{levelLabels[option.value]}</b>
+                <small>{option.value === 'high' ? '大事・放置したくない' : '軽め・今は小さい'}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={`matrix-result-card matrix-result-${quadrant}`}>
+          <span>自動分類</span>
+          <strong>{quadrantLabels[quadrant]}</strong>
+          <p>{quadrantDescriptions[quadrant]}</p>
+        </div>
+      </section>
+
+      <section className="choice-section">
+        <span>重さ</span>
+        <div className="choice-grid difficulty-choice-grid">
+          {difficultyOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={difficulty === option.value ? 'choice-button is-selected' : 'choice-button'}
+              onClick={() => setDifficulty(option.value)}
+              aria-pressed={difficulty === option.value}
+            >
+              <b>{difficultyLabels[option.value]}</b>
+              <small>{option.hint} / +{difficultyAshPoints[option.value]} 炭</small>
+            </button>
           ))}
-        </select>
-      </div>
+        </div>
+      </section>
 
       <details className="advanced-fields">
         <summary>詳しく書く</summary>
