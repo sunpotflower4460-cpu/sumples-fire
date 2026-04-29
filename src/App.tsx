@@ -113,8 +113,8 @@ export default function App() {
                       <p className="eyebrow">次に燃やすもの</p>
                       <span className="focus-card-subtitle">{categoryLabels[focusSeed.category]} · {difficultyLabels[focusSeed.difficulty]} · +{focusSeed.ashPoints} 炭</span>
                     </div>
-                    <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning}>
-                      {focusSeed.isBurning ? 'Burning...' : 'Fire 🔥'}
+                    <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning} aria-label={focusSeed.isBurning ? '燃焼中' : 'このタスクをFireする'}>
+                      {focusSeed.isBurning ? '🔥 燃焼中' : 'Fire 🔥'}
                     </button>
                   </div>
                   <h2 className="focus-card-title">{focusSeed.title}</h2>
