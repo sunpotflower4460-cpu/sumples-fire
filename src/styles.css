@@ -105,6 +105,12 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   background: rgba(44, 23, 16, 0.92);
   color: #fff7ea;
   box-shadow: 0 18px 36px rgba(44, 23, 16, 0.18);
+  animation: toastSlideIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 .brand-hero {
@@ -670,6 +676,12 @@ input:focus, select:focus, textarea:focus {
   align-items: end;
   background: rgba(44, 23, 16, 0.28);
   backdrop-filter: blur(8px);
+  animation: backdropFadeIn 0.24s ease both;
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .record-sheet {
@@ -682,6 +694,12 @@ input:focus, select:focus, textarea:focus {
   border-radius: 28px 28px 0 0;
   background: #fffaf1;
   box-shadow: 0 -24px 60px rgba(44, 23, 16, 0.18);
+  animation: sheetSlideUp 0.38s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
 .sheet-handle {
@@ -716,6 +734,140 @@ input:focus, select:focus, textarea:focus {
   color: #a8261b;
   font-size: 1.35rem;
   font-weight: 900;
+}
+
+/* ===== FOCUS CARD (merged today-hero + quick-card) ===== */
+
+.focus-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid rgba(132, 64, 31, 0.13);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 22px 52px rgba(108, 48, 14, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.focus-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.focus-card-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #8a604b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.focus-card-title {
+  margin: 0 0 4px;
+  font-size: clamp(1.55rem, 8vw, 2.35rem);
+  letter-spacing: -0.065em;
+  line-height: 1.05;
+}
+
+.focus-next-action {
+  margin: 14px 0;
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: #fff7ea;
+}
+
+.focus-next-action span {
+  color: #b24a1d;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.focus-next-action p {
+  margin: 4px 0 0;
+  color: #3c241a;
+  font-weight: 800;
+}
+
+.focus-card-quadrant {
+  display: block;
+  margin-top: 10px;
+  color: #8a604b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.focus-card-complete {
+  display: grid;
+  gap: 12px;
+  place-items: center;
+  padding: 30px 22px;
+  text-align: center;
+}
+
+.focus-complete-mark {
+  font-size: 2.4rem;
+}
+
+.focus-card-complete h2 {
+  margin: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.05em;
+}
+
+.focus-card-complete p {
+  margin: 0;
+  color: #6e4c3d;
+}
+
+/* ===== MICRO-INTERACTIONS ===== */
+
+.floating-action {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+  .fire-card:not(.is-burned):not(.is-burning) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .fire-card:not(.is-burned):not(.is-burning):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 28px 60px rgba(108, 48, 14, 0.14);
+  }
+
+  .floating-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 42px rgba(206, 50, 29, 0.38);
+  }
+
+  .topbar-add:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(44, 23, 16, 0.26);
+  }
+}
+
+.topbar-add {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ===== REDUCED MOTION ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .sheet-backdrop,
+  .record-sheet {
+    animation: none;
+  }
+
+  .fire-card:not(.is-burned):not(.is-burning),
+  .floating-action,
+  .topbar-add {
+    transition: none;
+  }
 }
 
 @media (min-width: 760px) {

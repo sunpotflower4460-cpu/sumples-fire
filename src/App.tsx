@@ -77,50 +77,66 @@ export default function App() {
       <section className="app-screen" aria-live="polite">
         {activeTab === 'today' ? (
           <div className="screen-stack">
-            <section className="brand-hero" aria-label="Fire Task の概要">
-              <div className="brand-mark" aria-hidden="true">🔥</div>
-              <p className="app-kicker">Fire Task</p>
-              <h2>嫌なタスクを、燃やして終わらせる。</h2>
-              <p>緊急度と重要度で自動整理。終わったらFireして、炭ポイントに変えます。</p>
-              <button className="primary-button" type="button" onClick={openRecord}>＋ タスクを書く</button>
-            </section>
-
-            <section className="ash-score-card" aria-label="炭ポイント">
-              <span>炭ポイント</span>
-              <strong>{stats.totalAshPoints}</strong>
-              <p>{stats.burned}個のタスクを燃やしました</p>
-            </section>
-
-            <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
-              {matrixItems.map((item) => (
-                <article key={item.key} className={`matrix-cell matrix-${item.key}`}>
-                  <span>{quadrantLabels[item.key]}</span>
-                  <strong>{item.count}</strong>
-                  <p>{quadrantDescriptions[item.key]}</p>
-                </article>
-              ))}
-            </section>
-
-            <section className="today-hero">
-              <p className="eyebrow">次に燃やすもの</p>
-              <h2>{focusSeed?.title ?? '燃やしたいタスクを書こう'}</h2>
-              <p>{focusSeed?.nextAction || '例：返信する、片付ける、書類を出す。終わったらFireできます。'}</p>
-            </section>
-
-            {focusSeed ? (
-              <section className="quick-card">
-                <div>
-                  <span>{categoryLabels[focusSeed.category]}</span>
-                  <strong>{difficultyLabels[focusSeed.difficulty]} / +{focusSeed.ashPoints} 炭</strong>
-                  <small>{quadrantLabels[focusSeed.quadrant]} ・ {priorityLabels[focusSeed.priority]}</small>
-                </div>
-                <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning}>
-                  {focusSeed.isBurning ? 'Burning...' : 'Fire'}
-                </button>
+            {!hasTasks ? (
+              <section className="brand-hero" aria-label="Fire Task の概要">
+                <div className="brand-mark" aria-hidden="true">🔥</div>
+                <p className="app-kicker">Fire Task</p>
+                <h2>嫌なタスクを、燃やして終わらせる。</h2>
+                <p>緊急度と重要度で自動整理。終わったらFireして、炭ポイントに変えます。</p>
+                <button className="primary-button" type="button" onClick={openRecord}>＋ タスクを書く</button>
               </section>
+            ) : (
+              <>
+                <section className="ash-score-card" aria-label="炭ポイント">
+                  <span>炭ポイント</span>
+                  <strong>{stats.totalAshPoints}</strong>
+                  <p>{stats.burned}個のタスクを燃やしました</p>
+                </section>
+
+                <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
+                  {matrixItems.map((item) => (
+                    <article key={item.key} className={`matrix-cell matrix-${item.key}`}>
+                      <span>{quadrantLabels[item.key]}</span>
+                      <strong>{item.count}</strong>
+                      <p>{quadrantDescriptions[item.key]}</p>
+                    </article>
+                  ))}
+                </section>
+              </>
+            )}
+
+            {hasTasks ? (
+              focusSeed ? (
+                <section className="focus-card" aria-label="次に燃やすタスク">
+                  <div className="focus-card-top">
+                    <div>
+                      <p className="eyebrow">次に燃やすもの</p>
+                      <span className="focus-card-subtitle">{categoryLabels[focusSeed.category]} · {difficultyLabels[focusSeed.difficulty]} · +{focusSeed.ashPoints} 炭</span>
+                    </div>
+                    <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning}>
+                      {focusSeed.isBurning ? 'Burning...' : 'Fire 🔥'}
+                    </button>
+                  </div>
+                  <h2 className="focus-card-title">{focusSeed.title}</h2>
+                  {focusSeed.nextAction ? (
+                    <div className="focus-next-action">
+                      <span>最初の一歩</span>
+                      <p>{focusSeed.nextAction}</p>
+                    </div>
+                  ) : null}
+                  <small className="focus-card-quadrant">{quadrantLabels[focusSeed.quadrant]} · {priorityLabels[focusSeed.priority]}</small>
+                </section>
+              ) : (
+                <section className="focus-card focus-card-complete" aria-label="全タスク完了">
+                  <div className="focus-complete-mark" aria-hidden="true">✨</div>
+                  <h2>今日のタスクを全部燃やした！</h2>
+                  <p>お疲れ様でした。次のタスクを追加できます。</p>
+                  <button className="primary-button" type="button" onClick={openRecord}>＋ タスクを書く</button>
+                </section>
+              )
             ) : null}
 
-            <FireStats stats={stats} />
+            {hasTasks ? <FireStats stats={stats} /> : null}
 
             <section className="panel app-panel compact-panel">
               <div className="section-heading">
