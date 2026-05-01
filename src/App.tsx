@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BurningRitual } from './components/BurningRitual';
+import { AshLegacy } from './components/AshLegacy';
 import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
 import { FireComfortSettings } from './components/FireComfortSettings';
@@ -311,28 +312,10 @@ export default function App() {
         {activeTab === 'ash' ? (
           <section className="panel app-panel">
             <div className="section-heading">
-              <p className="eyebrow">Ash Log</p>
-              <h2>燃やしたタスク</h2>
+              <p className="eyebrow">Ash Legacy</p>
+              <h2>炭の遺産</h2>
             </div>
-            <section className="ash-score-card compact-ash" aria-label="炭ポイント合計">
-              <span>合計</span>
-              <strong>{stats.totalAshPoints} 炭</strong>
-              <p>{stats.burned}個完了</p>
-            </section>
-            <div className="cards-stack">
-              {burnedTasks.length > 0 ? (
-                burnedTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} />)
-              ) : (
-                <div className="empty-state useful-empty ash-empty">
-                  <div className="ash-empty-icon" aria-hidden="true">🌑</div>
-                  <div className="useful-empty-header">
-                    <p>まだ炭はありません。</p>
-                    <span>タスクを終わらせてFireすると、ここに炭として残ります。</span>
-                  </div>
-                  <button className="primary-button" type="button" onClick={() => setActiveTab('today')}>今日のタスクを見る</button>
-                </div>
-              )}
-            </div>
+            <AshLegacy seeds={burnedTasks} onDelete={deleteSeed} />
           </section>
         ) : null}
 

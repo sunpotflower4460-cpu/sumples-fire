@@ -12,7 +12,7 @@ import {
   titleVariants,
 } from '../lib/specialVariants';
 import type { FireSeed } from '../types/fireSeed';
-import { useBurnSequence } from '../hooks/useBurnSequence';
+import { useBurnSequence, useFireParticles } from '../hooks/useBurnSequence';
 
 type BurningRitualProps = {
   seed: FireSeed;
@@ -29,14 +29,23 @@ const phaseLabels: Record<string, string> = {
 export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRitualProps) {
   const { phase, scope, triggerBurn, shouldReduceMotion } = useBurnSequence();
 
+  const variantConfig = specialVariantConfigs[spectacle.type];
+  const isSpecial = spectacle.isSpecial;
+
+  const { particles, burst } = useFireParticles(variantConfig.particleCount);
+
   // Start the burn sequence as soon as the overlay mounts.
   useEffect(() => {
     void triggerBurn();
     // triggerBurn is stable after mount (useCallback with no runtime-changing deps)
   }, [triggerBurn]);
 
-  const variantConfig = specialVariantConfigs[spectacle.type];
-  const isSpecial = spectacle.isSpecial;
+  // Burst JS particles at the complete phase for all spectacle types.
+  useEffect(() => {
+    if (phase === 'complete' && !shouldReduceMotion) {
+      burst();
+    }
+  }, [phase, shouldReduceMotion, burst]);
 
   const flameStyle = {
     '--flame-a':         spectacle.flameColorA,
@@ -129,6 +138,52 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
             </motion.div>
           ) : null}
         </AnimatePresence>
+      ) : null}
+
+      {/* ── JS-driven particle burst (complete phase) ── */}
+      {particles.length > 0 ? (
+        <div
+          className="ritual-particle-burst"
+          aria-hidden="true"
+          style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 15 }}
+        >
+          {particles.map((p) => {
+            const rad = (p.angle * Math.PI) / 180;
+            const dist = (55 + p.size * 10) * variantConfig.burstScale;
+            const dx = Math.sin(rad) * dist;
+            const dy = -(Math.abs(Math.cos(rad)) * dist + 30);
+            return (
+              <motion.div
+                key={p.id}
+                style={{
+                  position: 'absolute',
+                  left: `${p.x}%`,
+                  bottom: '44%',
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  borderRadius: '50%',
+                  background: spectacle.particleColor,
+                  boxShadow: `0 0 ${p.size * 2}px ${spectacle.particleShadow}`,
+                }}
+                initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
+                animate={{
+                  opacity: [0, 1, 0.85, 0],
+                  x: [0, dx * 0.55, dx],
+                  y: [0, dy * 0.55, dy],
+                  scale: [1, 1.15, 0.55],
+                }}
+                transition={{
+                  duration: 0.95 + p.size * 0.05,
+                  delay: p.delay / 1000,
+                  ease: 'easeOut',
+                  // fast initial burst (0–40%) then slower fade-out (40–100%)
+                  times: [0, 0.4, 1],
+                }}
+                aria-hidden="true"
+              />
+            );
+          })}
+        </div>
       ) : null}
 
       {/* ── Central stage ── */}
