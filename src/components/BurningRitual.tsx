@@ -82,7 +82,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
             <p className="ritual-ash-message">{spectacle.message}</p>
           </div>
         ) : (
-          <p className="ritual-difficulty">{spectacle.label}で燃焼中</p>
+          <p className="ritual-difficulty">{phase === 'ignition' ? `${spectacle.label}が宿る…` : `${spectacle.label}で燃焼中`}</p>
         )}
       </div>
 

@@ -169,13 +169,15 @@ export const spectacles: Record<BurnSpectacleType, BurnSpectacle> = {
 };
 
 const weightedRandom = (weights: [BurnSpectacleType, number][]): BurnSpectacleType => {
-  const total = weights.reduce((sum, [, w]) => sum + w, 0);
+  const positiveWeights = weights.filter(([, w]) => w > 0);
+  if (positiveWeights.length === 0) return weights[0][0];
+  const total = positiveWeights.reduce((sum, [, w]) => sum + w, 0);
   let r = Math.random() * total;
-  for (const [type, weight] of weights) {
+  for (const [type, weight] of positiveWeights) {
+    if (r < weight) return type;
     r -= weight;
-    if (r <= 0) return type;
   }
-  return weights[weights.length - 1][0];
+  return positiveWeights[positiveWeights.length - 1][0];
 };
 
 export const selectBurnSpectacle = (difficulty: FireDifficulty, streak: number): BurnSpectacle => {

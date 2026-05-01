@@ -108,6 +108,7 @@ const cravingCopies = [
 ];
 
 export const getDailyCravingCopy = (): string => {
-  const dayOfYear = Math.floor(Date.now() / 86_400_000);
+  const yearStart = new Date(new Date().getFullYear(), 0, 1).getTime();
+  const dayOfYear = Math.floor((Date.now() - yearStart) / 86_400_000);
   return cravingCopies[dayOfYear % cravingCopies.length];
 };
