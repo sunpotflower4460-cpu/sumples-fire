@@ -29,20 +29,24 @@ export function FireStats({ stats }: FireStatsProps) {
 
   return (
     <section className="stats-grid" aria-label="Fireタスクの統計">
+      <div className="stat-card rank-stat-card">
+        <span>現在の称号</span>
+        <strong>{stats.rank}</strong>
+        <small>{rankMessage}</small>
+        <div className="rank-progress" aria-label="称号の進捗">
+          <div className="rank-progress-track" aria-hidden="true">
+            <div className="rank-progress-fill" style={{ width: `${stats.rankProgress}%` }} />
+          </div>
+          <span className="rank-progress-value" aria-hidden="true">{Math.round(stats.rankProgress)}%</span>
+        </div>
+      </div>
+
       {statItems.map((item) => (
-        <div className="stat-card" key={item.key}>
+        <div className={`stat-card ${item.key === 'totalAshPoints' ? 'is-highlight' : ''}`} key={item.key}>
           <span>{item.label}</span>
           <strong>{stats[item.key]}</strong>
         </div>
       ))}
-      <div className="stat-card rank-stat-card">
-        <span>称号</span>
-        <strong>{stats.rank}</strong>
-        <div className="rank-progress-track" aria-hidden="true">
-          <div className="rank-progress-fill" style={{ width: `${stats.rankProgress}%` }} />
-        </div>
-        <small>{rankMessage}</small>
-      </div>
     </section>
   );
 }

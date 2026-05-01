@@ -6,7 +6,7 @@ import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from './types/fireSeed';
-import { categoryLabels, difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
+import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
 
