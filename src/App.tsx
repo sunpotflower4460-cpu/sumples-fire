@@ -4,6 +4,7 @@ import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireFilters } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
+import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
@@ -34,6 +35,7 @@ export default function App() {
   const [draftTitle, setDraftTitle] = useState('');
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const topbarAddRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const {
     addSeed,
     allSeeds,
@@ -87,6 +89,12 @@ export default function App() {
     { key: 'quickBurn', count: stats.quickBurn },
     { key: 'backlog', count: stats.backlog },
   ] as const;
+
+  // Update document title to reflect the active tab
+  useEffect(() => {
+    const tab = tabs.find((t) => t.id === activeTab);
+    document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
+  }, [activeTab]);
 
   useEffect(() => {
     if (!isRecordOpen) return;
@@ -288,7 +296,7 @@ export default function App() {
 
       {isRecordOpen ? (
         <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
-          <section className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
+          <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
             <div className="sheet-handle" aria-hidden="true" />
             <div className="sheet-header">
               <div>

@@ -43,7 +43,7 @@ export function useFireSeeds() {
 
   useEffect(() => {
     if (!notice) return;
-    const timer = window.setTimeout(() => setNotice(''), 2400);
+    const timer = window.setTimeout(() => setNotice(''), 3200);
     return () => window.clearTimeout(timer);
   }, [notice]);
 

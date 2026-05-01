@@ -1,5 +1,5 @@
 import type { FireSeed } from '../types/fireSeed';
-import { categoryLabels, difficultyLabels, levelLabels, priorityLabels, quadrantLabels, stageDescriptions, stageLabels } from '../types/fireSeed';
+import { categoryLabels, difficultyLabels, levelLabels, priorityLabels, quadrantLabels, stageLabels } from '../types/fireSeed';
 
 type FireCardProps = {
   seed: FireSeed;
@@ -40,12 +40,12 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         <span className={`priority priority-${seed.priority}`}>{seed.burned ? `+${seed.ashPoints} 炭` : priorityLabels[seed.priority]}</span>
       </div>
 
-      <div className="matrix-badge" title="緊急度と重要度で自動分類しています">
+      <div className="matrix-badge" aria-label={`分類: 緊急${levelLabels[seed.urgency]} / 重要${levelLabels[seed.importance]}`}>
         <span>{quadrantLabels[seed.quadrant]}</span>
         <small>緊急{levelLabels[seed.urgency]} / 重要{levelLabels[seed.importance]}</small>
       </div>
 
-      <div className="stage-row" title={stageDescriptions[seed.stage]}>
+      <div className="stage-row">
         <span>{seed.burned ? `${difficultyLabels[seed.difficulty]}タスクをFire済み` : `${stageLabels[seed.stage]} / ${difficultyLabels[seed.difficulty]} +${seed.ashPoints} 炭`}</span>
         <div className="stage-track" aria-hidden="true">
           <div className={`stage-fill stage-${seed.stage}`} style={{ width: `${stageProgress[seed.stage]}%` }} />

@@ -33,7 +33,14 @@ export function FireStats({ stats }: FireStatsProps) {
         <span>現在の称号</span>
         <strong>{stats.rank}</strong>
         <small>{rankMessage}</small>
-        <div className="rank-progress" aria-label="称号の進捗">
+        <div
+          className="rank-progress"
+          role="progressbar"
+          aria-label="称号の進捗"
+          aria-valuenow={Math.round(stats.rankProgress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div className="rank-progress-track" aria-hidden="true">
             <div className="rank-progress-fill" style={{ width: `${stats.rankProgress}%` }} />
           </div>
