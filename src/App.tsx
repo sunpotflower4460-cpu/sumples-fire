@@ -75,7 +75,7 @@ export default function App() {
     closeRecord();
     setActiveTab('today');
     setQuadrantFilter(null);
-    setNewSeedId(id ?? null);
+    setNewSeedId(id);
     window.setTimeout(() => setNewSeedId(null), 600);
   };
 
