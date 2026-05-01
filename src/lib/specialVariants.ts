@@ -10,15 +10,15 @@ export type SpecialVariantConfig = {
 };
 
 export const specialVariantConfigs: Record<BurnSpectacleType, SpecialVariantConfig> = {
-  normal:      { titleGlow: 'drop-shadow(0 0 20px rgba(255,100,30,0.8))',   particleCount: 20, burstScale: 1.0 },
-  blueGhost:   { titleGlow: 'drop-shadow(0 0 24px rgba(50,160,255,0.9))',   particleCount: 30, burstScale: 1.2 },
-  golden:      { titleGlow: 'drop-shadow(0 0 28px rgba(255,220,50,0.95))',  particleCount: 40, burstScale: 1.3 },
-  explosion:   { titleGlow: 'drop-shadow(0 0 32px rgba(255,80,20,0.95))',   particleCount: 60, burstScale: 1.8 },
-  dragon:      { titleGlow: 'drop-shadow(0 0 30px rgba(180,60,255,0.9))',   particleCount: 50, burstScale: 1.6 },
-  cherry:      { titleGlow: 'drop-shadow(0 0 22px rgba(230,130,180,0.85))', particleCount: 35, burstScale: 1.1 },
-  ironFire:    { titleGlow: 'drop-shadow(0 0 26px rgba(100,180,255,0.9))',  particleCount: 30, burstScale: 1.2 },
-  voidFire:    { titleGlow: 'drop-shadow(0 0 28px rgba(160,50,240,0.88))',  particleCount: 35, burstScale: 1.3 },
-  phoenixRise: { titleGlow: 'drop-shadow(0 0 40px rgba(255,200,50,0.99))',  particleCount: 80, burstScale: 2.0 },
+  normal:      { titleGlow: 'drop-shadow(0 0 18px rgba(255,107,0,0.75))',    particleCount: 32, burstScale: 1.0 },
+  blueGhost:   { titleGlow: 'drop-shadow(0 0 22px rgba(50,160,255,0.88))',   particleCount: 36, burstScale: 1.2 },
+  golden:      { titleGlow: 'drop-shadow(0 0 26px rgba(232,185,35,0.92))',   particleCount: 44, burstScale: 1.3 },
+  explosion:   { titleGlow: 'drop-shadow(0 0 30px rgba(255,107,0,0.92))',    particleCount: 55, burstScale: 1.7 },
+  dragon:      { titleGlow: 'drop-shadow(0 0 28px rgba(180,60,255,0.88))',   particleCount: 50, burstScale: 1.5 },
+  cherry:      { titleGlow: 'drop-shadow(0 0 20px rgba(230,130,180,0.82))',  particleCount: 38, burstScale: 1.1 },
+  ironFire:    { titleGlow: 'drop-shadow(0 0 24px rgba(100,180,255,0.88))',  particleCount: 34, burstScale: 1.2 },
+  voidFire:    { titleGlow: 'drop-shadow(0 0 26px rgba(160,50,240,0.85))',   particleCount: 38, burstScale: 1.3 },
+  phoenixRise: { titleGlow: 'drop-shadow(0 0 36px rgba(232,185,35,0.98))',   particleCount: 80, burstScale: 1.9 },
 };
 
 /** Overlay entrance / exit (managed by AnimatePresence in App.tsx) */
@@ -37,7 +37,8 @@ export const titleVariants: Variants = {
   ignite: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.4, ease: BURN_EASE },
+    // Slightly longer entrance supports the quiet tension of the ignite phase
+    transition: { duration: 0.45, ease: BURN_EASE },
   },
   burning: {
     opacity: 0.95,
@@ -45,14 +46,14 @@ export const titleVariants: Variants = {
     transition: { ...FIRE_SPRING },
   },
   carbonizing: {
-    opacity: 0.65,
-    scale: 0.97,
-    transition: { duration: 0.7, ease: CARBONIZE_EASE },
+    opacity: 0.6,
+    scale: 0.96,
+    transition: { duration: 0.85, ease: CARBONIZE_EASE },
   },
   complete: {
-    opacity: 0.5,
-    scale: 0.93,
-    transition: { duration: 0.5, ease: CARBONIZE_EASE },
+    opacity: 0.45,
+    scale: 0.92,
+    transition: { duration: 0.65, ease: CARBONIZE_EASE },
   },
 };
 

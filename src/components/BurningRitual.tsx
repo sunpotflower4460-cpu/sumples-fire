@@ -21,9 +21,9 @@ type BurningRitualProps = {
 
 const phaseLabels: Record<string, string> = {
   ignite:      '着火',
-  burning:     '燃焼中',
-  carbonizing: '炭化中',
-  complete:    '炭化完了',
+  burning:     '燃焼',
+  carbonizing: '収束',
+  complete:    '解放',
 };
 
 export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRitualProps) {

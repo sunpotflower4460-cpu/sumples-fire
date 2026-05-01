@@ -8,9 +8,9 @@
   position: relative;
   border-radius: 32px;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,90,15,0.1) 0%, transparent 70%),
-    linear-gradient(160deg, rgba(28,14,6,0.96), rgba(18,9,4,0.98));
-  border: 1px solid rgba(255,130,50,0.14);
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,107,0,0.08) 0%, transparent 70%),
+    linear-gradient(160deg, rgba(20,22,22,0.96), rgba(14,16,16,0.98));
+  border: 1px solid rgba(255,107,0,0.12);
   padding: 24px 20px 20px;
   overflow: hidden;
   display: grid;
@@ -27,12 +27,12 @@
 }
 
 /* ── Stage glow colors ── */
-.campfire-stage-0 { --campfire-glow: rgba(255,80,20,0.06); }
-.campfire-stage-1 { --campfire-glow: rgba(255,100,30,0.10); }
-.campfire-stage-2 { --campfire-glow: rgba(255,120,40,0.15); }
-.campfire-stage-3 { --campfire-glow: rgba(255,160,50,0.20); }
-.campfire-stage-4 { --campfire-glow: rgba(255,200,60,0.26); }
-.campfire-stage-5 { --campfire-glow: rgba(255,240,100,0.32); }
+.campfire-stage-0 { --campfire-glow: rgba(255,107,0,0.05); }
+.campfire-stage-1 { --campfire-glow: rgba(255,107,0,0.09); }
+.campfire-stage-2 { --campfire-glow: rgba(255,107,0,0.14); }
+.campfire-stage-3 { --campfire-glow: rgba(255,154,61,0.20); }
+.campfire-stage-4 { --campfire-glow: rgba(232,185,35,0.26); }
+.campfire-stage-5 { --campfire-glow: rgba(232,185,35,0.34); }
 
 /* ── Visual area ── */
 .campfire-visual {
@@ -110,28 +110,28 @@
 /* Core flame colors per stage */
 .campfire-stage-0 .campfire-flame,
 .campfire-stage-1 .campfire-flame {
-  --flame-a: rgba(160,35,10,0.95);
-  --flame-b: rgba(220,80,20,0.9);
-  --flame-c: rgba(255,200,60,0.65);
+  --flame-a: rgba(159,42,42,0.95);
+  --flame-b: rgba(201,50,29,0.9);
+  --flame-c: rgba(255,154,61,0.62);
 }
 
 .campfire-stage-2 .campfire-flame,
 .campfire-stage-3 .campfire-flame {
-  --flame-a: rgba(160,35,10,0.98);
-  --flame-b: rgba(240,100,25,0.95);
-  --flame-c: rgba(255,230,80,0.78);
+  --flame-a: rgba(159,42,42,0.98);
+  --flame-b: rgba(255,107,0,0.95);
+  --flame-c: rgba(232,185,35,0.75);
 }
 
 .campfire-stage-4 .campfire-flame {
-  --flame-a: rgba(150,60,5,0.98);
-  --flame-b: rgba(230,160,20,0.95);
-  --flame-c: rgba(255,248,140,0.85);
+  --flame-a: rgba(130,55,5,0.98);
+  --flame-b: rgba(220,150,15,0.95);
+  --flame-c: rgba(255,240,120,0.82);
 }
 
 .campfire-stage-5 .campfire-flame {
-  --flame-a: rgba(160,100,5,0.98);
-  --flame-b: rgba(230,200,30,0.95);
-  --flame-c: rgba(255,255,180,0.9);
+  --flame-a: rgba(140,90,5,0.98);
+  --flame-b: rgba(220,185,25,0.95);
+  --flame-c: rgba(255,252,160,0.88);
 }
 
 /* Flame positions */
@@ -158,8 +158,8 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fffab0, var(--particle, #ffaa30));
-  box-shadow: 0 0 5px 2px var(--particle-shadow, rgba(255,168,40,0.8));
+  background: radial-gradient(circle at 35% 30%, #ffe494, var(--particle, #ff9a3d));
+  box-shadow: 0 0 5px 2px var(--particle-shadow, rgba(232,185,35,0.7));
   will-change: transform, opacity;
   animation: campfireEmberRise var(--dur, 1.0s) cubic-bezier(0.2,0.8,0.4,1) var(--del, 0s) infinite;
 }
@@ -207,14 +207,14 @@
 .campfire-stage-name {
   font-size: 0.88rem;
   font-weight: 900;
-  color: rgba(255,200,80,0.85);
+  color: rgba(232,185,35,0.85);
   letter-spacing: 0.04em;
 }
 
 .campfire-next-hint {
   font-size: 0.74rem;
   font-weight: 700;
-  color: rgba(255,200,80,0.45);
+  color: rgba(232,185,35,0.42);
 }
 
 /* ── Streak display ── */
@@ -224,8 +224,8 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(255,247,234,0.06);
-  border: 1px solid rgba(255,130,50,0.14);
+  background: rgba(28, 37, 38, 0.75);
+  border: 1px solid rgba(255,107,0,0.12);
   width: fit-content;
 }
 
@@ -240,7 +240,7 @@
   font-weight: 900;
   letter-spacing: -0.06em;
   line-height: 1;
-  background: linear-gradient(135deg, #ffe880, #ffc23a, #ff9840);
+  background: linear-gradient(135deg, #ffe494, #e8b923, #ff9a3d);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -249,7 +249,7 @@
 .streak-label {
   font-size: 0.8rem;
   font-weight: 900;
-  color: rgba(255,220,100,0.7);
+  color: rgba(232,185,35,0.68);
 }
 
 .streak-momentum-badge {
@@ -259,9 +259,9 @@
   font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.06em;
-  background: linear-gradient(135deg, rgba(255,160,30,0.25), rgba(255,80,20,0.2));
-  border: 1px solid rgba(255,140,30,0.3);
-  color: rgba(255,220,100,0.85);
+  background: linear-gradient(135deg, rgba(255,154,61,0.22), rgba(255,107,0,0.16));
+  border: 1px solid rgba(255,107,0,0.26);
+  color: rgba(232,185,35,0.85);
 }
 
 /* Streak state enhancements */
@@ -270,15 +270,15 @@
 .streak-state-blazing .streak-flame-icon  { animation: streakFlameBlaze 0.7s ease-in-out infinite; }
 
 .streak-state-momentum .campfire-streak {
-  border-color: rgba(255,160,50,0.28);
-  background: rgba(255,200,80,0.1);
-  box-shadow: 0 0 20px rgba(255,150,30,0.15);
+  border-color: rgba(255,107,0,0.26);
+  background: rgba(255,154,61,0.1);
+  box-shadow: 0 0 18px rgba(255,107,0,0.12);
 }
 
 .streak-state-blazing .campfire-streak {
-  border-color: rgba(255,220,80,0.4);
-  background: rgba(255,230,100,0.14);
-  box-shadow: 0 0 32px rgba(255,200,40,0.25);
+  border-color: rgba(232,185,35,0.38);
+  background: rgba(232,185,35,0.12);
+  box-shadow: 0 0 28px rgba(232,185,35,0.2);
   animation: streakBlazeGlow 1.6s ease-in-out infinite;
 }
 
@@ -287,13 +287,13 @@
   margin: 0;
   font-size: 0.88rem;
   font-weight: 800;
-  color: rgba(255,200,80,0.55);
+  color: rgba(232,185,35,0.52);
   font-style: italic;
   letter-spacing: 0.02em;
 }
 
 .has-pending .campfire-craving-copy {
-  color: rgba(255,220,100,0.72);
+  color: rgba(232,185,35,0.72);
   animation: cravingFade 3s ease-in-out infinite;
 }
 
@@ -305,18 +305,18 @@
 .burning-ritual .ritual-flames i {
   background: linear-gradient(
     to top,
-    var(--flame-a, rgba(160,35,10,0.98)) 0%,
-    var(--flame-b, rgba(230,85,22,0.95)) 28%,
-    rgba(255,145,38,0.88) 50%,
-    var(--flame-c, rgba(255,215,75,0.72)) 74%,
-    rgba(255,252,160,0.3) 92%,
+    var(--flame-a, rgba(159,42,42,0.98)) 0%,
+    var(--flame-b, rgba(255,107,0,0.94)) 28%,
+    rgba(255,154,61,0.85) 50%,
+    var(--flame-c, rgba(255,220,100,0.68)) 74%,
+    rgba(255,240,160,0.28) 92%,
     transparent 100%
   );
 }
 
 .burning-ritual .ritual-embers i {
-  background: radial-gradient(circle at 35% 30%, #fffab0, var(--particle, #ffaa30));
-  box-shadow: 0 0 6px 2px var(--particle-shadow, rgba(255,170,40,0.85));
+  background: radial-gradient(circle at 35% 30%, #ffe494, var(--particle, #ff9a3d));
+  box-shadow: 0 0 6px 2px var(--particle-shadow, rgba(232,185,35,0.8));
 }
 
 .burning-ritual.is-special .ritual-bg {
@@ -341,15 +341,15 @@
   font-weight: 900;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255,220,100,0.8);
+  color: rgba(232,185,35,0.8);
 }
 
 .spectacle-type-name {
   font-size: 1.8rem;
   font-weight: 900;
   letter-spacing: -0.04em;
-  color: var(--particle, #ffcc40);
-  text-shadow: 0 0 30px var(--bg-glow, rgba(255,200,40,0.5)), 0 0 60px var(--bg-glow, rgba(255,150,30,0.3));
+  color: var(--particle, #e8b923);
+  text-shadow: 0 0 28px var(--bg-glow, rgba(232,185,35,0.45)), 0 0 55px var(--bg-glow, rgba(255,154,61,0.25));
 }
 
 /* ── Spectacle burst particles (for special effects) ── */
