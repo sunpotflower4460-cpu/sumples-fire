@@ -27,6 +27,11 @@ button, input, select, textarea, summary { font: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }
 
+:focus-visible {
+  outline: 3px solid rgba(239, 122, 42, 0.42);
+  outline-offset: 3px;
+}
+
 .mobile-app-shell {
   position: relative;
   display: grid;
@@ -89,6 +94,71 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .screen-stack {
   display: grid;
   gap: 14px;
+}
+
+.focus-seed {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(132, 64, 31, 0.12);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 22px 54px rgba(108, 48, 14, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.focus-seed .section-heading h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 8.2vw, 2.4rem);
+  letter-spacing: -0.065em;
+  line-height: 1.05;
+}
+
+.focus-next-action {
+  padding: 14px;
+  border-radius: 20px;
+  border-left: 4px solid rgba(242, 111, 47, 0.7);
+  background: rgba(255, 247, 234, 0.9);
+}
+
+.focus-next-action span {
+  color: #b24a1d;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.focus-next-action p {
+  margin: 6px 0 0;
+  color: #2c1710;
+  font-weight: 900;
+}
+
+.focus-hint {
+  margin: 0;
+  color: #6e4c3d;
+  font-weight: 700;
+}
+
+.focus-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.focus-meta span {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(255, 247, 234, 0.9);
+  color: #6e4c3d;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.focus-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .toast {
@@ -308,6 +378,30 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   gap: 7px;
 }
 
+.form-helper {
+  margin: 0;
+  color: #7b5948;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.field-meta {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  color: #8b6655;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.field-hint { color: #7b5948; font-weight: 700; }
+
+.char-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
 .field-group label {
   color: #5c3b2e;
   font-size: 0.9rem;
@@ -364,6 +458,19 @@ input:focus, select:focus, textarea:focus {
   color: #a8261b;
   font-size: 0.9rem;
   font-weight: 800;
+}
+
+.submit-row {
+  display: grid;
+  gap: 8px;
+}
+
+.submit-hint {
+  margin: 0;
+  color: #8b6655;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
 }
 
 .primary-button, .ghost-button, .danger-button, .filter-button, .tab-button, .fire-button {
@@ -438,6 +545,18 @@ input:focus, select:focus, textarea:focus {
   background: #2c1710;
   color: #fff;
   box-shadow: 0 12px 24px rgba(44, 23, 16, 0.16);
+}
+
+.idea-button {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  text-align: left;
+  padding: 0;
+  font-weight: 800;
+  color: inherit;
 }
 
 .cards-stack { display: grid; gap: 12px; }
@@ -578,6 +697,10 @@ input:focus, select:focus, textarea:focus {
   font-weight: 800;
 }
 
+.useful-empty li:has(.idea-button:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(239, 122, 42, 0.16);
+}
+
 .ash-empty { min-height: 220px; }
 
 .settings-panel { display: grid; align-content: start; gap: 18px; }
@@ -716,6 +839,20 @@ input:focus, select:focus, textarea:focus {
   color: #a8261b;
   font-size: 1.35rem;
   font-weight: 900;
+}
+
+@media (max-width: 380px) {
+  .focus-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burn-flames i,
+  .burn-embers i,
+  .burn-glow,
+  .ash-reward-pop {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 @media (min-width: 760px) {
