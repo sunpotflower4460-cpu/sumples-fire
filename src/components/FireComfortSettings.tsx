@@ -29,8 +29,9 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
         type="button"
         onClick={handleToggleSound}
         aria-pressed={soundEnabled}
+        aria-label={soundEnabled ? 'Fireの音をOFFにする' : 'Fireの音をONにする'}
       >
-        音 {soundEnabled ? 'ON' : 'OFF'}
+        {soundEnabled ? '🔊 音あり' : '🔇 消音'}
       </button>
       <div className="storage-note">
         <b>保存</b>
