@@ -204,19 +204,23 @@ export default function App() {
                   activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
                 ) : (
                   <div className="empty-state useful-empty">
-                    <p>まだ燃やすタスクがありません</p>
-                    <span>おすすめ:</span>
-                    <ul>
-                      {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
-                        <li key={idea}>
-                          <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
-                            {idea}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
-                  </div>
+                <div className="empty-state-icon" aria-hidden="true">🪵</div>
+                <div className="useful-empty-header">
+                  <p>薪（タスク）をくべよう！</p>
+                  <span>燃やしたいことを1つだけ書いてみましょう</span>
+                </div>
+                <span>おすすめ:</span>
+                <ul>
+                  {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
+                    <li key={idea}>
+                      <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
+                        {idea}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
+              </div>
                 )}
               </div>
             </section>
@@ -239,8 +243,11 @@ export default function App() {
                 burnedTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
               ) : (
                 <div className="empty-state useful-empty ash-empty">
-                  <p>まだ炭はありません。</p>
-                  <span>タスクを終わらせてFireすると、ここに炭として残ります。</span>
+                  <div className="ash-empty-icon" aria-hidden="true">🌑</div>
+                  <div className="useful-empty-header">
+                    <p>まだ炭はありません。</p>
+                    <span>タスクを終わらせてFireすると、<br />ここに炭として残ります。</span>
+                  </div>
                   <button className="primary-button" type="button" onClick={() => setActiveTab('today')}>今日のタスクを見る</button>
                 </div>
               )}
