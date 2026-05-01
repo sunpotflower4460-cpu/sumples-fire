@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { BurningRitual } from './components/BurningRitual';
 import { FireCard } from './components/FireCard';
 import { FireComfortSettings } from './components/FireComfortSettings';
+import { FireConfirmModal } from './components/FireConfirmModal';
 import { FireFilters } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import { warmUpFireSound } from './lib/fireSoundEngine';
-import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireStage } from './types/fireSeed';
+import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireSeed, FireStage } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
@@ -36,6 +38,7 @@ export default function App() {
   const [draftTitle, setDraftTitle] = useState('');
   const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
+  const [pendingBurnSeed, setPendingBurnSeed] = useState<FireSeed | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const topbarAddRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
@@ -84,6 +87,23 @@ export default function App() {
     openRecord();
   };
 
+  const requestBurn = (id: string) => {
+    const target = allSeeds.find((seed) => seed.id === id);
+    if (!target || target.burned || target.isBurning) return;
+    setPendingBurnSeed(target);
+  };
+
+  const handleConfirmBurn = () => {
+    if (!pendingBurnSeed) return;
+    const id = pendingBurnSeed.id;
+    setPendingBurnSeed(null);
+    burnTask(id);
+  };
+
+  const handleCancelBurn = () => {
+    setPendingBurnSeed(null);
+  };
+
   const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
     setActiveTab('today');
     setFilter('active');
@@ -108,6 +128,7 @@ export default function App() {
 
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
+  const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
   const activeTasks = useMemo(() => {
     const base = filteredSeeds.filter((seed) => !seed.burned);
     return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
@@ -201,7 +222,7 @@ export default function App() {
                   <span>{priorityLabels[focusSeed.priority]}</span>
                 </div>
                 <div className="focus-actions">
-                  <button className="fire-button" type="button" onClick={() => burnTask(focusSeed.id)} disabled={focusSeed.isBurning}>
+                  <button className="fire-button" type="button" onClick={() => requestBurn(focusSeed.id)} disabled={focusSeed.isBurning}>
                     {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
                   </button>
                   <button className="ghost-button" type="button" onClick={openRecord}>タスクを追加</button>
@@ -249,7 +270,7 @@ export default function App() {
               ) : null}
               <div className="cards-stack">
                 {activeTasks.length > 0 ? (
-                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
+                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
                 ) : (
                   <div className="empty-state useful-empty">
                 <div className="empty-state-icon" aria-hidden="true">🪵</div>
@@ -288,7 +309,7 @@ export default function App() {
             </section>
             <div className="cards-stack">
               {burnedTasks.length > 0 ? (
-                burnedTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
+                burnedTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} />)
               ) : (
                 <div className="empty-state useful-empty ash-empty">
                   <div className="ash-empty-icon" aria-hidden="true">🌑</div>
@@ -370,6 +391,16 @@ export default function App() {
           </section>
         </div>
       ) : null}
+
+      {pendingBurnSeed ? (
+        <FireConfirmModal
+          seed={pendingBurnSeed}
+          onConfirm={handleConfirmBurn}
+          onCancel={handleCancelBurn}
+        />
+      ) : null}
+
+      {burningTask ? <BurningRitual seed={burningTask} /> : null}
     </main>
   );
 }
