@@ -15,13 +15,14 @@ const filters: { value: FireFilter; label: string }[] = [
 
 export function FireFilters({ filter, counts, onChangeFilter }: FireFiltersProps) {
   return (
-    <div className="filters" aria-label="タスクの絞り込み">
+    <div className="filters" role="group" aria-label="タスクの絞り込み">
       {filters.map((item) => (
         <button
           key={item.value}
           type="button"
           className={filter === item.value ? 'filter-button is-active' : 'filter-button'}
           onClick={() => onChangeFilter(item.value)}
+          aria-pressed={filter === item.value}
         >
           {item.label} {counts[item.value]}
         </button>
