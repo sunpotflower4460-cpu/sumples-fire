@@ -13,22 +13,22 @@
   display: grid;
   gap: 4px;
   text-align: center;
-  padding: 22px 20px 18px;
+  padding: 28px 20px 22px;
   border-radius: 28px;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 90%, rgba(100, 50, 20, 0.22), transparent 65%),
-    linear-gradient(160deg, rgba(22, 12, 5, 0.98), rgba(14, 8, 4, 0.96));
-  border: 1px solid rgba(80, 50, 30, 0.3);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    radial-gradient(ellipse 80% 60% at 50% 90%, rgba(28, 37, 38, 0.5), transparent 65%),
+    linear-gradient(160deg, rgba(12, 14, 14, 0.98), rgba(8, 10, 10, 0.97));
+  border: 1px solid rgba(255, 107, 0, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.62);
 }
 
 .ash-legacy-total-label {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 900;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(255, 200, 80, 0.5);
+  color: rgba(232, 185, 35, 0.45);
 }
 
 .ash-legacy-total-points {
@@ -36,36 +36,36 @@
   font-weight: 900;
   letter-spacing: -0.07em;
   line-height: 1;
-  background: linear-gradient(135deg, #fff6a8, #ffc040, #ff8020);
+  background: linear-gradient(135deg, #ffe494, #e8b923, #ff9a3d);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(255, 170, 40, 0.35));
+  filter: drop-shadow(0 0 16px rgba(232, 185, 35, 0.28));
 }
 
 .ash-legacy-count {
   margin: 4px 0 0;
   font-size: 0.84rem;
-  color: rgba(255, 247, 234, 0.48);
+  color: rgba(245, 232, 211, 0.42);
   font-weight: 700;
 }
 
 /* ── Charcoal mosaic ── */
 .ash-charcoal-mosaic {
-  padding: 16px;
+  padding: 18px 16px;
   border-radius: 22px;
-  background: linear-gradient(160deg, rgba(14, 8, 4, 0.97), rgba(22, 12, 6, 0.94));
-  border: 1px solid rgba(55, 32, 16, 0.32);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(160deg, rgba(10, 12, 12, 0.98), rgba(14, 16, 16, 0.95));
+  border: 1px solid rgba(28, 37, 38, 0.7);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.52);
 }
 
 .ash-mosaic-label {
-  margin: 0 0 10px;
-  font-size: 0.68rem;
+  margin: 0 0 12px;
+  font-size: 0.66rem;
   font-weight: 900;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(255, 200, 80, 0.38);
+  color: rgba(232, 185, 35, 0.32);
 }
 
 .ash-mosaic-grid {
@@ -88,38 +88,38 @@
 .ash-coal-tile.coal-heavy  { width: 24px; height: 16px; }
 .ash-coal-tile.coal-boss   { width: 32px; height: 20px; }
 
-/* Charcoal gradients */
+/* Charcoal gradients — cool tones based on Charcoal #1c2526 */
 .ash-coal-tile {
-  background: linear-gradient(145deg, #1a0c06, #2a1709, #1a0c06);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(145deg, #0e1010, #1c2526, #0e1010);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.65);
 }
 
-.ash-coal-tile.coal-small  { box-shadow: 0 1px 4px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04); }
-.ash-coal-tile.coal-normal { box-shadow: 0 2px 6px rgba(0,0,0,0.58), inset 0 1px 0 rgba(255,255,255,0.05); }
+.ash-coal-tile.coal-small  { box-shadow: 0 1px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.03); }
+.ash-coal-tile.coal-normal { box-shadow: 0 2px 6px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.04); }
 
 .ash-coal-tile.coal-heavy {
-  background: linear-gradient(145deg, #200e05, #331807, #200e05);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.52), inset 0 0 8px rgba(110,45,12,0.45), 0 0 5px rgba(100,40,10,0.12);
+  background: linear-gradient(145deg, #141818, #222e30, #141818);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.56), inset 0 0 8px rgba(28,37,38,0.6), 0 0 5px rgba(40,55,56,0.14);
 }
 
 .ash-coal-tile.coal-boss {
-  background: linear-gradient(145deg, #280a03, #3e1406, #1e0803);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 0 10px rgba(160,48,12,0.55), 0 0 8px rgba(150,45,10,0.2);
+  background: linear-gradient(145deg, #181c1c, #263435, #181c1c);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.54), inset 0 0 10px rgba(28,37,38,0.7), 0 0 8px rgba(50,70,72,0.24);
 }
 
 /* Most recent tile glows */
 .ash-mosaic-grid .ash-coal-tile.is-newest {
-  --newest-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 14px rgba(255,90,20,0.3), inset 0 0 8px rgba(210,75,18,0.55);
+  --newest-shadow: 0 2px 8px rgba(0,0,0,0.55), 0 0 14px rgba(255,107,0,0.26), inset 0 0 8px rgba(201,50,29,0.45);
   box-shadow: var(--newest-shadow);
-  animation: ashTileGlow 2.4s ease-in-out infinite;
+  animation: ashTileGlow 2.6s ease-in-out infinite;
 }
 
 .ash-mosaic-empty {
   margin: 0;
   font-size: 0.8rem;
-  color: rgba(255, 247, 234, 0.3);
+  color: rgba(245, 232, 211, 0.28);
   font-style: italic;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* ── Compact ash record list ── */
@@ -133,16 +133,16 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 10px;
-  padding: 11px 14px;
+  padding: 12px 14px;
   border-radius: 18px;
-  background: linear-gradient(145deg, rgba(18, 10, 5, 0.96), rgba(26, 14, 7, 0.92));
-  border: 1px solid rgba(55, 32, 16, 0.26);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  background: rgba(28, 37, 38, 0.75);
+  border: 1px solid rgba(28, 37, 38, 0.5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ash-record-card:hover {
-  border-color: rgba(90, 50, 22, 0.42);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38), 0 0 12px rgba(70, 35, 12, 0.14);
+  border-color: rgba(255, 107, 0, 0.18);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 .ash-record-main {
@@ -155,7 +155,7 @@
   margin: 0;
   font-size: 0.9rem;
   font-weight: 800;
-  color: rgba(255, 247, 234, 0.68);
+  color: rgba(245, 232, 211, 0.72);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -173,7 +173,7 @@
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: -0.02em;
-  color: #ffc23a;
+  color: #e8b923;
 }
 
 .ash-record-difficulty {
@@ -181,14 +181,14 @@
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 999px;
-  background: rgba(255, 247, 234, 0.06);
-  color: rgba(255, 247, 234, 0.44);
-  border: 1px solid rgba(255, 247, 234, 0.07);
+  background: rgba(28, 37, 38, 0.7);
+  color: rgba(245, 232, 211, 0.42);
+  border: 1px solid rgba(28, 37, 38, 0.5);
 }
 
 .ash-record-date {
   font-size: 0.68rem;
-  color: rgba(255, 247, 234, 0.28);
+  color: rgba(245, 232, 211, 0.26);
   white-space: nowrap;
 }
 
@@ -197,7 +197,7 @@
   border-radius: 999px;
   background: transparent;
   border: none;
-  color: rgba(255, 110, 80, 0.38);
+  color: rgba(220, 130, 130, 0.35);
   font-size: 0.88rem;
   line-height: 1;
   cursor: pointer;
@@ -206,31 +206,31 @@
 }
 
 .ash-record-delete:hover {
-  color: rgba(255, 140, 110, 0.75);
-  background: rgba(200, 50, 30, 0.1);
+  color: rgba(230, 150, 150, 0.72);
+  background: rgba(159, 42, 42, 0.12);
 }
 
 /* Difficulty-specific card accents */
 .ash-record-card.is-heavy {
-  border-color: rgba(75, 40, 18, 0.34);
+  border-color: rgba(40, 50, 52, 0.5);
 }
 
 .ash-record-card.is-heavy .ash-record-title {
-  color: rgba(255, 247, 234, 0.78);
+  color: rgba(245, 232, 211, 0.82);
 }
 
 .ash-record-card.is-boss {
-  background: linear-gradient(145deg, rgba(22, 8, 4, 0.97), rgba(32, 12, 5, 0.94));
-  border-color: rgba(100, 40, 15, 0.38);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 8px rgba(100, 35, 10, 0.12);
+  background: rgba(28, 37, 38, 0.85);
+  border-color: rgba(50, 65, 66, 0.6);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 .ash-record-card.is-boss .ash-record-title {
-  color: rgba(255, 247, 234, 0.88);
+  color: rgba(245, 232, 211, 0.9);
 }
 
 .ash-record-card.is-boss .ash-record-points {
-  color: #ffd060;
+  color: #e8b923;
 }
 
 /* ══════════════════════════
@@ -238,8 +238,8 @@
    ══════════════════════════ */
 
 @keyframes ashTileGlow {
-  0%, 100% { box-shadow: var(--newest-shadow, 0 2px 8px rgba(0,0,0,0.5), 0 0 14px rgba(255,90,20,0.3), inset 0 0 8px rgba(210,75,18,0.55)); }
-  50%       { box-shadow: 0 2px 10px rgba(0,0,0,0.45), 0 0 22px rgba(255,120,30,0.42), inset 0 0 12px rgba(230,90,22,0.7); }
+  0%, 100% { box-shadow: var(--newest-shadow, 0 2px 8px rgba(0,0,0,0.55), 0 0 14px rgba(255,107,0,0.26), inset 0 0 8px rgba(201,50,29,0.45)); }
+  50%       { box-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 22px rgba(255,107,0,0.38), inset 0 0 12px rgba(201,50,29,0.62); }
 }
 
 /* ── Reduced motion ── */

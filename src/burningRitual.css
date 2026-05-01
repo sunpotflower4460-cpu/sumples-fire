@@ -19,32 +19,32 @@
 .ritual-bg {
   position: absolute;
   inset: 0;
-  background: #060300;
-  transition: background 0.4s ease;
+  background: #080808;
+  transition: background 0.5s ease;
 }
 
 .ritual-phase-ignition .ritual-bg,
 .ritual-phase-ignite .ritual-bg {
   background:
-    radial-gradient(ellipse 120% 80% at 50% 115%, rgba(255, 220, 80, 0.55) 0%, rgba(255, 110, 20, 0.45) 22%, rgba(160, 30, 8, 0.3) 44%, transparent 65%),
-    #070400;
-  animation: ritualIgnitionFlash 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    radial-gradient(ellipse 120% 80% at 50% 115%, rgba(255, 200, 70, 0.45) 0%, rgba(255, 107, 0, 0.38) 22%, rgba(159, 42, 42, 0.25) 44%, transparent 65%),
+    #080808;
+  animation: ritualIgnitionFlash 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .ritual-phase-burning .ritual-bg {
   background:
-    radial-gradient(ellipse 140% 100% at 50% 120%, rgba(255, 90, 15, 0.38) 0%, rgba(180, 40, 10, 0.26) 38%, transparent 62%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255, 150, 30, 0.22), transparent 50%),
-    #060300;
+    radial-gradient(ellipse 140% 100% at 50% 120%, rgba(255, 107, 0, 0.32) 0%, rgba(159, 42, 42, 0.22) 38%, transparent 62%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255, 154, 61, 0.18), transparent 50%),
+    #080808;
 }
 
 .ritual-phase-ash .ritual-bg,
 .ritual-phase-carbonizing .ritual-bg,
 .ritual-phase-complete .ritual-bg {
   background:
-    radial-gradient(ellipse 100% 70% at 50% 110%, rgba(80, 45, 25, 0.3) 0%, transparent 55%),
-    #050302;
-  transition: background 0.8s ease;
+    radial-gradient(ellipse 100% 70% at 50% 110%, rgba(60, 50, 35, 0.25) 0%, transparent 55%),
+    #060606;
+  transition: background 0.9s ease;
 }
 
 /* ── Stage (title + reward) ── */
@@ -61,20 +61,20 @@
 
 .ritual-phase-label {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 900;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(255, 200, 80, 0.75);
-  animation: ritualLabelFade 0.35s ease both;
+  color: rgba(232, 185, 35, 0.72);
+  animation: ritualLabelFade 0.38s ease both;
 }
 
 .ritual-phase-ignition .ritual-phase-label,
-.ritual-phase-ignite      .ritual-phase-label { color: rgba(255, 230, 120, 0.9); }
-.ritual-phase-burning     .ritual-phase-label { color: rgba(255, 160, 50, 0.85); }
+.ritual-phase-ignite      .ritual-phase-label { color: rgba(255, 220, 100, 0.85); }
+.ritual-phase-burning     .ritual-phase-label { color: rgba(255, 154, 61, 0.82); }
 .ritual-phase-ash         .ritual-phase-label,
 .ritual-phase-carbonizing .ritual-phase-label,
-.ritual-phase-complete    .ritual-phase-label { color: rgba(200, 160, 100, 0.7); }
+.ritual-phase-complete    .ritual-phase-label { color: rgba(232, 185, 35, 0.65); }
 
 .ritual-title {
   margin: 0;
@@ -82,25 +82,25 @@
   font-weight: 900;
   letter-spacing: -0.05em;
   line-height: 1.05;
-  color: #fff7ea;
-  text-shadow: 0 0 40px rgba(255, 120, 30, 0.6);
-  animation: ritualTitleAppear 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  color: #f5e8d3;
+  text-shadow: 0 0 36px rgba(255, 107, 0, 0.5);
+  animation: ritualTitleAppear 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .ritual-phase-burning .ritual-title {
-  color: rgba(255, 247, 234, 0.92);
+  color: rgba(245, 232, 211, 0.92);
   text-shadow:
-    0 0 20px rgba(255, 100, 30, 0.8),
-    0 0 60px rgba(255, 60, 10, 0.45);
-  animation: ritualTitleBurn 0.75s ease both;
+    0 0 18px rgba(255, 107, 0, 0.75),
+    0 0 52px rgba(255, 107, 0, 0.38);
+  animation: ritualTitleBurn 0.8s ease both;
 }
 
 .ritual-phase-ash .ritual-title,
 .ritual-phase-carbonizing .ritual-title,
 .ritual-phase-complete .ritual-title {
-  color: rgba(200, 170, 140, 0.72);
-  text-shadow: 0 0 12px rgba(100, 60, 30, 0.5);
-  transition: color 0.8s ease, text-shadow 0.8s ease;
+  color: rgba(180, 160, 130, 0.68);
+  text-shadow: 0 0 10px rgba(80, 60, 40, 0.45);
+  transition: color 0.9s ease, text-shadow 0.9s ease;
 }
 
 /* ── Title wrapper — hosts SVG displacement filter ── */
@@ -110,9 +110,9 @@
 
 .ritual-difficulty {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 800;
-  color: rgba(255, 200, 100, 0.55);
+  color: rgba(232, 185, 35, 0.52);
   letter-spacing: 0.06em;
 }
 
@@ -128,11 +128,11 @@
   align-items: baseline;
   gap: 6px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 12px 26px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(255, 200, 60, 0.14), rgba(255, 130, 30, 0.1));
-  border: 1px solid rgba(255, 200, 60, 0.28);
-  box-shadow: 0 0 32px rgba(255, 160, 40, 0.2);
+  background: linear-gradient(135deg, rgba(232, 185, 35, 0.12), rgba(255, 107, 0, 0.08));
+  border: 1px solid rgba(232, 185, 35, 0.26);
+  box-shadow: 0 0 28px rgba(232, 185, 35, 0.16);
 }
 
 .ritual-ash-points {
@@ -140,7 +140,7 @@
   font-weight: 900;
   letter-spacing: -0.06em;
   line-height: 1;
-  background: linear-gradient(135deg, #ffe880, #ffc23a, #ff9840);
+  background: linear-gradient(135deg, #ffe494, #e8b923, #ff9a3d);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -149,14 +149,14 @@
 .ritual-ash-unit {
   font-size: 1.1rem;
   font-weight: 900;
-  color: rgba(255, 200, 100, 0.8);
+  color: rgba(232, 185, 35, 0.78);
 }
 
 .ritual-ash-message {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 900;
-  color: rgba(255, 247, 234, 0.88);
+  color: rgba(245, 232, 211, 0.86);
   letter-spacing: -0.01em;
 }
 
@@ -189,15 +189,15 @@
   animation: ritualFlameDance var(--dur, 1.4s) cubic-bezier(0.32, 0, 0.67, 0) var(--del, 0s) infinite;
 }
 
-/* Flame colour — deep red at base, orange mid, gold/yellow tip */
+/* Flame colour — deep red at base, Ember Core mid, gold/cream tip */
 .ritual-flames i {
   background: linear-gradient(
     to top,
-    rgba(160, 35, 10, 0.98) 0%,
-    rgba(230, 85, 22, 0.95) 22%,
-    rgba(255, 145, 38, 0.88) 50%,
-    rgba(255, 215, 75, 0.72) 74%,
-    rgba(255, 252, 160, 0.3) 92%,
+    rgba(159, 42, 42, 0.98) 0%,
+    rgba(201, 50, 29, 0.94) 16%,
+    rgba(255, 107, 0, 0.9) 40%,
+    rgba(255, 154, 61, 0.75) 68%,
+    rgba(255, 220, 130, 0.32) 92%,
     transparent 100%
   );
   filter: blur(3px);
@@ -208,12 +208,12 @@
 .ritual-flames i:nth-child(2)  { --dur: 1.42s; --del: 0.08s; left:  9%; width: 44px;  height: 40vh; filter: blur(5px); }
 .ritual-flames i:nth-child(3)  { --dur: 1.28s; --del: 0.15s; left: 17%; width: 36px;  height: 34vh; filter: blur(4px); }
 .ritual-flames i:nth-child(4)  { --dur: 1.66s; --del: 0.04s; left: 25%; width: 54px;  height: 50vh;
-  background: linear-gradient(to top, rgba(160,35,10,0.98) 0%, rgba(240,100,22,0.96) 18%, rgba(255,175,46,0.9) 46%, rgba(255,238,100,0.75) 72%, rgba(255,254,200,0.35) 92%, transparent 100%);
+  background: linear-gradient(to top, rgba(159,42,42,0.98) 0%, rgba(201,50,29,0.95) 16%, rgba(255,107,0,0.9) 40%, rgba(255,200,80,0.68) 70%, rgba(255,240,180,0.3) 92%, transparent 100%);
   filter: blur(6px);
 }
 .ritual-flames i:nth-child(5)  { --dur: 1.38s; --del: 0.20s; left: 36%; width: 48px;  height: 44vh; filter: blur(5px); }
 .ritual-flames i:nth-child(6)  { --dur: 1.52s; --del: 0.11s; left: 47%; width: 60px;  height: 52vh;
-  background: linear-gradient(to top, rgba(180,40,10,0.98) 0%, rgba(255,105,25,0.95) 20%, rgba(255,190,55,0.88) 48%, rgba(255,245,110,0.72) 74%, rgba(255,254,200,0.3) 92%, transparent 100%);
+  background: linear-gradient(to top, rgba(159,42,42,0.98) 0%, rgba(255,107,0,0.95) 22%, rgba(255,154,61,0.88) 50%, rgba(255,220,100,0.68) 74%, rgba(255,240,180,0.28) 92%, transparent 100%);
   filter: blur(7px);
 }
 .ritual-flames i:nth-child(7)  { --dur: 1.44s; --del: 0.25s; left: 57%; width: 46px;  height: 42vh; filter: blur(5px); }
@@ -246,21 +246,21 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff8c0, #ffaa30);
-  box-shadow: 0 0 6px 2px rgba(255, 170, 40, 0.85);
+  background: radial-gradient(circle at 35% 30%, #ffe494, #ff9a3d);
+  box-shadow: 0 0 6px 2px rgba(232, 185, 35, 0.75);
   will-change: transform, opacity;
   animation: ritualEmberRise var(--dur, 1.1s) cubic-bezier(0.2, 0.8, 0.4, 1) var(--del, 0s) infinite;
 }
 
 .ritual-embers i:nth-child(1)  { --dur: 1.15s; --del: 0.05s; left:  6%; --tx: -18px; --ty: -52vh; width: 4px; height: 4px; }
 .ritual-embers i:nth-child(2)  { --dur: 0.95s; --del: 0.22s; left: 13%; --tx:  12px; --ty: -62vh; }
-.ritual-embers i:nth-child(3)  { --dur: 1.32s; --del: 0.08s; left: 22%; --tx: -22px; --ty: -55vh; width: 6px; height: 6px; box-shadow: 0 0 8px 3px rgba(255,180,40,0.9); }
+.ritual-embers i:nth-child(3)  { --dur: 1.32s; --del: 0.08s; left: 22%; --tx: -22px; --ty: -55vh; width: 6px; height: 6px; box-shadow: 0 0 8px 3px rgba(232,185,35,0.8); }
 .ritual-embers i:nth-child(4)  { --dur: 1.05s; --del: 0.35s; left: 31%; --tx:  20px; --ty: -70vh; }
 .ritual-embers i:nth-child(5)  { --dur: 1.22s; --del: 0.17s; left: 40%; --tx: -14px; --ty: -48vh; width: 3px; height: 3px; }
 .ritual-embers i:nth-child(6)  { --dur: 0.88s; --del: 0.42s; left: 50%; --tx:  24px; --ty: -60vh; }
 .ritual-embers i:nth-child(7)  { --dur: 1.38s; --del: 0.10s; left: 58%; --tx: -10px; --ty: -68vh; width: 4px; height: 4px; }
 .ritual-embers i:nth-child(8)  { --dur: 1.08s; --del: 0.28s; left: 67%; --tx:  16px; --ty: -52vh; }
-.ritual-embers i:nth-child(9)  { --dur: 0.92s; --del: 0.50s; left: 75%; --tx: -20px; --ty: -58vh; width: 6px; height: 6px; box-shadow: 0 0 8px 3px rgba(255,200,50,0.85); }
+.ritual-embers i:nth-child(9)  { --dur: 0.92s; --del: 0.50s; left: 75%; --tx: -20px; --ty: -58vh; width: 6px; height: 6px; box-shadow: 0 0 8px 3px rgba(232,185,35,0.75); }
 .ritual-embers i:nth-child(10) { --dur: 1.18s; --del: 0.15s; left: 84%; --tx:  14px; --ty: -64vh; }
 .ritual-embers i:nth-child(11) { --dur: 1.02s; --del: 0.38s; left: 91%; --tx: -16px; --ty: -50vh; width: 3px; height: 3px; }
 .ritual-embers i:nth-child(12) { --dur: 1.45s; --del: 0.06s; left: 18%; --tx:  8px;  --ty: -72vh; width: 4px; height: 4px; }
@@ -271,7 +271,7 @@
 .ritual-embers i:nth-child(17) { --dur: 1.35s; --del: 0.60s; left: 10%; --tx: -22px; --ty: -60vh; }
 .ritual-embers i:nth-child(18) { --dur: 1.08s; --del: 0.32s; left: 55%; --tx:  10px; --ty: -74vh; width: 4px; height: 4px; }
 .ritual-embers i:nth-child(19) { --dur: 0.90s; --del: 0.48s; left: 80%; --tx: -14px; --ty: -54vh; }
-.ritual-embers i:nth-child(20) { --dur: 1.22s; --del: 0.20s; left: 27%; --tx:  20px; --ty: -62vh; width: 5px; height: 5px; box-shadow: 0 0 7px 3px rgba(255,190,50,0.8); }
+.ritual-embers i:nth-child(20) { --dur: 1.22s; --del: 0.20s; left: 27%; --tx:  20px; --ty: -62vh; width: 5px; height: 5px; box-shadow: 0 0 7px 3px rgba(232,185,35,0.7); }
 
 /* ══════════════════════════
    Keyframe animations
@@ -279,8 +279,8 @@
 
 @keyframes ritualIgnitionFlash {
   0%   { opacity: 0; }
-  8%   { opacity: 1; filter: brightness(2.4); }
-  28%  { filter: brightness(1.6); }
+  8%   { opacity: 1; filter: brightness(2.1); }
+  28%  { filter: brightness(1.45); }
   100% { opacity: 1; filter: brightness(1); }
 }
 
@@ -335,8 +335,8 @@
   z-index: 180;
   display: grid;
   place-items: center;
-  background: rgba(6, 3, 0, 0.72);
-  backdrop-filter: blur(12px);
+  background: rgba(4, 4, 4, 0.75);
+  backdrop-filter: blur(14px);
   padding: 20px;
   animation: confirmBackdropIn 0.22s ease both;
 }
@@ -348,13 +348,13 @@
   padding: 28px 24px 24px;
   border-radius: 32px;
   background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255,120,30,0.1), transparent 60%),
-    linear-gradient(160deg, rgba(30,15,7,0.98), rgba(20,10,5,0.96));
-  border: 1px solid rgba(255,130,50,0.2);
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255,107,0,0.07), transparent 60%),
+    linear-gradient(160deg, rgba(18,20,20,0.98), rgba(12,14,14,0.97));
+  border: 1px solid rgba(255,107,0,0.18);
   box-shadow:
-    0 0 0 1px rgba(255,100,30,0.08),
-    0 32px 80px rgba(0,0,0,0.7),
-    0 0 60px rgba(255,80,20,0.08);
+    0 0 0 1px rgba(255,107,0,0.06),
+    0 32px 80px rgba(0,0,0,0.75),
+    0 0 52px rgba(255,107,0,0.06);
   text-align: center;
   animation: confirmModalIn 0.32s cubic-bezier(0.22, 1.2, 0.36, 1) both;
 }
@@ -372,7 +372,7 @@
   font-weight: 900;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(255, 200, 80, 0.65);
+  color: rgba(232, 185, 35, 0.62);
 }
 
 .fire-confirm-heading {
@@ -381,20 +381,20 @@
   font-weight: 900;
   letter-spacing: -0.05em;
   line-height: 1.1;
-  color: #fff7ea;
+  color: #f5e8d3;
 }
 
 .fire-confirm-seed-info {
   padding: 14px 16px;
   border-radius: 20px;
-  background: rgba(255,247,234,0.05);
-  border: 1px solid rgba(255,130,50,0.12);
+  background: rgba(245,232,211,0.04);
+  border: 1px solid rgba(255,107,0,0.1);
 }
 
 .fire-confirm-seed-title {
   margin: 0 0 10px;
   font-weight: 900;
-  color: #fff7ea;
+  color: #f5e8d3;
   line-height: 1.3;
 }
 
@@ -408,15 +408,15 @@
 .fire-confirm-seed-meta span {
   border-radius: 999px;
   padding: 5px 10px;
-  background: rgba(255,247,234,0.07);
-  color: rgba(255,247,234,0.65);
+  background: rgba(245,232,211,0.06);
+  color: rgba(245,232,211,0.62);
   font-size: 0.76rem;
   font-weight: 900;
 }
 
 .fire-confirm-ash {
-  background: rgba(255,200,60,0.12) !important;
-  color: rgba(255,200,80,0.85) !important;
+  background: rgba(232,185,35,0.1) !important;
+  color: rgba(232,185,35,0.85) !important;
 }
 
 .fire-confirm-actions {
@@ -430,28 +430,28 @@
   border: 0;
   border-radius: 999px;
   background:
-    radial-gradient(circle at 28% 18%, rgba(255,240,120,0.25) 0 8%, transparent 10%),
-    linear-gradient(135deg, #ff8030, #c9321d 60%, #7a1a0a);
-  color: #fff7ea;
+    radial-gradient(circle at 28% 18%, rgba(255,220,80,0.22) 0 8%, transparent 10%),
+    linear-gradient(135deg, #ff6b00, #c9321d 60%, #7a1a0a);
+  color: #f5e8d3;
   font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   box-shadow:
-    0 0 0 2px rgba(255,100,30,0.22),
-    0 14px 32px rgba(206,50,29,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.18);
+    0 0 0 2px rgba(255,107,0,0.2),
+    0 14px 32px rgba(201,50,29,0.48),
+    inset 0 1px 0 rgba(255,255,255,0.16);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  animation: confirmFireButtonPulse 2s ease-in-out infinite;
+  animation: confirmFireButtonPulse 2.2s ease-in-out infinite;
 }
 
 .fire-confirm-yes:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow:
-    0 0 0 3px rgba(255,100,30,0.3),
-    0 18px 40px rgba(206,50,29,0.65),
-    0 0 32px rgba(255,80,20,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.2);
+    0 0 0 3px rgba(255,107,0,0.28),
+    0 18px 40px rgba(201,50,29,0.62),
+    0 0 28px rgba(255,107,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.18);
   animation: none;
 }
 
@@ -463,10 +463,10 @@
 .fire-confirm-no {
   width: 100%;
   min-height: 46px;
-  border: 1px solid rgba(255,247,234,0.1);
+  border: 1px solid rgba(245,232,211,0.1);
   border-radius: 999px;
   background: transparent;
-  color: rgba(255,247,234,0.45);
+  color: rgba(245,232,211,0.42);
   font-size: 0.9rem;
   font-weight: 900;
   cursor: pointer;
@@ -474,9 +474,9 @@
 }
 
 .fire-confirm-no:hover {
-  background: rgba(255,247,234,0.06);
-  color: rgba(255,247,234,0.7);
-  border-color: rgba(255,247,234,0.16);
+  background: rgba(245,232,211,0.05);
+  color: rgba(245,232,211,0.68);
+  border-color: rgba(245,232,211,0.14);
 }
 
 /* ══════════════════════════
@@ -494,13 +494,13 @@
 }
 
 @keyframes confirmIconPulse {
-  0%, 100% { filter: drop-shadow(0 0 16px rgba(255,120,30,0.7)); transform: scale(1); }
-  50%       { filter: drop-shadow(0 0 26px rgba(255,160,40,0.9)); transform: scale(1.06); }
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(255,107,0,0.65)); transform: scale(1); }
+  50%       { filter: drop-shadow(0 0 24px rgba(255,154,61,0.85)); transform: scale(1.06); }
 }
 
 @keyframes confirmFireButtonPulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(255,100,30,0.22), 0 14px 32px rgba(206,50,29,0.5), inset 0 1px 0 rgba(255,255,255,0.18); }
-  50%       { box-shadow: 0 0 0 5px rgba(255,100,30,0.14), 0 14px 40px rgba(206,50,29,0.7), 0 0 32px rgba(255,80,20,0.3), inset 0 1px 0 rgba(255,255,255,0.18); }
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255,107,0,0.2), 0 14px 32px rgba(201,50,29,0.48), inset 0 1px 0 rgba(255,255,255,0.16); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,107,0,0.12), 0 14px 40px rgba(201,50,29,0.66), 0 0 28px rgba(255,107,0,0.22), inset 0 1px 0 rgba(255,255,255,0.16); }
 }
 
 /* ── Reduced motion ── */

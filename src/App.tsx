@@ -235,9 +235,12 @@ export default function App() {
                   <span>{priorityLabels[focusSeed.priority]}</span>
                 </div>
                 <div className="focus-actions">
-                  <button className="fire-button" type="button" onClick={() => requestBurn(focusSeed.id)} disabled={focusSeed.isBurning}>
-                    {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
-                  </button>
+                  <div className="fire-button-wrapper">
+                    <button className="fire-button" type="button" onClick={() => requestBurn(focusSeed.id)} disabled={focusSeed.isBurning}>
+                      {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
+                    </button>
+                    <span className="rank-chip" aria-label={`現在の称号: ${stats.rank}`}>{stats.rank}</span>
+                  </div>
                   <button className="ghost-button" type="button" onClick={openRecord}>タスクを追加</button>
                 </div>
               </section>
