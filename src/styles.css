@@ -75,8 +75,9 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 :focus-visible {
-  outline: 3px solid rgba(239, 122, 42, 0.5);
-  outline-offset: 3px;
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: 12px;
 }
 
 .mobile-app-shell {
@@ -628,8 +629,9 @@ input:focus, select:focus, textarea:focus {
 .ghost-button:active:not(:disabled),
 .danger-button:active:not(:disabled),
 .filter-button:active:not(:disabled),
+.tab-button:active:not(:disabled),
 .fire-button:active:not(:disabled) {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(1px) scale(0.96);
 }
 
 .primary-button {
@@ -731,6 +733,30 @@ input:focus, select:focus, textarea:focus {
 
 .idea-button:hover {
   color: #b24a1d;
+}
+
+.quadrant-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 247, 234, 0.9);
+  margin-bottom: 8px;
+}
+
+.quadrant-filter-bar span {
+  color: #7a3012;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.quadrant-filter-bar .ghost-button {
+  flex: none;
+  padding: 5px 12px;
+  min-height: 32px;
+  font-size: 0.82rem;
 }
 
 .cards-stack { display: grid; gap: 12px; }
@@ -937,6 +963,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .tab-button {
+  position: relative;
   display: grid;
   gap: 2px;
   place-items: center;
@@ -944,6 +971,8 @@ input:focus, select:focus, textarea:focus {
   background: transparent;
   color: #8a604b;
   font-size: 0.78rem;
+  opacity: 0.7;
+  transition: transform var(--transition-base), opacity var(--transition-base);
 }
 
 .tab-button span {
@@ -961,6 +990,20 @@ input:focus, select:focus, textarea:focus {
   background: #2c1710;
   color: #fff7ea;
   box-shadow: 0 10px 22px rgba(44, 23, 16, 0.18);
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+.tab-button.is-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 2px;
+  border-radius: 0 0 999px 999px;
+  background: var(--color-fire-ember);
 }
 
 .tab-button.is-active span {
@@ -992,7 +1035,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .floating-action:active {
-  transform: scale(0.95);
+  transform: scale(0.9) rotate(15deg);
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .sheet-backdrop {
@@ -1057,8 +1101,39 @@ input:focus, select:focus, textarea:focus {
   transform: scale(1.08);
 }
 
-@media (max-width: 380px) {
-  .focus-actions { grid-template-columns: 1fr; }
+/* ── Matrix cell interactive styles ── */
+.matrix-cell {
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.matrix-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 52px rgba(108, 48, 14, 0.14);
+}
+
+.matrix-cell:active {
+  transform: scale(0.98);
+}
+
+/* ── Empty state CTA pulse ── */
+.brand-hero .primary-button {
+  animation: ctaPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 12px 28px rgba(206, 50, 29, 0.25); }
+  50%       { box-shadow: 0 12px 36px rgba(206, 50, 29, 0.45), 0 0 0 8px rgba(206, 50, 29, 0.08); }
+}
+
+/* ── New card slide-in ── */
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fire-card.is-new {
+  animation: cardSlideIn 0.4s cubic-bezier(0.22, 0.8, 0.4, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1166,7 +1241,9 @@ input:focus, select:focus, textarea:focus {
   .toast,
   .sheet-backdrop,
   .record-sheet,
-  .fire-button {
+  .fire-button,
+  .brand-hero .primary-button,
+  .fire-card.is-new {
     animation: none !important;
   }
 }
@@ -1195,6 +1272,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 380px) {
+  .focus-actions { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .card-header, .card-footer { align-items: stretch; flex-direction: column; }
   .card-actions button { flex: 1; }

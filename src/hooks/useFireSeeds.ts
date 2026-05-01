@@ -50,8 +50,9 @@ export function useFireSeeds() {
   const addSeed = (input: NewFireSeedInput) => {
     const timestamp = nowIso();
     const quadrant = getQuadrant(input.urgency, input.importance);
+    const id = createId();
     const nextSeed: FireSeed = {
-      id: createId(),
+      id,
       title: input.title.trim(),
       body: input.body.trim(),
       nextAction: input.nextAction.trim(),
@@ -72,6 +73,7 @@ export function useFireSeeds() {
 
     setSeeds((current) => sortFireTasks([nextSeed, ...current]));
     setNotice('薪を追加しました');
+    return id;
   };
 
   const burnTask = (id: string) => {

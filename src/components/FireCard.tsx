@@ -5,6 +5,7 @@ type FireCardProps = {
   seed: FireSeed;
   onFire: (id: string) => void;
   onDelete: (id: string) => void;
+  isNew?: boolean;
 };
 
 const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
@@ -27,11 +28,11 @@ const burnMessages = {
   boss: 'ラスボス撃破。これは大きい。',
 };
 
-export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
+export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
 
   return (
-    <article className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''}`}>
+    <article className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}>
       <div className="card-header">
         <div>
           <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>

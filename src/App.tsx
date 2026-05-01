@@ -6,7 +6,8 @@ import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
-import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from './types/fireSeed';
+import { warmUpFireSound } from './lib/fireSoundEngine';
+import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireStage } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
@@ -33,9 +34,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('today');
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
+  const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
+  const [newSeedId, setNewSeedId] = useState<string | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const topbarAddRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
+  const swipeTouchStartY = useRef<number | null>(null);
   const {
     addSeed,
     allSeeds,
@@ -48,6 +52,11 @@ export default function App() {
     setFilter,
     stats,
   } = useFireSeeds();
+
+  // Warm up AudioContext on first mount so Fire sound plays without delay
+  useEffect(() => {
+    void warmUpFireSound();
+  }, []);
 
   const openRecord = () => {
     previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -62,9 +71,12 @@ export default function App() {
   };
 
   const handleAddSeed = (input: NewFireSeedInput) => {
-    addSeed(input);
+    const id = addSeed(input);
     closeRecord();
     setActiveTab('today');
+    setQuadrantFilter(null);
+    setNewSeedId(id ?? null);
+    window.setTimeout(() => setNewSeedId(null), 600);
   };
 
   const openRecordWithTitle = (title: string) => {
@@ -72,9 +84,34 @@ export default function App() {
     openRecord();
   };
 
+  const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
+    setActiveTab('today');
+    setFilter('active');
+    setQuadrantFilter(key);
+    window.setTimeout(() => {
+      document.querySelector('.cards-stack')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const handleSheetBackdropTouchStart = (event: React.TouchEvent) => {
+    swipeTouchStartY.current = event.touches[0]?.clientY ?? null;
+  };
+
+  const handleSheetBackdropTouchEnd = (event: React.TouchEvent) => {
+    if (swipeTouchStartY.current === null) return;
+    const deltaY = (event.changedTouches[0]?.clientY ?? 0) - swipeTouchStartY.current;
+    swipeTouchStartY.current = null;
+    if (deltaY > 80) {
+      closeRecord();
+    }
+  };
+
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
-  const activeTasks = filteredSeeds.filter((seed) => !seed.burned);
+  const activeTasks = useMemo(() => {
+    const base = filteredSeeds.filter((seed) => !seed.burned);
+    return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
+  }, [filteredSeeds, quadrantFilter]);
   const counts = useMemo(() => {
     const active = allSeeds.filter((seed) => !seed.burned).length;
     const today = allSeeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length;
@@ -128,7 +165,7 @@ export default function App() {
         <button ref={topbarAddRef} className="topbar-add" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
       </header>
 
-      {notice ? <div className="toast" role="status">{notice}</div> : null}
+      {notice ? <div className="toast" role="alert">{notice}</div> : null}
 
       <section className="app-screen" aria-live="polite">
         {activeTab === 'today' ? (
@@ -185,6 +222,11 @@ export default function App() {
                 <article
                   key={item.key}
                   className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
+                  onClick={() => handleMatrixCellClick(item.key)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMatrixCellClick(item.key); } }}
                 >
                   <span>{quadrantLabels[item.key]}</span>
                   <strong>{item.count}</strong>
@@ -198,10 +240,16 @@ export default function App() {
                 <p className="eyebrow">Matrix Sorted</p>
                 <h2>自動で並んだタスク</h2>
               </div>
-              {hasTasks ? <FireFilters filter={filter} counts={counts} onChangeFilter={setFilter} /> : null}
+              {hasTasks ? <FireFilters filter={filter} counts={counts} onChangeFilter={(f) => { setFilter(f); setQuadrantFilter(null); }} /> : null}
+              {quadrantFilter ? (
+                <div className="quadrant-filter-bar">
+                  <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
+                  <button type="button" className="ghost-button" onClick={() => setQuadrantFilter(null)}>クリア</button>
+                </div>
+              ) : null}
               <div className="cards-stack">
                 {activeTasks.length > 0 ? (
-                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} />)
+                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
                 ) : (
                   <div className="empty-state useful-empty">
                 <div className="empty-state-icon" aria-hidden="true">🪵</div>
@@ -302,7 +350,13 @@ export default function App() {
       </nav>
 
       {isRecordOpen ? (
-        <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
+        <div
+          className="sheet-backdrop"
+          role="presentation"
+          onClick={closeRecord}
+          onTouchStart={handleSheetBackdropTouchStart}
+          onTouchEnd={handleSheetBackdropTouchEnd}
+        >
           <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
             <div className="sheet-handle" aria-hidden="true" />
             <div className="sheet-header">
