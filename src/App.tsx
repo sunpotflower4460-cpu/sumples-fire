@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BurningRitual } from './components/BurningRitual';
 import { FireCard } from './components/FireCard';
+import { FireCampfire } from './components/FireCampfire';
 import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireConfirmModal } from './components/FireConfirmModal';
 import { FireFilters } from './components/FireFilters';
@@ -9,6 +10,7 @@ import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import { warmUpFireSound } from './lib/fireSoundEngine';
+import { getStreakState } from './lib/fireStreak';
 import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireSeed, FireStage } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
@@ -47,6 +49,7 @@ export default function App() {
     addSeed,
     allSeeds,
     burnTask,
+    burningSpectacle,
     deleteSeed,
     filter,
     filteredSeeds,
@@ -54,6 +57,7 @@ export default function App() {
     notice,
     setFilter,
     stats,
+    streakData,
   } = useFireSeeds();
 
   // Warm up AudioContext on first mount so Fire sound plays without delay
@@ -129,6 +133,8 @@ export default function App() {
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
   const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
+  const hasPendingTasks = allSeeds.some((seed) => !seed.burned);
+  const streakState = getStreakState(streakData.currentStreak);
   const activeTasks = useMemo(() => {
     const base = filteredSeeds.filter((seed) => !seed.burned);
     return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
@@ -177,7 +183,7 @@ export default function App() {
   }, [isRecordOpen]);
 
   return (
-    <main className="mobile-app-shell fire-mode">
+    <main className={`mobile-app-shell fire-mode streak-${streakState}`}>
       <header className="app-topbar">
         <div>
           <p className="app-kicker">Fire Task</p>
@@ -200,6 +206,12 @@ export default function App() {
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
               </section>
             ) : null}
+
+            <FireCampfire
+              ashPoints={stats.totalAshPoints}
+              streakData={streakData}
+              hasPendingTasks={hasPendingTasks}
+            />
 
             {focusSeed ? (
               <section className="focus-seed" aria-label="今日の火種">
@@ -400,7 +412,7 @@ export default function App() {
         />
       ) : null}
 
-      {burningTask ? <BurningRitual seed={burningTask} /> : null}
+      {burningTask ? <BurningRitual seed={burningTask} spectacle={burningSpectacle ?? undefined} /> : null}
     </main>
   );
 }

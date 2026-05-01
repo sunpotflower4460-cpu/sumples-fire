@@ -10,6 +10,7 @@ import './rewardProgress.css';
 import './comfortSettings.css';
 import './burningRitual.css';
 import './darkTheme.css';
+import './campfire.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

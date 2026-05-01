@@ -1,0 +1,523 @@
+/* ══════════════════════════════════════════════════════
+   Fire Campfire — Evolving Central Campfire Visual
+   Phase 18.5: The Fire Addiction Loop
+   ══════════════════════════════════════════════════════ */
+
+/* ── Container ── */
+.fire-campfire {
+  position: relative;
+  border-radius: 32px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,90,15,0.1) 0%, transparent 70%),
+    linear-gradient(160deg, rgba(28,14,6,0.96), rgba(18,9,4,0.98));
+  border: 1px solid rgba(255,130,50,0.14);
+  padding: 24px 20px 20px;
+  overflow: hidden;
+  display: grid;
+  gap: 16px;
+}
+
+.campfire-bg-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% 90%, var(--campfire-glow, rgba(255,80,20,0.12)), transparent 65%);
+  transition: background 0.8s ease;
+}
+
+/* ── Stage glow colors ── */
+.campfire-stage-0 { --campfire-glow: rgba(255,80,20,0.06); }
+.campfire-stage-1 { --campfire-glow: rgba(255,100,30,0.10); }
+.campfire-stage-2 { --campfire-glow: rgba(255,120,40,0.15); }
+.campfire-stage-3 { --campfire-glow: rgba(255,160,50,0.20); }
+.campfire-stage-4 { --campfire-glow: rgba(255,200,60,0.26); }
+.campfire-stage-5 { --campfire-glow: rgba(255,240,100,0.32); }
+
+/* ── Visual area ── */
+.campfire-visual {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.campfire-stage-3 .campfire-visual { height: 140px; }
+.campfire-stage-4 .campfire-visual { height: 160px; }
+.campfire-stage-5 .campfire-visual { height: 180px; }
+
+/* ── Logs ── */
+.campfire-logs {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 18px;
+}
+
+.campfire-log {
+  position: absolute;
+  border-radius: 6px;
+  background: linear-gradient(to right, #2a1208, #3d1c0c, #2a1208);
+}
+
+.log-base {
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 68px; height: 10px;
+}
+
+.log-left {
+  bottom: 5px; left: 6px;
+  width: 50px; height: 8px;
+  transform: rotate(-22deg);
+  transform-origin: left center;
+}
+
+.log-right {
+  bottom: 5px; right: 6px;
+  width: 50px; height: 8px;
+  transform: rotate(22deg);
+  transform-origin: right center;
+}
+
+/* ── Flames ── */
+.campfire-flames {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 100%;
+}
+
+.campfire-flame {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50% 50% 30% 30%;
+  transform-origin: bottom center;
+  will-change: transform, opacity;
+  background: linear-gradient(
+    to top,
+    var(--flame-a, rgba(160,35,10,0.98)) 0%,
+    var(--flame-b, rgba(230,85,22,0.95)) 28%,
+    var(--flame-c, rgba(255,215,75,0.72)) 70%,
+    transparent 100%
+  );
+}
+
+/* Core flame colors per stage */
+.campfire-stage-0 .campfire-flame,
+.campfire-stage-1 .campfire-flame {
+  --flame-a: rgba(160,35,10,0.95);
+  --flame-b: rgba(220,80,20,0.9);
+  --flame-c: rgba(255,200,60,0.65);
+}
+
+.campfire-stage-2 .campfire-flame,
+.campfire-stage-3 .campfire-flame {
+  --flame-a: rgba(160,35,10,0.98);
+  --flame-b: rgba(240,100,25,0.95);
+  --flame-c: rgba(255,230,80,0.78);
+}
+
+.campfire-stage-4 .campfire-flame {
+  --flame-a: rgba(150,60,5,0.98);
+  --flame-b: rgba(230,160,20,0.95);
+  --flame-c: rgba(255,248,140,0.85);
+}
+
+.campfire-stage-5 .campfire-flame {
+  --flame-a: rgba(160,100,5,0.98);
+  --flame-b: rgba(230,200,30,0.95);
+  --flame-c: rgba(255,255,180,0.9);
+}
+
+/* Flame positions */
+.cf-1 { left: 28px; width: 14px; height: 38px; filter: blur(2px); animation: campfireFlameDance 1.25s cubic-bezier(0.32,0,0.67,0) 0.05s infinite; }
+.cf-2 { left: 34px; width: 22px; height: 58px; filter: blur(3px); animation: campfireFlameDance 1.55s cubic-bezier(0.32,0,0.67,0) 0.12s infinite; }
+.cf-3 { left: 44px; width: 16px; height: 44px; filter: blur(2.5px); animation: campfireFlameDance 1.35s cubic-bezier(0.32,0,0.67,0) 0.25s infinite; }
+.cf-4 { left: 22px; width: 12px; height: 30px; filter: blur(2px); animation: campfireFlameDance 1.10s cubic-bezier(0.32,0,0.67,0) 0.18s infinite; }
+.cf-5 { left: 52px; width: 18px; height: 50px; filter: blur(2.5px); animation: campfireFlameDance 1.45s cubic-bezier(0.32,0,0.67,0) 0.35s infinite; }
+.cf-6 { left: 14px; width: 20px; height: 64px; filter: blur(3px); animation: campfireFlameDance 1.60s cubic-bezier(0.32,0,0.67,0) 0.08s infinite; }
+.cf-7 { left: 56px; width: 24px; height: 70px; filter: blur(3.5px); animation: campfireFlameDance 1.70s cubic-bezier(0.32,0,0.67,0) 0.30s infinite; }
+.cf-8 { left: 8px;  width: 22px; height: 78px; filter: blur(4px); animation: campfireFlameDance 1.80s cubic-bezier(0.32,0,0.67,0) 0.15s infinite; }
+.cf-9 { left: 60px; width: 28px; height: 86px; filter: blur(4.5px); animation: campfireFlameDance 1.90s cubic-bezier(0.32,0,0.67,0) 0.40s infinite; }
+
+/* ── Embers ── */
+.campfire-embers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.campfire-ember {
+  position: absolute;
+  bottom: 18px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffab0, var(--particle, #ffaa30));
+  box-shadow: 0 0 5px 2px var(--particle-shadow, rgba(255,168,40,0.8));
+  will-change: transform, opacity;
+  animation: campfireEmberRise var(--dur, 1.0s) cubic-bezier(0.2,0.8,0.4,1) var(--del, 0s) infinite;
+}
+
+.ce-1  { --dur:1.12s; --del:0.05s; left:28%; --tx:-12px; --ty:-55px; }
+.ce-2  { --dur:0.92s; --del:0.22s; left:48%; --tx: 10px; --ty:-70px; width:3px; height:3px; }
+.ce-3  { --dur:1.35s; --del:0.10s; left:62%; --tx:-16px; --ty:-62px; }
+.ce-4  { --dur:1.05s; --del:0.38s; left:35%; --tx: 14px; --ty:-80px; width:5px; height:5px; }
+.ce-5  { --dur:1.22s; --del:0.18s; left:54%; --tx:-10px; --ty:-50px; }
+.ce-6  { --dur:0.85s; --del:0.45s; left:42%; --tx: 18px; --ty:-72px; width:3px; height:3px; }
+.ce-7  { --dur:1.40s; --del:0.08s; left:58%; --tx:-14px; --ty:-88px; }
+.ce-8  { --dur:1.08s; --del:0.30s; left:32%; --tx: 12px; --ty:-60px; }
+.ce-9  { --dur:0.95s; --del:0.55s; left:45%; --tx:-20px; --ty:-66px; width:6px; height:6px; }
+.ce-10 { --dur:1.28s; --del:0.15s; left:68%; --tx: 10px; --ty:-74px; }
+.ce-11 { --dur:1.15s; --del:0.42s; left:24%; --tx:-8px;  --ty:-58px; }
+.ce-12 { --dur:0.88s; --del:0.28s; left:52%; --tx: 16px; --ty:-82px; width:4px; height:4px; }
+.ce-13 { --dur:1.32s; --del:0.62s; left:38%; --tx:-14px; --ty:-92px; }
+.ce-14 { --dur:1.02s; --del:0.20s; left:64%; --tx: 20px; --ty:-68px; width:3px; height:3px; }
+
+/* Outer glow for higher stages */
+.campfire-outer-glow {
+  position: absolute;
+  bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--campfire-glow, rgba(255,120,30,0.25)) 0%, transparent 70%);
+  filter: blur(8px);
+  animation: campfireOuterGlow 2.5s ease-in-out infinite;
+}
+
+/* ── Info row ── */
+.campfire-info {
+  display: grid;
+  gap: 10px;
+}
+
+.campfire-stage-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.campfire-stage-name {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: rgba(255,200,80,0.85);
+  letter-spacing: 0.04em;
+}
+
+.campfire-next-hint {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: rgba(255,200,80,0.45);
+}
+
+/* ── Streak display ── */
+.campfire-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,247,234,0.06);
+  border: 1px solid rgba(255,130,50,0.14);
+  width: fit-content;
+}
+
+.streak-flame-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  animation: streakFlameBreath 1.8s ease-in-out infinite;
+}
+
+.streak-count {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffe880, #ffc23a, #ff9840);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.streak-label {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: rgba(255,220,100,0.7);
+}
+
+.streak-momentum-badge {
+  margin-left: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, rgba(255,160,30,0.25), rgba(255,80,20,0.2));
+  border: 1px solid rgba(255,140,30,0.3);
+  color: rgba(255,220,100,0.85);
+}
+
+/* Streak state enhancements */
+.streak-state-warm .streak-flame-icon  { animation: streakFlameBreath 1.4s ease-in-out infinite; }
+.streak-state-momentum .streak-flame-icon { animation: streakFlamePulse 1.0s ease-in-out infinite; }
+.streak-state-blazing .streak-flame-icon  { animation: streakFlameBlaze 0.7s ease-in-out infinite; }
+
+.streak-state-momentum .campfire-streak {
+  border-color: rgba(255,160,50,0.28);
+  background: rgba(255,200,80,0.1);
+  box-shadow: 0 0 20px rgba(255,150,30,0.15);
+}
+
+.streak-state-blazing .campfire-streak {
+  border-color: rgba(255,220,80,0.4);
+  background: rgba(255,230,100,0.14);
+  box-shadow: 0 0 32px rgba(255,200,40,0.25);
+  animation: streakBlazeGlow 1.6s ease-in-out infinite;
+}
+
+/* ── Craving copy ── */
+.campfire-craving-copy {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: rgba(255,200,80,0.55);
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.has-pending .campfire-craving-copy {
+  color: rgba(255,220,100,0.72);
+  animation: cravingFade 3s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════
+   Spectacle-aware Burning Ritual visual overrides
+   ══════════════════════════════════════════════════════ */
+
+/* Use CSS vars injected via inline style for dynamic flame colors */
+.burning-ritual .ritual-flames i {
+  background: linear-gradient(
+    to top,
+    var(--flame-a, rgba(160,35,10,0.98)) 0%,
+    var(--flame-b, rgba(230,85,22,0.95)) 28%,
+    rgba(255,145,38,0.88) 50%,
+    var(--flame-c, rgba(255,215,75,0.72)) 74%,
+    rgba(255,252,160,0.3) 92%,
+    transparent 100%
+  );
+}
+
+.burning-ritual .ritual-embers i {
+  background: radial-gradient(circle at 35% 30%, #fffab0, var(--particle, #ffaa30));
+  box-shadow: 0 0 6px 2px var(--particle-shadow, rgba(255,170,40,0.85));
+}
+
+.burning-ritual.is-special .ritual-bg {
+  background:
+    radial-gradient(ellipse 140% 100% at 50% 120%, var(--bg-glow, rgba(255,90,15,0.38)) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,150,30,0.15), transparent 50%),
+    #060300;
+}
+
+/* ── Spectacle label overlay ── */
+.ritual-spectacle-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  animation: spectacleLabelIn 0.5s cubic-bezier(0.22,1.4,0.36,1) both;
+}
+
+.spectacle-rarity-badge {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,220,100,0.8);
+}
+
+.spectacle-type-name {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--particle, #ffcc40);
+  text-shadow: 0 0 30px var(--bg-glow, rgba(255,200,40,0.5)), 0 0 60px var(--bg-glow, rgba(255,150,30,0.3));
+}
+
+/* ── Spectacle burst particles (for special effects) ── */
+.ritual-spectacle-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.ritual-spectacle-burst i {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--particle, #ffcc40);
+  box-shadow: 0 0 8px 3px var(--particle-shadow, rgba(255,200,50,0.9));
+  will-change: transform, opacity;
+  animation: spectacleBurstParticle var(--dur, 1.2s) cubic-bezier(0.2,0.8,0.4,1) var(--del, 0s) both;
+}
+
+.ritual-spectacle-burst i:nth-child(1) { --dur:1.0s; --del:0.30s; top:45%; left:50%; --bx:-80px; --by:-120px; width:8px; height:8px; }
+.ritual-spectacle-burst i:nth-child(2) { --dur:1.1s; --del:0.35s; top:48%; left:50%; --bx: 80px; --by:-110px; }
+.ritual-spectacle-burst i:nth-child(3) { --dur:0.9s; --del:0.40s; top:46%; left:50%; --bx:-120px; --by:-60px; width:5px; height:5px; }
+.ritual-spectacle-burst i:nth-child(4) { --dur:1.2s; --del:0.28s; top:47%; left:50%; --bx: 110px; --by:-80px; }
+.ritual-spectacle-burst i:nth-child(5) { --dur:1.0s; --del:0.45s; top:44%; left:50%; --bx: -60px; --by:-140px; width:7px; height:7px; }
+.ritual-spectacle-burst i:nth-child(6) { --dur:1.15s; --del:0.33s; top:49%; left:50%; --bx:  70px; --by:-130px; }
+.ritual-spectacle-burst i:nth-child(7) { --dur:0.95s; --del:0.50s; top:45%; left:50%; --bx:-100px; --by:-90px; width:5px; height:5px; }
+.ritual-spectacle-burst i:nth-child(8) { --dur:1.05s; --del:0.38s; top:47%; left:50%; --bx: 130px; --by:-70px; }
+
+/* ══════════════════════════════════════════════════════
+   Momentum effects on task cards
+   ══════════════════════════════════════════════════════ */
+
+.streak-warm .fire-card:not(.is-burned) {
+  border-color: rgba(255,130,50,0.22) !important;
+}
+
+.streak-momentum .fire-card:not(.is-burned) {
+  box-shadow: 0 18px 46px rgba(108,48,14,0.09), 0 0 0 1px rgba(255,140,50,0.18);
+  animation: momentumCardBreath 2.4s ease-in-out infinite;
+}
+
+.streak-blazing .fire-card:not(.is-burned) {
+  box-shadow: 0 18px 46px rgba(108,48,14,0.12), 0 0 0 2px rgba(255,200,60,0.22), 0 0 20px rgba(255,160,30,0.1);
+  animation: momentumCardBreath 1.8s ease-in-out infinite;
+}
+
+/* ── Fire button streak enhancements ── */
+.streak-warm .fire-button {
+  box-shadow: 0 0 0 1px rgba(255,100,30,0.3), 0 8px 24px rgba(206,50,29,0.35);
+}
+
+.streak-momentum .fire-button {
+  box-shadow: 0 0 0 2px rgba(255,120,30,0.4), 0 8px 28px rgba(206,50,29,0.5);
+  animation: fireButtonMomentum 1.8s ease-in-out infinite;
+}
+
+.streak-blazing .fire-button {
+  box-shadow: 0 0 0 3px rgba(255,200,60,0.5), 0 8px 32px rgba(206,50,29,0.65), 0 0 32px rgba(255,150,30,0.3);
+  animation: fireButtonBlaze 1.2s ease-in-out infinite;
+}
+
+/* ── Pending task pulse (craving trigger) ── */
+.has-pending .fire-card:not(.is-burned) {
+  animation: pendingTaskPulse 3.5s ease-in-out infinite;
+}
+
+.has-pending .fire-card:not(.is-burned):nth-child(2) { animation-delay: 0.6s; }
+.has-pending .fire-card:not(.is-burned):nth-child(3) { animation-delay: 1.2s; }
+.has-pending .fire-card:not(.is-burned):nth-child(4) { animation-delay: 1.8s; }
+
+/* ══════════════════════════════════════════════════════
+   Keyframes
+   ══════════════════════════════════════════════════════ */
+
+@keyframes campfireFlameDance {
+  0%   { opacity: 0;    transform: scaleX(0.18) scaleY(0.04); }
+  8%   { opacity: 1;    transform: scaleX(1.1) scaleY(0.50) rotate(-3deg); }
+  22%  {                transform: scaleX(0.86) scaleY(0.98) rotate( 2deg); }
+  38%  { opacity: 1;    transform: scaleX(1.06) scaleY(1.06) rotate(-2deg); }
+  56%  {                transform: scaleX(0.78) scaleY(1.14) rotate( 3deg); }
+  74%  { opacity: 0.8;  transform: scaleX(0.64) scaleY(1.22) rotate(-2deg) translateY(-2%); }
+  90%  { opacity: 0.3;  transform: scaleX(0.40) scaleY(1.36) translateY(-6%); }
+  100% { opacity: 0;    transform: scaleX(0.20) scaleY(1.50) translateY(-10%); }
+}
+
+@keyframes campfireEmberRise {
+  0%   { opacity: 0;   transform: translate(0, 0) scale(1); }
+  12%  { opacity: 1;   transform: translate(calc(var(--tx,0px)*.12), -4px) scale(1.15); }
+  55%  { opacity: 0.8; transform: translate(calc(var(--tx,0px)*.5), calc(var(--ty,-40px)*.5)) scale(0.65); }
+  85%  { opacity: 0.3; transform: translate(calc(var(--tx,0px)*.82), calc(var(--ty,-40px)*.82)) scale(0.3); }
+  100% { opacity: 0;   transform: translate(var(--tx,0px), var(--ty,-50px)) scale(0.1); }
+}
+
+@keyframes campfireOuterGlow {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+  50%       { opacity: 1;  transform: translateX(-50%) scaleX(1.15); }
+}
+
+@keyframes streakFlameBreath {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.12); }
+}
+
+@keyframes streakFlamePulse {
+  0%, 100% { transform: scale(1);    filter: none; }
+  50%       { transform: scale(1.18); filter: drop-shadow(0 0 6px rgba(255,150,30,0.7)); }
+}
+
+@keyframes streakFlameBlaze {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 8px rgba(255,200,50,0.8)); }
+  50%       { transform: scale(1.25); filter: drop-shadow(0 0 14px rgba(255,230,60,1)); }
+}
+
+@keyframes streakBlazeGlow {
+  0%, 100% { box-shadow: 0 0 24px rgba(255,200,40,0.2); }
+  50%       { box-shadow: 0 0 40px rgba(255,220,60,0.35); }
+}
+
+@keyframes cravingFade {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+
+@keyframes spectacleLabelIn {
+  0%   { opacity: 0; transform: scale(0.7) translateY(12px); }
+  60%  { opacity: 1; transform: scale(1.04) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes spectacleBurstParticle {
+  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
+  15%  { opacity: 1; transform: translate(calc(var(--bx,0px)*.15), calc(var(--by,0px)*.15)) scale(1.2); }
+  60%  { opacity: 0.8; transform: translate(calc(var(--bx,0px)*.6), calc(var(--by,0px)*.6)) scale(0.7); }
+  100% { opacity: 0; transform: translate(var(--bx,0px), var(--by,0px)) scale(0.1); }
+}
+
+@keyframes momentumCardBreath {
+  0%, 100% { box-shadow: 0 18px 46px rgba(108,48,14,0.09), 0 0 0 1px rgba(255,140,50,0.18); }
+  50%       { box-shadow: 0 18px 46px rgba(108,48,14,0.12), 0 0 0 1px rgba(255,160,60,0.28), 0 0 16px rgba(255,120,30,0.08); }
+}
+
+@keyframes fireButtonMomentum {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255,120,30,0.4), 0 8px 28px rgba(206,50,29,0.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(255,130,30,0.3), 0 8px 36px rgba(206,50,29,0.65), 0 0 24px rgba(255,100,20,0.2); }
+}
+
+@keyframes fireButtonBlaze {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,200,60,0.5), 0 8px 32px rgba(206,50,29,0.65), 0 0 32px rgba(255,150,30,0.3); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,220,80,0.45), 0 8px 40px rgba(206,50,29,0.8), 0 0 50px rgba(255,200,40,0.4); }
+}
+
+@keyframes pendingTaskPulse {
+  0%, 100% { border-color: rgba(132,64,31,0.12); }
+  50%       { border-color: rgba(255,120,40,0.18); }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .campfire-flame,
+  .campfire-ember,
+  .campfire-outer-glow,
+  .streak-flame-icon,
+  .campfire-craving-copy,
+  .ritual-spectacle-label,
+  .ritual-spectacle-burst i,
+  .fire-card {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
