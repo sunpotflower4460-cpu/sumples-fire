@@ -119,7 +119,6 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  overscroll-behavior-y: none;
   background:
     radial-gradient(circle at 18% 0%, rgba(255, 205, 120, 0.48), transparent 26rem),
     radial-gradient(circle at 92% 18%, rgba(255, 122, 74, 0.22), transparent 22rem),
@@ -128,6 +127,7 @@ body {
 
 button, input, select, textarea, summary { font: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button, [role="button"], summary { touch-action: manipulation; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 :focus-visible {
@@ -203,7 +203,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 .app-screen {
   min-height: 0;
-  padding: 2px 0 96px;
+  padding: 2px 0 164px;
+  overscroll-behavior-y: contain;
 }
 
 .screen-stack {
@@ -1105,11 +1106,22 @@ input:focus, select:focus, textarea:focus {
   backdrop-filter: blur(8px);
 }
 
+.sheet-drag-zone {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-top: 10px;
+  background: inherit;
+}
+
 .record-sheet {
   width: min(100%, 520px);
   max-height: min(88vh, 760px);
   margin: 0 auto;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding: 10px 18px max(22px, env(safe-area-inset-bottom));
   border: 1px solid var(--color-border);
   border-radius: 28px 28px 0 0;
@@ -1332,4 +1344,37 @@ input:focus, select:focus, textarea:focus {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .card-header, .card-footer { align-items: stretch; flex-direction: column; }
   .card-actions button { flex: 1; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .app-topbar,
+  .focus-seed,
+  .brand-hero,
+  .today-hero,
+  .quick-card,
+  .stat-card,
+  .panel,
+  .fire-card,
+  .empty-state,
+  .matrix-cell,
+  .bottom-tabs,
+  .sheet-backdrop {
+    backdrop-filter: none;
+  }
+
+  .brand-hero .primary-button {
+    animation: none;
+  }
+
+  .topbar-add:hover,
+  .primary-button:hover:not(:disabled),
+  .ghost-button:hover:not(:disabled),
+  .danger-button:hover:not(:disabled),
+  .filter-button:hover:not(:disabled),
+  .tab-button:hover:not(:disabled),
+  .fire-button:hover:not(:disabled),
+  .matrix-cell:hover,
+  .floating-action:hover {
+    transform: none;
+  }
 }

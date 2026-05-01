@@ -522,3 +522,28 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+@media (hover: none), (pointer: coarse) {
+  .campfire-embers,
+  .campfire-outer-glow {
+    display: none;
+  }
+
+  .campfire-flame {
+    filter: none !important;
+  }
+
+  .mobile-app-shell.streak-momentum .fire-card:not(.is-burned),
+  .mobile-app-shell.streak-blazing .fire-card:not(.is-burned),
+  .mobile-app-shell.streak-momentum .fire-button,
+  .mobile-app-shell.streak-blazing .fire-button,
+  .fire-campfire.has-pending ~ * .fire-card:not(.is-burned),
+  .screen-stack .fire-campfire.has-pending + * .fire-card:not(.is-burned),
+  .has-pending .campfire-craving-copy,
+  .streak-state-warm .streak-flame-icon,
+  .streak-state-momentum .streak-flame-icon,
+  .streak-state-blazing .streak-flame-icon,
+  .streak-state-blazing .campfire-streak {
+    animation: none;
+  }
+}

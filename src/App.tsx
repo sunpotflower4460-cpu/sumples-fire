@@ -118,11 +118,11 @@ export default function App() {
     }, 50);
   };
 
-  const handleSheetBackdropTouchStart = (event: React.TouchEvent) => {
+  const handleSheetSwipeStart = (event: React.TouchEvent) => {
     swipeTouchStartY.current = event.touches[0]?.clientY ?? null;
   };
 
-  const handleSheetBackdropTouchEnd = (event: React.TouchEvent) => {
+  const handleSheetSwipeEnd = (event: React.TouchEvent) => {
     if (swipeTouchStartY.current === null) return;
     const deltaY = (event.changedTouches[0]?.clientY ?? 0) - swipeTouchStartY.current;
     swipeTouchStartY.current = null;
@@ -373,17 +373,17 @@ export default function App() {
           className="sheet-backdrop"
           role="presentation"
           onClick={closeRecord}
-          onTouchStart={handleSheetBackdropTouchStart}
-          onTouchEnd={handleSheetBackdropTouchEnd}
         >
           <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
-            <div className="sheet-handle" aria-hidden="true" />
-            <div className="sheet-header">
-              <div>
-                <p className="eyebrow">薪をくべる</p>
-                <h2 id="record-title">燃やしたいタスクを書く</h2>
+            <div className="sheet-drag-zone" onTouchStart={handleSheetSwipeStart} onTouchEnd={handleSheetSwipeEnd}>
+              <div className="sheet-handle" aria-hidden="true" />
+              <div className="sheet-header">
+                <div>
+                  <p className="eyebrow">薪をくべる</p>
+                  <h2 id="record-title">燃やしたいタスクを書く</h2>
+                </div>
+                <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる">×</button>
               </div>
-              <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる">×</button>
             </div>
             <FireForm defaultTitle={draftTitle} onAddSeed={handleAddSeed} onClearDefaultTitle={() => setDraftTitle('')} />
           </section>
