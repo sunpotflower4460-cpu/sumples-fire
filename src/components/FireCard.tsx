@@ -55,9 +55,16 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
       {seed.body ? <p className="card-body">{seed.body}</p> : null}
 
       {seed.nextAction && !seed.burned ? (
-        <div className="next-action">
-          <span>最初の一歩</span>
+        <div className="next-action" aria-label="まずこれだけ">
+          <span>まずこれだけ</span>
           <p>{seed.nextAction}</p>
+        </div>
+      ) : null}
+
+      {seed.burned ? (
+        <div className="ash-log">
+          <span className="ash-reward">+{seed.ashPoints}炭</span>
+          <p className="ash-message">{burnMessages[seed.difficulty]}</p>
         </div>
       ) : null}
 
@@ -76,10 +83,10 @@ export function FireCard({ seed, onFire, onDelete }: FireCardProps) {
         <div className="card-actions">
           {!seed.burned ? (
             <button type="button" className="fire-button" onClick={() => onFire(seed.id)} disabled={seed.isBurning}>
-              {seed.isBurning ? '燃焼中' : 'Fire'}
+              {seed.isBurning ? '燃焼中' : '完了してFire'}
             </button>
           ) : null}
-          <button type="button" className="danger-button" onClick={() => onDelete(seed.id)} disabled={seed.isBurning}>
+          <button type="button" className="danger-button subtle-danger" onClick={() => onDelete(seed.id)} disabled={seed.isBurning}>
             削除
           </button>
         </div>

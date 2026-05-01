@@ -84,7 +84,13 @@ export function useFireSeeds() {
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
-      setNotice(`Fire! +${target.ashPoints} 炭`);
+      const base = `Fire完了！ +${target.ashPoints}炭になりました`;
+      const decorated = target.difficulty === 'boss'
+        ? `ラスボス撃破！ +${target.ashPoints}炭になりました`
+        : target.difficulty === 'heavy'
+          ? `大仕事完了！ +${target.ashPoints}炭になりました`
+          : base;
+      setNotice(decorated);
     }, 1600);
   };
 

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from '../types/fireSeed';
 import {
   categoryLabels,
@@ -6,13 +6,14 @@ import {
   difficultyLabels,
   levelLabels,
   priorityLabels,
-  quadrantDescriptions,
   quadrantLabels,
   stageLabels,
 } from '../types/fireSeed';
 import { getQuadrant } from '../lib/fireSeedModel';
 
 type FireFormProps = {
+  defaultTitle?: string;
+  onClearDefaultTitle?: () => void;
   onAddSeed: (input: {
     title: string;
     body: string;
@@ -26,6 +27,8 @@ type FireFormProps = {
   }) => void;
 };
 
+const titleMaxLength = 60;
+
 const levelOptions: { value: FireLevel; label: string; hint: string }[] = [
   { value: 'high', label: '高', hint: '今日・今週中に燃やす' },
   { value: 'low', label: '低', hint: '急ぎすぎなくていい' },
@@ -35,10 +38,17 @@ const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
   { value: 'small', hint: '5分くらい' },
   { value: 'normal', hint: '少し面倒' },
   { value: 'heavy', hint: '腰が重い' },
-  { value: 'boss', hint: 'ラスボス級' },
+  { value: 'boss', hint: '大きい達成' },
 ];
 
-export function FireForm({ onAddSeed }: FireFormProps) {
+const matrixShortDescriptions = {
+  doNow: '今日の最優先候補です。',
+  schedule: '時間を取って進めましょう。',
+  quickBurn: '短時間で片付けられそうです。',
+  backlog: '余力がある日に燃やしましょう。',
+} as const;
+
+export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireFormProps) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [nextAction, setNextAction] = useState('');
@@ -49,14 +59,24 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const [urgency, setUrgency] = useState<FireLevel>('high');
   const [importance, setImportance] = useState<FireLevel>('high');
   const [error, setError] = useState('');
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const quadrant = getQuadrant(urgency, importance);
+  const canSubmit = title.trim().length > 0;
+  const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
+
+  useEffect(() => {
+    if (!defaultTitle) return;
+    setTitle(defaultTitle);
+    onClearDefaultTitle?.();
+    window.setTimeout(() => titleInputRef.current?.focus(), 0);
+  }, [defaultTitle, onClearDefaultTitle]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!title.trim()) {
-      setError('燃やしたいタスクを入力してください');
+      setError('まずはタスク名だけ入力してください');
       return;
     }
 
@@ -77,17 +97,23 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     <form className="fire-form fire-form-fast" onSubmit={handleSubmit}>
       <div className="field-group">
         <label htmlFor="seed-title">燃やしたいタスク</label>
+        <p className="form-helper">まずは名前だけでOK。あとから詳しくできます。</p>
         <input
           id="seed-title"
+          ref={titleInputRef}
           value={title}
           onChange={(event) => {
             setTitle(event.target.value);
             setError('');
           }}
           placeholder="例：先延ばししていた返信をする"
-          maxLength={60}
+          maxLength={titleMaxLength}
           autoFocus
         />
+        <div className="field-meta">
+          <span className="char-count" aria-label="文字数">{titleCounter}</span>
+          {!title.trim() && !error ? <span className="field-hint">例のように短く書くだけで大丈夫です</span> : null}
+        </div>
       </div>
 
       <div className="field-group compact-field">
@@ -141,7 +167,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         <div className={`matrix-result-card matrix-result-${quadrant}`}>
           <span>自動分類</span>
           <strong>{quadrantLabels[quadrant]}</strong>
-          <p>{quadrantDescriptions[quadrant]}</p>
+          <p>{matrixShortDescriptions[quadrant]}</p>
         </div>
       </section>
 
@@ -157,7 +183,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
               aria-pressed={difficulty === option.value}
             >
               <b>{difficultyLabels[option.value]}</b>
-              <small>{option.hint} / +{difficultyAshPoints[option.value]} 炭</small>
+              <small>{option.hint} / +{difficultyAshPoints[option.value]}炭</small>
             </button>
           ))}
         </div>
@@ -222,11 +248,14 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         </div>
       </details>
 
-      {error ? <p className="form-error">{error}</p> : null}
+      {error ? <p className="form-error" role="alert">{error}</p> : null}
 
-      <button className="primary-button" type="submit">
-        薪にする
-      </button>
+      <div className="submit-row">
+        <button className="primary-button" type="submit" disabled={!canSubmit}>
+          タスクを薪にする
+        </button>
+        {!canSubmit ? <p className="submit-hint">タスク名を入れると追加できます</p> : null}
+      </div>
     </form>
   );
 }
