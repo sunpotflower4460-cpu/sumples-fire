@@ -246,7 +246,7 @@ export default function App() {
                   <div className="ash-empty-icon" aria-hidden="true">🌑</div>
                   <div className="useful-empty-header">
                     <p>まだ炭はありません。</p>
-                    <span>タスクを終わらせてFireすると、<br />ここに炭として残ります。</span>
+                    <span>タスクを終わらせてFireすると、ここに炭として残ります。</span>
                   </div>
                   <button className="primary-button" type="button" onClick={() => setActiveTab('today')}>今日のタスクを見る</button>
                 </div>

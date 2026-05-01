@@ -1082,6 +1082,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ── Empty state illustration block ── */
+/* Gradient mimics the brand-mark: yellow tip glow at top-left, orange-to-charcoal fire core */
 .empty-state-icon {
   display: grid;
   width: 68px;
@@ -1112,6 +1113,8 @@ input:focus, select:focus, textarea:focus {
   color: #7a5b4a;
   font-size: 0.88rem;
   font-weight: 700;
+  max-width: 22ch;
+  margin: 0 auto;
 }
 
 /* ── Ash empty state ── */
@@ -1138,20 +1141,6 @@ input:focus, select:focus, textarea:focus {
 
 .matrix-doNow.has-items {
   box-shadow: 0 20px 48px rgba(206, 50, 29, 0.15);
-}
-
-/* ── Focus-seed fire button pulse ── */
-@keyframes fireButtonPulse {
-  0%, 100% { box-shadow: 0 14px 30px rgba(206, 50, 29, 0.28); }
-  50% { box-shadow: 0 14px 30px rgba(206, 50, 29, 0.45), 0 0 0 4px rgba(255, 120, 40, 0.14); }
-}
-
-.fire-button:not(:disabled) {
-  animation: fireButtonPulse 2.4s ease-in-out infinite;
-}
-
-.fire-button:hover:not(:disabled) {
-  animation: none;
 }
 
 /* ── Sheet backdrop entrance ── */
