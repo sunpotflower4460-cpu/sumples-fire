@@ -37,6 +37,7 @@ export const titleVariants: Variants = {
   ignite: {
     opacity: 1,
     scale: 1,
+    // Slightly longer entrance supports the quiet tension of the ignite phase
     transition: { duration: 0.45, ease: BURN_EASE },
   },
   burning: {
