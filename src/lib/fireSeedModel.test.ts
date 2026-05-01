@@ -59,29 +59,29 @@ describe('fireSeedModel', () => {
     expect(stats.flame).toBe(1);
     expect(stats.burned).toBe(1);
     expect(stats.totalAshPoints).toBe(20);
-    expect(stats.rank).toBe('火付け人');
-    expect(stats.nextRank).toBe('炭集め名人');
+    expect(stats.rank).toBe('火吹き');
+    expect(stats.nextRank).toBe('炎の弟子');
     expect(stats.nextRankRemaining).toBe(30);
     expect(stats.rankProgress).toBe(14);
     expect(typeof stats.todayBurned).toBe('number');
   });
 
   it('returns rank labels by ash points', () => {
-    expect(getFireRank(0)).toBe('はじめの火花');
-    expect(getFireRank(15)).toBe('火付け人');
-    expect(getFireRank(120)).toBe('炎の職人');
-    expect(getFireRank(500)).toBe('灰の王');
+    expect(getFireRank(0)).toBe('火掻き棒');
+    expect(getFireRank(15)).toBe('火吹き');
+    expect(getFireRank(120)).toBe('焚火の番人');
+    expect(getFireRank(500)).toBe('業火の主');
   });
 
   it('returns next rank progress', () => {
     expect(getNextFireRank(20)).toEqual({
-      current: '火付け人',
-      next: '炭集め名人',
+      current: '火吹き',
+      next: '炎の弟子',
       remaining: 30,
       progress: 14,
     });
     expect(getNextFireRank(500)).toEqual({
-      current: '灰の王',
+      current: '業火の主',
       next: '最高称号',
       remaining: 0,
       progress: 100,

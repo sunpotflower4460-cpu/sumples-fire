@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
-import { playFireSequence } from '../lib/fireSoundEngine';
+import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
+import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
+import { loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
+import { playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import type { FireCategory, FireDifficulty, FireFilter, FireLevel, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
@@ -32,6 +35,8 @@ export function useFireSeeds() {
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(getBrowserStorage())));
   const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
+  const [streakData, setStreakData] = useState(() => loadFireStreak());
+  const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
 
   useEffect(() => {
     const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
@@ -80,12 +85,21 @@ export function useFireSeeds() {
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.burned || target.isBurning) return;
 
+    const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
+    setBurningSpectacle(spectacle);
+
     if (isFireSoundEnabled()) {
-      void playFireSequence();
+      void playSpectacleSequence(spectacle.soundProfile);
     }
+
+    const newStreakData = recordBurnForStreak(streakData);
+    setStreakData(newStreakData);
+    saveFireStreak(newStreakData);
+
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
+      setBurningSpectacle(null);
       const base = `Fire完了！ +${target.ashPoints}炭になりました`;
       const decorated = target.difficulty === 'boss'
         ? `ラスボス撃破！ +${target.ashPoints}炭になりました`
@@ -131,6 +145,8 @@ export function useFireSeeds() {
     focusSeed,
     notice,
     stats,
+    streakData,
+    burningSpectacle,
     addSeed,
     burnTask,
     deleteSeed,

@@ -18,12 +18,12 @@ const quadrantScore: Record<FireMatrixQuadrant, number> = {
 };
 
 const fireRanks = [
-  { min: 0, label: 'はじめの火花' },
-  { min: 15, label: '火付け人' },
-  { min: 50, label: '炭集め名人' },
-  { min: 120, label: '炎の職人' },
-  { min: 250, label: '焚火マスター' },
-  { min: 500, label: '灰の王' },
+  { min: 0, label: '火掻き棒' },
+  { min: 15, label: '火吹き' },
+  { min: 50, label: '炎の弟子' },
+  { min: 120, label: '焚火の番人' },
+  { min: 250, label: '火神の末裔' },
+  { min: 500, label: '業火の主' },
 ] as const;
 
 export const sortFireTasks = (seeds: FireSeed[]) => {
