@@ -26,7 +26,7 @@
 
   --shadow-1:          0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-2:          0 18px 46px rgba(0, 0, 0, 0.52);
-  --shadow-card:       0 18px 46px rgba(0, 0, 0, 0.52);
+  --shadow-card:       var(--shadow-2);
   --shadow-card-lg:    0 22px 54px rgba(0, 0, 0, 0.62);
   --shadow-fire:       0 14px 36px rgba(206, 50, 29, 0.52);
 }
