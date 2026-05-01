@@ -8,6 +8,8 @@ import './flameMobile.css';
 import './formUx.css';
 import './rewardProgress.css';
 import './comfortSettings.css';
+import './burningRitual.css';
+import './darkTheme.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
