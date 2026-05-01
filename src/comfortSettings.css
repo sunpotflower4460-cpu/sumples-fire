@@ -3,13 +3,13 @@
   grid-template-columns: 1fr auto;
   gap: 14px;
   align-items: center;
-  border: 1px solid rgba(132, 64, 31, 0.14);
+  border: 1px solid var(--color-border);
   border-radius: 26px;
   background:
     radial-gradient(circle at 88% 14%, rgba(255, 210, 111, 0.34), transparent 5.2rem),
     linear-gradient(145deg, rgba(255, 250, 241, 0.98), rgba(255, 231, 204, 0.9));
   padding: 16px;
-  box-shadow: 0 16px 34px rgba(108, 48, 14, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 .comfort-settings-card span {
