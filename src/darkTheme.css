@@ -12,19 +12,29 @@
   --color-fire-gold:   #ffc23a;
   --color-fire-yellow: #ffe880;
 
+  --color-bg:          #0a0705;
   --color-surface:     rgba(255, 247, 234, 0.042);
+  --color-surface-2:   rgba(255, 247, 234, 0.07);
   --color-border:      rgba(255, 130, 50, 0.1);
   --color-border-focus: #ff7528;
+  --color-text:        #fff7ea;
+  --color-text-muted:  rgba(255, 247, 234, 0.58);
+  --color-fire:        #ff7528;
+  --color-ember:       #ff9840;
+  --color-ash:         rgba(255, 247, 234, 0.8);
+  --color-focus-ring:  #ff7528;
 
-  --shadow-card:       0 18px 46px rgba(0, 0, 0, 0.52);
+  --shadow-1:          0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-2:          0 18px 46px rgba(0, 0, 0, 0.52);
+  --shadow-card:       var(--shadow-2);
   --shadow-card-lg:    0 22px 54px rgba(0, 0, 0, 0.62);
   --shadow-fire:       0 14px 36px rgba(206, 50, 29, 0.52);
 }
 
 /* ── Base ── */
 :root {
-  color: #fff7ea;
-  background: #0a0705;
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 body {

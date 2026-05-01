@@ -28,9 +28,9 @@
 
 .choice-button {
   min-height: 68px;
-  border: 1px solid rgba(132, 64, 31, 0.13);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--color-surface);
   color: #3c241a;
   padding: 12px 10px;
   text-align: left;
@@ -85,8 +85,8 @@
 
 .matrix-result-card {
   border-radius: 20px;
-  background: #2c1710;
-  color: #fff7ea;
+  background: var(--color-ash-dark);
+  color: var(--color-paper);
   padding: 14px;
   box-shadow: 0 14px 28px rgba(44, 23, 16, 0.18);
 }
