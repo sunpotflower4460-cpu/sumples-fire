@@ -23,7 +23,8 @@
   transition: background 0.4s ease;
 }
 
-.ritual-phase-ignition .ritual-bg {
+.ritual-phase-ignition .ritual-bg,
+.ritual-phase-ignite .ritual-bg {
   background:
     radial-gradient(ellipse 120% 80% at 50% 115%, rgba(255, 220, 80, 0.55) 0%, rgba(255, 110, 20, 0.45) 22%, rgba(160, 30, 8, 0.3) 44%, transparent 65%),
     #070400;
@@ -37,7 +38,9 @@
     #060300;
 }
 
-.ritual-phase-ash .ritual-bg {
+.ritual-phase-ash .ritual-bg,
+.ritual-phase-carbonizing .ritual-bg,
+.ritual-phase-complete .ritual-bg {
   background:
     radial-gradient(ellipse 100% 70% at 50% 110%, rgba(80, 45, 25, 0.3) 0%, transparent 55%),
     #050302;
@@ -66,9 +69,12 @@
   animation: ritualLabelFade 0.35s ease both;
 }
 
-.ritual-phase-ignition .ritual-phase-label { color: rgba(255, 230, 120, 0.9); }
-.ritual-phase-burning  .ritual-phase-label { color: rgba(255, 160, 50, 0.85); }
-.ritual-phase-ash      .ritual-phase-label { color: rgba(200, 160, 100, 0.7); }
+.ritual-phase-ignition .ritual-phase-label,
+.ritual-phase-ignite      .ritual-phase-label { color: rgba(255, 230, 120, 0.9); }
+.ritual-phase-burning     .ritual-phase-label { color: rgba(255, 160, 50, 0.85); }
+.ritual-phase-ash         .ritual-phase-label,
+.ritual-phase-carbonizing .ritual-phase-label,
+.ritual-phase-complete    .ritual-phase-label { color: rgba(200, 160, 100, 0.7); }
 
 .ritual-title {
   margin: 0;
@@ -89,10 +95,17 @@
   animation: ritualTitleBurn 0.75s ease both;
 }
 
-.ritual-phase-ash .ritual-title {
+.ritual-phase-ash .ritual-title,
+.ritual-phase-carbonizing .ritual-title,
+.ritual-phase-complete .ritual-title {
   color: rgba(200, 170, 140, 0.72);
   text-shadow: 0 0 12px rgba(100, 60, 30, 0.5);
   transition: color 0.8s ease, text-shadow 0.8s ease;
+}
+
+/* ── Title wrapper — hosts SVG displacement filter ── */
+.ritual-title-wrapper {
+  display: contents;
 }
 
 .ritual-difficulty {
@@ -160,9 +173,12 @@
   transition: opacity 0.2s ease;
 }
 
-.ritual-phase-ignition .ritual-flames { opacity: 0.35; }
+.ritual-phase-ignition .ritual-flames,
+.ritual-phase-ignite .ritual-flames { opacity: 0.35; }
 .ritual-phase-burning  .ritual-flames { opacity: 1; }
-.ritual-phase-ash      .ritual-flames { opacity: 0; transition: opacity 0.9s ease; }
+.ritual-phase-ash      .ritual-flames,
+.ritual-phase-carbonizing .ritual-flames,
+.ritual-phase-complete .ritual-flames { opacity: 0; transition: opacity 0.9s ease; }
 
 .ritual-flames i {
   position: absolute;
@@ -218,8 +234,11 @@
 }
 
 .ritual-phase-burning .ritual-embers,
-.ritual-phase-ignition .ritual-embers { opacity: 1; }
-.ritual-phase-ash .ritual-embers { opacity: 0; transition: opacity 1s ease; }
+.ritual-phase-ignition .ritual-embers,
+.ritual-phase-ignite .ritual-embers { opacity: 1; }
+.ritual-phase-ash .ritual-embers,
+.ritual-phase-carbonizing .ritual-embers,
+.ritual-phase-complete .ritual-embers { opacity: 0; transition: opacity 1s ease; }
 
 .ritual-embers i {
   position: absolute;
