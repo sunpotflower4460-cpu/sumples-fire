@@ -59,20 +59,26 @@
 }
 
 .matrix-doNow {
-  background: linear-gradient(145deg, rgba(255, 245, 232, 0.94), rgba(255, 218, 196, 0.9));
-  border-color: rgba(206, 50, 29, 0.2);
+  background: linear-gradient(145deg, rgba(255, 240, 226, 0.98), rgba(255, 212, 186, 0.94));
+  border-color: rgba(206, 50, 29, 0.24);
+  border-width: 1.5px;
 }
 
+.matrix-doNow span { color: #b8321c; }
+
 .matrix-schedule {
-  background: linear-gradient(145deg, rgba(255, 253, 245, 0.95), rgba(255, 239, 198, 0.9));
+  background: linear-gradient(145deg, rgba(255, 253, 240, 0.97), rgba(255, 236, 188, 0.92));
+  border-color: rgba(160, 100, 20, 0.18);
 }
 
 .matrix-quickBurn {
-  background: linear-gradient(145deg, rgba(255, 249, 242, 0.95), rgba(255, 229, 212, 0.88));
+  background: linear-gradient(145deg, rgba(255, 248, 238, 0.97), rgba(255, 224, 200, 0.9));
+  border-color: rgba(200, 80, 30, 0.16);
 }
 
 .matrix-backlog {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(241, 232, 218, 0.86));
+  background: linear-gradient(145deg, rgba(252, 250, 246, 0.96), rgba(238, 228, 214, 0.9));
+  border-color: rgba(100, 70, 50, 0.12);
 }
 
 .matrix-badge {
