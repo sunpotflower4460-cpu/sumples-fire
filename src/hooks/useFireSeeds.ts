@@ -97,6 +97,7 @@ export function useFireSeeds() {
     saveFireStreak(newStreakData);
 
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
+    // Timeout matches the full Framer Motion burn sequence (4200 ms).
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
       setBurningSpectacle(null);
@@ -107,7 +108,7 @@ export function useFireSeeds() {
           ? `大仕事完了！ +${target.ashPoints}炭になりました`
           : base;
       setNotice(decorated);
-    }, 1600);
+    }, 4200);
   };
 
   const deleteSeed = (id: string) => {
