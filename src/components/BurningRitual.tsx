@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { FireSeed } from '../types/fireSeed';
+import type { FireDifficulty, FireSeed } from '../types/fireSeed';
 import { difficultyLabels } from '../types/fireSeed';
 
 type BurningPhase = 'ignition' | 'burning' | 'ash';
 
-const burnMessages: Record<string, string> = {
+const burnMessages: Record<FireDifficulty, string> = {
   small: '小さく燃えた。いい一歩。',
   normal: 'よく燃えた。前に進んだ。',
   heavy: '重いタスクを燃やした。強い。',
