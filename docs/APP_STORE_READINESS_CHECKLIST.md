@@ -47,6 +47,10 @@ Sumples Fire を App Store に提出する前に確認する項目です。
 - [ ] 説明文、キーワード、サポートURLを登録する
 - [ ] 審査メモを必要に応じて書く
 
+補足:
+- プライバシーポリシーURL候補: `/privacy.html`
+- サポートURL候補: `/support.html`
+
 ## 5. 署名 / 配布
 
 ここは手動ゲートです。
@@ -68,5 +72,5 @@ Sumples Fire を App Store に提出する前に確認する項目です。
 
 ## 現時点の注意
 
-現在の `public/icon.svg` は仮アイコンです。  
-App Store提出前には正式アイコンへ差し替えてください。
+PNG アイコンセットは `public/icons/` に追加済みです。  
+App Store 提出時は、Capacitor / Xcode 側の AppIcon Asset Catalog に同等サイズを反映してください。
