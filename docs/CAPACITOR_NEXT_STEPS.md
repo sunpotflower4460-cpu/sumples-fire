@@ -13,7 +13,7 @@
 - `theme-color` 追加
 - `viewport-fit=cover` 追加
 - safe-area をCSSで考慮
-- 仮アイコン `public/icon.svg` 追加
+- PNG アイコンセット `public/icons/` 追加（App Store 1024含む）
 - lint / test / typecheck / build のCI準備
 
 ## まだ自動化しないこと
@@ -76,11 +76,11 @@ npx cap open ios
 - Bundle Identifier が正しいか
 - Team が自分の Apple Developer アカウントになっているか
 - Signing が通っているか
-- App Icon が正式PNGに差し替わっているか
+- App Icon が Xcode Asset Catalog に取り込まれているか（`public/icons/app-store-icon-1024.png` など）
 - Launch Screen が最低限整っているか
 - 実機でクラッシュしないか
 - ローカル保存が期待通り動くか
 
 ## 注意
 
-現在の `public/icon.svg` は仮アイコンです。App Store提出前には、正式なPNGアイコンセットに差し替える必要があります。
+Capacitor / Xcode化時は `public/icons/` の PNG セットを iOS 側の AppIcon に反映してください。

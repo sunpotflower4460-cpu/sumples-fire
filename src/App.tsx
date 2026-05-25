@@ -346,6 +346,10 @@ export default function App() {
                 <span>保存について</span>
                 <p>タスクはこの端末のブラウザ内に保存され、閉じて開き直しても残ります。アカウント登録は不要です。</p>
               </article>
+              <article>
+                <span>公開情報</span>
+                <p><a href="/privacy.html" target="_blank" rel="noreferrer">プライバシーポリシー</a> / <a href="/support.html" target="_blank" rel="noreferrer">サポート情報</a></p>
+              </article>
             </div>
           </section>
         ) : null}
