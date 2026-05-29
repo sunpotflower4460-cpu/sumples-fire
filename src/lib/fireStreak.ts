@@ -20,8 +20,10 @@ const defaultStreak = (): FireStreakData => ({
 const normalizeStreak = (value: unknown): FireStreakData => {
   if (!value || typeof value !== 'object') return defaultStreak();
   const candidate = value as Partial<FireStreakData>;
-  const currentStreak = Number.isFinite(candidate.currentStreak) ? Math.max(0, Math.floor(candidate.currentStreak)) : 0;
-  const longestStreak = Number.isFinite(candidate.longestStreak) ? Math.max(0, Math.floor(candidate.longestStreak)) : 0;
+  const currentStreakRaw = typeof candidate.currentStreak === 'number' ? candidate.currentStreak : NaN;
+  const longestStreakRaw = typeof candidate.longestStreak === 'number' ? candidate.longestStreak : NaN;
+  const currentStreak = Number.isFinite(currentStreakRaw) ? Math.max(0, Math.floor(currentStreakRaw)) : 0;
+  const longestStreak = Number.isFinite(longestStreakRaw) ? Math.max(0, Math.floor(longestStreakRaw)) : 0;
   const safeLongestStreak = Math.max(longestStreak, currentStreak);
   const lastBurnDate = typeof candidate.lastBurnDate === 'string' ? candidate.lastBurnDate : null;
 
