@@ -17,12 +17,29 @@ const defaultStreak = (): FireStreakData => ({
   longestStreak: 0,
 });
 
+const normalizeStreak = (value: unknown): FireStreakData => {
+  if (!value || typeof value !== 'object') return defaultStreak();
+  const candidate = value as Partial<FireStreakData>;
+  const currentStreakRaw = typeof candidate.currentStreak === 'number' ? candidate.currentStreak : NaN;
+  const longestStreakRaw = typeof candidate.longestStreak === 'number' ? candidate.longestStreak : NaN;
+  const currentStreak = Number.isFinite(currentStreakRaw) ? Math.max(0, Math.floor(currentStreakRaw)) : 0;
+  const longestStreak = Number.isFinite(longestStreakRaw) ? Math.max(0, Math.floor(longestStreakRaw)) : 0;
+  const safeLongestStreak = Math.max(longestStreak, currentStreak);
+  const lastBurnDate = typeof candidate.lastBurnDate === 'string' ? candidate.lastBurnDate : null;
+
+  return {
+    currentStreak,
+    longestStreak: safeLongestStreak,
+    lastBurnDate,
+  };
+};
+
 export const loadFireStreak = (): FireStreakData => {
   if (typeof window === 'undefined') return defaultStreak();
   try {
     const raw = window.localStorage.getItem(STREAK_STORAGE_KEY);
     if (!raw) return defaultStreak();
-    return JSON.parse(raw) as FireStreakData;
+    return normalizeStreak(JSON.parse(raw));
   } catch {
     return defaultStreak();
   }

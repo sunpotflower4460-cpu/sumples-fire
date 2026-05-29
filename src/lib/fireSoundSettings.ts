@@ -1,15 +1,30 @@
 const SOUND_STORAGE_KEY = 'fire-task-sound-enabled-v1';
 
-const getStorage = () => (typeof window === 'undefined' ? undefined : window.localStorage);
+const getStorage = () => {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+};
 
 export const isFireSoundEnabled = () => {
   const storage = getStorage();
   if (!storage) return true;
-  return storage.getItem(SOUND_STORAGE_KEY) !== 'false';
+  try {
+    return storage.getItem(SOUND_STORAGE_KEY) !== 'false';
+  } catch {
+    return true;
+  }
 };
 
 export const setFireSoundEnabled = (enabled: boolean) => {
   const storage = getStorage();
   if (!storage) return;
-  storage.setItem(SOUND_STORAGE_KEY, String(enabled));
+  try {
+    storage.setItem(SOUND_STORAGE_KEY, String(enabled));
+  } catch {
+    // ignore
+  }
 };
