@@ -21,7 +21,14 @@ type NewFireSeedInput = {
   importance: FireLevel;
 };
 
-const getBrowserStorage = () => (typeof window === 'undefined' ? undefined : window.localStorage);
+const getBrowserStorage = () => {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+};
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {

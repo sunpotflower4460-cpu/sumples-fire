@@ -11,15 +11,19 @@ const getAudioContext = async () => {
   const AudioContextConstructor = window.AudioContext ?? (window as AudioWindow).webkitAudioContext;
   if (!AudioContextConstructor) return null;
 
-  if (!audioContext) {
-    audioContext = new AudioContextConstructor();
-  }
+  try {
+    if (!audioContext) {
+      audioContext = new AudioContextConstructor();
+    }
 
-  if (audioContext.state === 'suspended') {
-    await audioContext.resume();
-  }
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
 
-  return audioContext;
+    return audioContext;
+  } catch {
+    return null;
+  }
 };
 
 const createNoiseBuffer = (context: AudioContext) => {
