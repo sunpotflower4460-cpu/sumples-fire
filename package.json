@@ -9,10 +9,14 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "@vitejs/plugin-react": "^4.4.1",
     "framer-motion": "^12.38.0",
     "react": "^19.0.0",
@@ -21,6 +25,7 @@
     "vite": "^6.3.5"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.4",
     "@cloudflare/vite-plugin": "^1.38.0",
     "@eslint/js": "^9.30.0",
     "@types/react": "^19.1.8",
