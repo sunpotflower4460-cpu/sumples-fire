@@ -141,3 +141,11 @@ npx cap open ios
 ## 注意
 
 Capacitor / Xcode化時は `public/icons/` の PNG セットを iOS 側の AppIcon に反映してください。
+
+## アプリ内リンク方針（privacy / support）
+
+- 現在は、使い方タブの `privacy.html` / `support.html` を `target="_blank"` なしで同一WebView内遷移にしています。
+- iOSアプリで「外部ブラウザが急に開く」体験を避けるため、アプリ内の公開情報はまず同一WebViewで表示する方針です。
+- 将来 `@capacitor/browser` を導入する場合は、次を目安にします。
+  - 外部ドメイン（例: 公式サイト、フォーム）: Browser plugin で開く
+  - 同一オリジンの公開ページ（`/privacy.html`・`/support.html`）: これまで通りアプリ内遷移
