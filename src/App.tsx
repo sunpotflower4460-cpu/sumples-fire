@@ -10,7 +10,6 @@ import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
-import { warmUpFireSound } from './lib/fireSoundEngine';
 import { getStreakState } from './lib/fireStreak';
 import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireSeed, FireStage } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
@@ -60,11 +59,6 @@ export default function App() {
     stats,
     streakData,
   } = useFireSeeds();
-
-  // Warm up AudioContext on first mount so Fire sound plays without delay
-  useEffect(() => {
-    void warmUpFireSound();
-  }, []);
 
   const openRecord = () => {
     previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
