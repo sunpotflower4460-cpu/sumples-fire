@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
@@ -31,7 +31,8 @@ const createId = () => {
 };
 
 export function useFireSeeds() {
-  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(getWebStorageDriver())));
+  const storageDriverRef = useRef(getWebStorageDriver());
+  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
@@ -39,7 +40,7 @@ export function useFireSeeds() {
 
   useEffect(() => {
     const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
-    const saved = saveStoredSeeds(getWebStorageDriver(), persistedSeeds);
+    const saved = saveStoredSeeds(storageDriverRef.current, persistedSeeds);
     if (!saved) {
       setNotice('この端末では保存できませんでした');
     }
