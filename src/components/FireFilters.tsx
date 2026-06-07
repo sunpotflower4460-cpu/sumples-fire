@@ -1,16 +1,16 @@
 import type { FireFilter } from '../types/fireSeed';
 
+export type TodayFireFilter = Extract<FireFilter, 'active' | 'today'>;
+
 type FireFiltersProps = {
-  filter: FireFilter;
-  counts: Record<FireFilter, number>;
-  onChangeFilter: (filter: FireFilter) => void;
+  filter: TodayFireFilter;
+  counts: Record<TodayFireFilter, number>;
+  onChangeFilter: (filter: TodayFireFilter) => void;
 };
 
-const filters: { value: FireFilter; label: string }[] = [
+const filters: { value: TodayFireFilter; label: string }[] = [
   { value: 'active', label: '未燃焼' },
   { value: 'today', label: '今日やる' },
-  { value: 'burned', label: '燃焼済み' },
-  { value: 'all', label: 'すべて' },
 ];
 
 export function FireFilters({ filter, counts, onChangeFilter }: FireFiltersProps) {
