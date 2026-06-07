@@ -6,6 +6,7 @@ import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
 import { playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
+import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireCategory, FireDifficulty, FireFilter, FireLevel, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
@@ -21,15 +22,6 @@ type NewFireSeedInput = {
   importance: FireLevel;
 };
 
-const getBrowserStorage = () => {
-  if (typeof window === 'undefined') return undefined;
-  try {
-    return window.localStorage;
-  } catch {
-    return undefined;
-  }
-};
-
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -39,7 +31,7 @@ const createId = () => {
 };
 
 export function useFireSeeds() {
-  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(getBrowserStorage())));
+  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(getWebStorageDriver())));
   const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
@@ -47,7 +39,7 @@ export function useFireSeeds() {
 
   useEffect(() => {
     const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
-    const saved = saveStoredSeeds(getBrowserStorage(), persistedSeeds);
+    const saved = saveStoredSeeds(getWebStorageDriver(), persistedSeeds);
     if (!saved) {
       setNotice('この端末では保存できませんでした');
     }

@@ -1,3 +1,5 @@
+import { getWebStorageDriver } from './webLocalStorageDriver';
+
 export const STREAK_STORAGE_KEY = 'sumples-fire-streak-v1';
 
 export type FireStreakData = {
@@ -35,9 +37,10 @@ const normalizeStreak = (value: unknown): FireStreakData => {
 };
 
 export const loadFireStreak = (): FireStreakData => {
-  if (typeof window === 'undefined') return defaultStreak();
+  const driver = getWebStorageDriver();
+  if (!driver) return defaultStreak();
   try {
-    const raw = window.localStorage.getItem(STREAK_STORAGE_KEY);
+    const raw = driver.getItem(STREAK_STORAGE_KEY);
     if (!raw) return defaultStreak();
     return normalizeStreak(JSON.parse(raw));
   } catch {
@@ -46,9 +49,10 @@ export const loadFireStreak = (): FireStreakData => {
 };
 
 export const saveFireStreak = (data: FireStreakData): void => {
-  if (typeof window === 'undefined') return;
+  const driver = getWebStorageDriver();
+  if (!driver) return;
   try {
-    window.localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(data));
+    driver.setItem(STREAK_STORAGE_KEY, JSON.stringify(data));
   } catch {
     // ignore
   }
