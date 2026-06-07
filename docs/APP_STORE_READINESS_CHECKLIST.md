@@ -24,6 +24,12 @@ Sumples Fire を App Store に提出する前に確認する項目です。
 - [ ] npm run build が成功する
 - [ ] GitHub Actions CI が成功する
 - [ ] CodeRabbitなどでブロック指摘がない
+- [ ] Issue群反映チェック（品質整理）
+  - [ ] `font-weight: 1000` が残っていない（`900` に統一）
+  - [ ] `.gitignore` に `*.tsbuildinfo` が追加されている
+  - [ ] `tsconfig.tsbuildinfo` がGit管理対象から外れている
+  - [ ] CIの依存インストールが `npm ci` になっている
+  - [ ] `docs/ui-ux-audit.md` と実装状態が一致している
 
 ## 3. アイコン / 表示
 
