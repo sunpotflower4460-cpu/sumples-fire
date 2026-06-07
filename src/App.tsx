@@ -5,7 +5,7 @@ import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
 import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireConfirmModal } from './components/FireConfirmModal';
-import { FireFilters } from './components/FireFilters';
+import { FireFilters, type TodayFireFilter } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
@@ -136,16 +136,16 @@ export default function App() {
   const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
   const hasPendingTasks = allSeeds.some((seed) => !seed.burned);
   const streakState = getStreakState(streakData.currentStreak);
-  const activeTasks = useMemo(() => {
+  const todayFilter: TodayFireFilter = filter === 'today' ? 'today' : 'active';
+  const shouldShowViewAllButton = hasPendingTasks && (todayFilter === 'today' || quadrantFilter !== null);
+  const visibleTasks = useMemo(() => {
     const base = filteredSeeds.filter((seed) => !seed.burned);
     return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
   }, [filteredSeeds, quadrantFilter]);
   const counts = useMemo(() => {
     const active = allSeeds.filter((seed) => !seed.burned).length;
     const today = allSeeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length;
-    const burned = allSeeds.filter((seed) => seed.burned).length;
-    const all = allSeeds.length;
-    return { active, today, burned, all };
+    return { active, today };
   }, [allSeeds]);
 
   const matrixItems = [
@@ -170,6 +170,12 @@ export default function App() {
       document.body.style.overflow = original;
     };
   }, [isRecordOpen]);
+
+  useEffect(() => {
+    if (activeTab !== 'today') return;
+    if (filter === 'active' || filter === 'today') return;
+    setFilter('active');
+  }, [activeTab, filter, setFilter]);
 
   useEffect(() => {
     if (!isRecordOpen) return;
@@ -277,7 +283,7 @@ export default function App() {
                 <p className="eyebrow">Matrix Sorted</p>
                 <h2>自動で並んだタスク</h2>
               </div>
-              {hasTasks ? <FireFilters filter={filter} counts={counts} onChangeFilter={(f) => { setFilter(f); setQuadrantFilter(null); }} /> : null}
+              {hasTasks ? <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(f) => { setFilter(f); setQuadrantFilter(null); }} /> : null}
               {quadrantFilter ? (
                 <div className="quadrant-filter-bar">
                   <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
@@ -285,15 +291,18 @@ export default function App() {
                 </div>
               ) : null}
               <div className="cards-stack">
-                {activeTasks.length > 0 ? (
-                  activeTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
+                {visibleTasks.length > 0 ? (
+                  visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
                 ) : (
                   <div className="empty-state useful-empty">
                 <div className="empty-state-icon" aria-hidden="true">🪵</div>
                 <div className="useful-empty-header">
-                  <p>薪（タスク）をくべよう！</p>
-                  <span>燃やしたいことを1つだけ書いてみましょう</span>
+                  <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : '薪（タスク）をくべよう！'}</p>
+                  <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '燃やしたいことを1つだけ書いてみましょう'}</span>
                 </div>
+                {shouldShowViewAllButton ? (
+                  <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
+                ) : null}
                 <span>おすすめ:</span>
                 <ul>
                   {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
@@ -304,7 +313,7 @@ export default function App() {
                     </li>
                   ))}
                 </ul>
-                <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
+                <button className="primary-button" type="button" onClick={openRecord}>{hasPendingTasks ? 'タスクを追加' : '最初のタスクを書く'}</button>
               </div>
                 )}
               </div>
