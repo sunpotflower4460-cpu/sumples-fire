@@ -350,8 +350,12 @@ export default function App() {
                 <p>タスクはこの端末内に保存されます。アカウント登録は不要です。アプリを閉じて開き直してもタスクは残ります。</p>
               </article>
               <article>
+                <span>プライバシーについて</span>
+                <p>入力したタスクはこの端末内だけで扱われ、運営者のサーバーへ送信する機能はありません。くわしくはプライバシーポリシーをご確認ください。</p>
+              </article>
+              <article>
                 <span>公開情報</span>
-                <p><a href="/privacy.html" target="_blank" rel="noreferrer">プライバシーポリシー</a> / <a href="/support.html" target="_blank" rel="noreferrer">サポート情報</a></p>
+                <p><a href="/privacy.html">プライバシーポリシー</a> / <a href="/support.html">サポート情報</a></p>
               </article>
             </div>
           </section>
