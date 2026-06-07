@@ -344,7 +344,7 @@ export default function App() {
               </article>
               <article>
                 <span>保存について</span>
-                <p>タスクはこの端末のブラウザ内に保存され、閉じて開き直しても残ります。アカウント登録は不要です。</p>
+                <p>タスクはこの端末内に保存されます。アカウント登録は不要です。アプリを閉じて開き直してもタスクは残ります。</p>
               </article>
               <article>
                 <span>公開情報</span>
