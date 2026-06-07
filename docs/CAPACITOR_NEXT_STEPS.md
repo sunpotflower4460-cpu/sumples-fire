@@ -15,6 +15,8 @@
 - safe-area をCSSで考慮
 - PNG アイコンセット `public/icons/` 追加（App Store 1024含む）
 - lint / test / typecheck / build のCI準備
+- `StorageDriver` 抽象インターフェースを定義済み（`src/lib/storageDriver.ts`）
+- `WebLocalStorageDriver` 実装済み（`src/lib/webLocalStorageDriver.ts`）
 
 ## まだ自動化しないこと
 
@@ -27,6 +29,61 @@
 - TestFlight アップロード
 - App Store Connect の新規アプリ作成
 - App Store 審査提出
+
+## CapacitorPreferencesDriver の追加方法
+
+Capacitor Preferences はネイティブ側の非同期 API なので、追加時は次の手順を検討してください。
+
+### 1. ドライバを作成する
+
+`src/lib/capacitorPreferencesDriver.ts` を新規作成し、`StorageDriver` インターフェースを実装します。
+
+```typescript
+import { Preferences } from '@capacitor/preferences';
+import type { StorageDriver } from './storageDriver';
+
+/**
+ * 同期的に見せるため、アプリ起動時にすべてのキーをプリロードしておきます。
+ * `initialize()` を呼び出してから利用してください。
+ */
+export class CapacitorPreferencesDriver implements StorageDriver {
+  private cache = new Map<string, string>();
+
+  async initialize(keys: string[]): Promise<void> {
+    await Promise.all(
+      keys.map(async (key) => {
+        const { value } = await Preferences.get({ key });
+        if (value !== null) this.cache.set(key, value);
+      }),
+    );
+  }
+
+  getItem(key: string): string | null {
+    return this.cache.get(key) ?? null;
+  }
+
+  setItem(key: string, value: string): void {
+    this.cache.set(key, value);
+    // 非同期で書き出し（失敗はサイレントに無視）
+    void Preferences.set({ key, value }).catch(() => {});
+  }
+}
+```
+
+### 2. ドライバを登録する
+
+`src/hooks/useFireSeeds.ts` の `getWebStorageDriver()` 呼び出しを、起動時に初期化した `CapacitorPreferencesDriver` インスタンスに差し替えます。
+
+### 3. 既存キーの移行
+
+次のキーが既に存在します。`initialize()` に渡すキー一覧に含めてください。
+
+| キー | 用途 |
+|------|------|
+| `sumples-fire-seeds-v2` | タスク一覧 |
+| `sumples-fire-seeds-v1` | レガシーキー（読み込み専用） |
+| `sumples-fire-streak-v1` | ストリーク |
+| `fire-task-sound-enabled-v1` | 音設定 |
 
 ## 次にCapacitor化する時の予定
 

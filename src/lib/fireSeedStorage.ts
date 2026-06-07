@@ -1,10 +1,12 @@
 import { normalizeSeed } from './fireSeedModel';
 import type { FireSeed } from '../types/fireSeed';
+import type { StorageDriver } from './storageDriver';
 
 export const STORAGE_KEY = 'sumples-fire-seeds-v2';
 export const LEGACY_STORAGE_KEY = 'sumples-fire-seeds-v1';
 
-export type SeedStorage = Pick<Storage, 'getItem' | 'setItem'>;
+/** @deprecated Use `StorageDriver` from `./storageDriver` directly. */
+export type SeedStorage = StorageDriver;
 
 const parseSeeds = (raw: string | null): FireSeed[] | null => {
   if (!raw) return null;
@@ -15,7 +17,7 @@ const parseSeeds = (raw: string | null): FireSeed[] | null => {
   return parsed.map((seed, index) => normalizeSeed(seed, index));
 };
 
-export const loadStoredSeeds = (storage: SeedStorage | undefined): FireSeed[] => {
+export const loadStoredSeeds = (storage: StorageDriver | undefined): FireSeed[] => {
   if (!storage) return [];
 
   try {
@@ -25,7 +27,7 @@ export const loadStoredSeeds = (storage: SeedStorage | undefined): FireSeed[] =>
   }
 };
 
-export const saveStoredSeeds = (storage: SeedStorage | undefined, seeds: FireSeed[]) => {
+export const saveStoredSeeds = (storage: StorageDriver | undefined, seeds: FireSeed[]) => {
   if (!storage) return false;
 
   try {
