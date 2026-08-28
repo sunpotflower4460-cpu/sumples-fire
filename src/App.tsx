@@ -32,6 +32,31 @@ const prefersReducedMotion = () => (
     : false
 );
 
+const focusTaskButtonById = (id: string) => {
+  const target = Array.from(document.querySelectorAll<HTMLButtonElement>(
+    '.fire-button[data-fire-task-id]',
+  )).find((button) => button.dataset.fireTaskId === id);
+
+  if (!target) return false;
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  return true;
+};
+
+const focusQueuePosition = (index: number) => {
+  const queueButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(
+    '#up-next-list .fire-button[data-fire-task-id]',
+  ));
+  const target = queueButtons[Math.min(index, Math.max(0, queueButtons.length - 1))]
+    ?? document.querySelector<HTMLButtonElement>('.queue-empty-state .primary-button')
+    ?? document.querySelector<HTMLButtonElement>('.matrix-reset-button');
+
+  if (!target) return false;
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  return true;
+};
+
 function FlameGlyph() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -48,6 +73,14 @@ function ChevronGlyph() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="m7 9.5 5 5 5-5" />
+    </svg>
+  );
+}
+
+function CloseGlyph() {
+  return (
+    <svg className="toast-dismiss-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 7l10 10M17 7 7 17" />
     </svg>
   );
 }
@@ -96,6 +129,7 @@ export default function App() {
   const scrollPositionsRef = useRef<Record<AppTab, number>>({ today: 0, ash: 0, info: 0 });
   const hadBurningTaskRef = useRef(false);
   const burnOriginRef = useRef<BurnOrigin | null>(null);
+  const lastCompletedBurnOriginRef = useRef<BurnOrigin | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const swipeTouchStartY = useRef<number | null>(null);
   const {
@@ -151,6 +185,7 @@ export default function App() {
   };
 
   const handleAddSeed = (input: NewFireSeedInput) => {
+    lastCompletedBurnOriginRef.current = null;
     const id = addSeed(input);
     closeRecord();
     navigateToTab('today', true);
@@ -162,22 +197,51 @@ export default function App() {
 
   const focusPrimaryAction = () => {
     window.setTimeout(() => {
-      (
-        focusFireButtonRef.current
+      const target = focusFireButtonRef.current
         ?? allClearActionRef.current
         ?? floatingActionRef.current
-        ?? document.querySelector<HTMLElement>('.tab-button[aria-current="page"]')
-      )?.focus({ preventScroll: true });
+        ?? document.querySelector<HTMLElement>('.tab-button[aria-current="page"]');
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({
+        block: 'nearest',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
     }, 0);
   };
 
   const handleUndoBurn = () => {
+    const completedOrigin = lastCompletedBurnOriginRef.current;
+    const restoredTaskId = undoBurnCandidate?.id;
     undoLastBurn();
+    lastCompletedBurnOriginRef.current = null;
+
+    if (completedOrigin?.kind === 'queue' && restoredTaskId) {
+      window.setTimeout(() => {
+        if (focusTaskButtonById(restoredTaskId)) return;
+        if (focusQueuePosition(completedOrigin.index)) return;
+        const fallback = focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current;
+        fallback?.focus({ preventScroll: true });
+      }, 0);
+      return;
+    }
+
     focusPrimaryAction();
   };
 
   const handleDismissUndo = () => {
+    const completedOrigin = lastCompletedBurnOriginRef.current;
     dismissUndoBurn();
+    lastCompletedBurnOriginRef.current = null;
+
+    if (completedOrigin?.kind === 'queue') {
+      window.setTimeout(() => {
+        if (focusQueuePosition(completedOrigin.index)) return;
+        const fallback = focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current;
+        fallback?.focus({ preventScroll: true });
+      }, 0);
+      return;
+    }
+
     focusPrimaryAction();
   };
 
@@ -191,6 +255,7 @@ export default function App() {
     if (!pendingDeleteSeed) return;
     const id = pendingDeleteSeed.id;
     setPendingDeleteSeed(null);
+    lastCompletedBurnOriginRef.current = null;
     deleteSeed(id);
   };
 
@@ -259,6 +324,7 @@ export default function App() {
 
   const handleFireTask = (id: string) => {
     if (burnOriginRef.current !== null) return;
+    lastCompletedBurnOriginRef.current = null;
 
     if (id === focusSeed?.id) {
       burnOriginRef.current = { kind: 'focus' };
@@ -326,21 +392,11 @@ export default function App() {
 
     const burnOrigin = burnOriginRef.current;
     burnOriginRef.current = null;
+    lastCompletedBurnOriginRef.current = burnOrigin;
 
     const timer = window.setTimeout(() => {
-      if (burnOrigin?.kind === 'queue') {
-        const queueButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(
-          '#up-next-list .fire-button[data-fire-task-id]',
-        ));
-        const queueTarget = queueButtons[Math.min(burnOrigin.index, Math.max(0, queueButtons.length - 1))]
-          ?? document.querySelector<HTMLButtonElement>('.queue-empty-state .primary-button')
-          ?? document.querySelector<HTMLButtonElement>('.matrix-reset-button');
-
-        if (queueTarget) {
-          queueTarget.focus({ preventScroll: true });
-          queueTarget.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-          return;
-        }
+      if (burnOrigin?.kind === 'queue' && focusQueuePosition(burnOrigin.index)) {
+        return;
       }
 
       const activeElement = document.activeElement;
@@ -400,7 +456,7 @@ export default function App() {
             onClick={handleDismissUndo}
             aria-label="Fire通知を閉じる"
           >
-            ×
+            <CloseGlyph />
           </button>
         </div>
       ) : notice ? (
@@ -442,6 +498,7 @@ export default function App() {
                   <button
                     ref={focusFireButtonRef}
                     className="fire-button"
+                    data-fire-task-id={focusSeed.id}
                     type="button"
                     onClick={() => handleFireTask(focusSeed.id)}
                     disabled={focusSeed.isBurning}
