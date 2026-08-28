@@ -74,11 +74,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       aria-atomic="true"
       style={flameStyle}
     >
-      <span className="ritual-live-copy">
-        {phase === 'complete'
-          ? `「${seed.title}」をFireしました。${seed.ashPoints}炭を獲得しました。`
-          : `「${seed.title}」を燃やしています。`}
-      </span>
+      <span className="ritual-live-copy">「{seed.title}」を燃やしています。</span>
 
       {/* ── SVG filter: turbulence displacement applied to the title wrapper ── */}
       <svg
