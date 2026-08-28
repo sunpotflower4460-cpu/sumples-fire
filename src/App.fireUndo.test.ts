@@ -15,7 +15,9 @@ describe('one-tap Fire UX contract', () => {
 
   it('offers a reversible completion action after the ritual', () => {
     expect(appSource).toContain('undoBurnCandidate');
-    expect(appSource).toContain('onClick={undoLastBurn}');
+    expect(appSource).toContain('onClick={handleUndoBurn}');
+    expect(appSource).toContain('undoLastBurn();');
+    expect(appSource).toContain('focusFireButtonRef.current ?? floatingActionRef.current');
     expect(appSource).toContain('元に戻す');
     expect(hookSource).toContain('FIRE_UNDO_WINDOW_MS = 6000');
     expect(hookSource).toContain('createFireBurnUndoSnapshot(target, streakData)');
