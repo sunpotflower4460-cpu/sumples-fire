@@ -6,6 +6,9 @@ type FireComfortSettingsProps = {
   totalTasks: number;
 };
 
+const soundLabelId = 'fire-sound-label';
+const soundDescriptionId = 'fire-sound-description';
+
 function SoundGlyph({ muted }: { muted: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -44,16 +47,17 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
   return (
     <article className="comfort-settings-card">
       <div className="comfort-setting-copy">
-        <span>Fireサウンド</span>
-        <p>Fireするときの効果音です。</p>
+        <span id={soundLabelId}>Fireサウンド</span>
+        <p id={soundDescriptionId}>Fireするときの効果音です。</p>
       </div>
       <button
         className={soundEnabled ? 'sound-pill is-on' : 'sound-pill'}
         type="button"
         role="switch"
         aria-checked={soundEnabled}
+        aria-labelledby={soundLabelId}
+        aria-describedby={soundDescriptionId}
         onClick={handleToggleSound}
-        aria-label={soundEnabled ? 'Fireサウンドをオフにする' : 'Fireサウンドをオンにする'}
       >
         <i className="sound-pill-icon" aria-hidden="true"><SoundGlyph muted={!soundEnabled} /></i>
         {soundEnabled ? 'オン' : 'オフ'}
