@@ -9,7 +9,8 @@ describe('FireSettingsPanel information hierarchy', () => {
     expect(source).toContain('<FireComfortSettings totalTasks={totalTasks} />');
     expect(source).toContain('className="settings-disclosure settings-guide"');
     expect(source).toContain('className="settings-disclosure settings-data"');
-    expect(source).toContain('3ステップだけ確認する');
+    expect(source).toContain('迷った時に3ステップを確認');
+    expect(source).not.toContain('3ステップだけ確認する');
   });
 
   it('keeps public privacy and support destinations directly reachable', () => {
