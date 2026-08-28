@@ -26,6 +26,8 @@ export function FireStats({ stats }: FireStatsProps) {
   const rankMessage = stats.nextRankRemaining > 0
     ? `次の称号「${stats.nextRank}」まであと${stats.nextRankRemaining}炭`
     : '最高称号に到達しています';
+  const rankProgressPercent = Math.round(stats.rankProgress);
+  const rankProgressText = `${rankProgressPercent}%。${rankMessage}`;
 
   return (
     <section className="stats-grid" aria-label="Fireタスクの統計">
@@ -37,14 +39,15 @@ export function FireStats({ stats }: FireStatsProps) {
           className="rank-progress"
           role="progressbar"
           aria-label="称号の進捗"
-          aria-valuenow={Math.round(stats.rankProgress)}
+          aria-valuenow={rankProgressPercent}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-valuetext={rankProgressText}
         >
           <div className="rank-progress-track" aria-hidden="true">
             <div className="rank-progress-fill" style={{ width: `${stats.rankProgress}%` }} />
           </div>
-          <span className="rank-progress-value" aria-hidden="true">{Math.round(stats.rankProgress)}%</span>
+          <span className="rank-progress-value" aria-hidden="true">{rankProgressPercent}%</span>
         </div>
       </div>
 
