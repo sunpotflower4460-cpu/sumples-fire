@@ -17,6 +17,7 @@ describe('FireForm creation consistency', () => {
     expect(source).not.toContain('derivePriority(urgency, importance)');
     expect(source).not.toContain("stage: 'spark'");
     expect(source).not.toContain('priority,');
-    expect(source).toContain('<summary>メモ・カテゴリ</summary>');
+    expect(source).toContain('className="advanced-fields"');
+    expect(source).toContain('<span>メモ・カテゴリ</span>');
   });
 });
