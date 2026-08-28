@@ -50,10 +50,17 @@ describe('Fire undo accessibility', () => {
     expect(appSource).not.toContain('toastUndoRef');
   });
 
-  it('invalidates stale undo when a different mutation happens', () => {
-    expect(hookSource).toContain('const addSeed = (input: NewFireSeedInput) => {\n    clearUndoBurn();');
+  it('invalidates stale undo only after a different mutation becomes durable', () => {
+    const addSaveIndex = hookSource.indexOf('saveStoredSeeds(storageDriverRef.current, nextSeeds)');
+    const addClearIndex = hookSource.indexOf('clearUndoBurn();', addSaveIndex);
+    const deleteSaveIndex = hookSource.indexOf('saveStoredSeeds(storageDriverRef.current, remainingSeeds)');
+    const deleteClearIndex = hookSource.indexOf('clearUndoBurn();', deleteSaveIndex);
+
+    expect(addSaveIndex).toBeGreaterThan(-1);
+    expect(addClearIndex).toBeGreaterThan(addSaveIndex);
+    expect(deleteSaveIndex).toBeGreaterThan(-1);
+    expect(deleteClearIndex).toBeGreaterThan(deleteSaveIndex);
     expect(hookSource).toMatch(/const burnTask = \(id: string\) => \{[\s\S]*?clearUndoBurn\(\);[\s\S]*?createFireBurnUndoSnapshot/);
-    expect(hookSource).toMatch(/const deleteSeed = \(id: string\) => \{[\s\S]*?clearUndoBurn\(\);/);
   });
 
   it('provides an explicit dismiss target and recovers focus after it disappears', () => {

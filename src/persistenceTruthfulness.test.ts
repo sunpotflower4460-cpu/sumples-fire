@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-describe('persistence-truthful task creation', () => {
+describe('persistence-truthful seed mutations', () => {
   const hookSource = readFileSync(resolve(__dirname, 'hooks/useFireSeeds.ts'), 'utf-8');
   const formSource = readFileSync(resolve(__dirname, 'components/FireForm.tsx'), 'utf-8');
 
@@ -24,9 +24,27 @@ describe('persistence-truthful task creation', () => {
     expect(formSource).toContain('submitButtonRef.current?.focus()');
   });
 
-  it('does not emit a storage failure before the user performs a mutation', () => {
-    expect(hookSource).toContain('const hasCompletedInitialSeedLoadRef = useRef(false);');
-    expect(hookSource).toContain('if (!hasCompletedInitialSeedLoadRef.current)');
-    expect(hookSource).toContain('hasCompletedInitialSeedLoadRef.current = true;');
+  it('treats the burn animation as transient until the completed list is durable', () => {
+    expect(hookSource).toContain('const burningSeeds = seeds.map');
+    expect(hookSource).toContain('const completedSeeds = sortFireTasks(');
+    expect(hookSource).toContain('if (!saveStoredSeeds(storageDriverRef.current, completedSeeds))');
+    expect(hookSource).toContain('setSeeds(seeds);');
+    expect(hookSource).toContain('Fireを完了できませんでした。タスクは残しています');
+    expect(hookSource.indexOf('saveStoredSeeds(storageDriverRef.current, completedSeeds)'))
+      .toBeLessThan(hookSource.indexOf('const newStreakData = recordBurnForStreak(streakData)'));
+  });
+
+  it('does not change undo or delete state when their durable write fails', () => {
+    expect(hookSource).toContain('if (!saveStoredSeeds(storageDriverRef.current, restoredSeeds))');
+    expect(hookSource).toContain('Fireを元に戻せませんでした');
+    expect(hookSource).toContain('if (!saveStoredSeeds(storageDriverRef.current, remainingSeeds))');
+    expect(hookSource).toContain('削除できませんでした。タスクは残しています');
+    expect(hookSource).toContain('return false;');
+  });
+
+  it('has no generic seed-save effect that can persist transient UI states or write on mount', () => {
+    expect(hookSource).not.toContain('hasCompletedInitialSeedLoadRef');
+    expect(hookSource).not.toContain('const persistedSeeds = seeds.map');
+    expect(hookSource).not.toContain("setNotice('この端末では保存できませんでした')");
   });
 });
