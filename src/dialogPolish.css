@@ -1,0 +1,42 @@
+/* Fire Task — blocking dialog detail polish */
+
+.fire-confirm-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 145, 70, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 107, 0, 0.07);
+  color: #ff8b45;
+}
+
+.fire-confirm-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.fire-confirm-description {
+  max-width: 30ch;
+  margin: -8px auto 0;
+  color: rgba(245, 232, 211, 0.55);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.fire-confirm-no:focus-visible,
+.fire-confirm-yes:focus-visible,
+.fire-delete-cancel:focus-visible,
+.fire-delete-confirm:focus-visible {
+  outline-color: #ff9a5f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fire-confirm-icon,
+  .fire-confirm-yes {
+    animation: none !important;
+  }
+}
