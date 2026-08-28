@@ -30,6 +30,7 @@ import './experiencePolish.css';
 import './capturePolish.css';
 import './ritualFeedbackPolish.css';
 import './actionEntryPolish.css';
+import './mobileViewportPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
