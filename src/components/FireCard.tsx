@@ -42,6 +42,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
     <article
       className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}
       aria-labelledby={titleId}
+      tabIndex={-1}
     >
       <div className="card-header">
         <div>
