@@ -28,6 +28,8 @@ type FireFormProps = {
 };
 
 const titleMaxLength = 60;
+const titleHelperId = 'seed-title-helper';
+const titleErrorId = 'seed-title-error';
 
 const levelOptions: { value: FireLevel; label: string; hint: string }[] = [
   { value: 'high', label: '高', hint: '今日・今週中に燃やす' },
@@ -64,6 +66,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const quadrant = getQuadrant(urgency, importance);
   const canSubmit = title.trim().length > 0;
   const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
+  const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
 
   useEffect(() => {
     if (!defaultTitle) return;
@@ -77,6 +80,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
 
     if (!title.trim()) {
       setError('まずはタスク名だけ入力してください');
+      window.setTimeout(() => titleInputRef.current?.focus(), 0);
       return;
     }
 
@@ -94,10 +98,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   };
 
   return (
-    <form className="fire-form fire-form-fast" onSubmit={handleSubmit}>
+    <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate>
       <div className="field-group">
         <label htmlFor="seed-title">燃やしたいタスク</label>
-        <p className="form-helper">まずは名前だけでOK。あとから詳しくできます。</p>
+        <p id={titleHelperId} className="form-helper">まずは名前だけでOK。あとから詳しくできます。</p>
         <input
           id="seed-title"
           ref={titleInputRef}
@@ -109,6 +113,9 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           placeholder="例：先延ばししていた返信をする"
           maxLength={titleMaxLength}
           autoFocus
+          required
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={titleDescribedBy}
         />
         <div className="field-meta">
           <span className="char-count" aria-label="文字数">{titleCounter}</span>
@@ -164,7 +171,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           </div>
         </div>
 
-        <div className={`matrix-result-card matrix-result-${quadrant}`}>
+        <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite">
           <span>自動分類</span>
           <strong>{quadrantLabels[quadrant]}</strong>
           <p>{matrixShortDescriptions[quadrant]}</p>
@@ -248,7 +255,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         </div>
       </details>
 
-      {error ? <p className="form-error" role="alert">{error}</p> : null}
+      {error ? <p id={titleErrorId} className="form-error" role="alert">{error}</p> : null}
 
       <div className="submit-row">
         <button className="primary-button" type="submit" disabled={!canSubmit}>
