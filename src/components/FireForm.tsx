@@ -9,6 +9,7 @@ import {
   quadrantShortDescriptions,
 } from '../types/fireSeed';
 import { getQuadrant } from '../lib/fireSeedModel';
+import { clearFireFormDraft, loadFireFormDraft, saveFireFormDraft } from '../lib/fireFormDraft';
 
 type FireFormProps = {
   defaultTitle?: string;
@@ -33,14 +34,15 @@ const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
 ];
 
 export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireFormProps) {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [nextAction, setNextAction] = useState('');
-  const [category, setCategory] = useState<FireCategory>('task');
-  const [difficulty, setDifficulty] = useState<FireDifficulty>('normal');
-  const [urgency, setUrgency] = useState<FireLevel>('high');
-  const [importance, setImportance] = useState<FireLevel>('high');
-  const [hasAdjustedTuning, setHasAdjustedTuning] = useState(false);
+  const [initialDraft] = useState(loadFireFormDraft);
+  const [title, setTitle] = useState(initialDraft.title);
+  const [body, setBody] = useState(initialDraft.body);
+  const [nextAction, setNextAction] = useState(initialDraft.nextAction);
+  const [category, setCategory] = useState<FireCategory>(initialDraft.category);
+  const [difficulty, setDifficulty] = useState<FireDifficulty>(initialDraft.difficulty);
+  const [urgency, setUrgency] = useState<FireLevel>(initialDraft.urgency);
+  const [importance, setImportance] = useState<FireLevel>(initialDraft.importance);
+  const [hasAdjustedTuning, setHasAdjustedTuning] = useState(initialDraft.hasAdjustedTuning);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -58,6 +60,19 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
     onClearDefaultTitle?.();
     window.setTimeout(() => titleInputRef.current?.focus(), 0);
   }, [defaultTitle, onClearDefaultTitle]);
+
+  useEffect(() => {
+    saveFireFormDraft({
+      title,
+      body,
+      nextAction,
+      category,
+      difficulty,
+      urgency,
+      importance,
+      hasAdjustedTuning,
+    });
+  }, [title, body, nextAction, category, difficulty, urgency, importance, hasAdjustedTuning]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,6 +100,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         urgency,
         importance,
       });
+      clearFireFormDraft();
       setTitle('');
       setBody('');
       setNextAction('');
@@ -106,7 +122,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
     <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting || undefined}>
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
-        <p id={titleHelperId} className="form-helper">名前だけで追加できます。</p>
+        <p id={titleHelperId} className="form-helper">名前だけで追加できます。閉じても、このセッション中は書きかけを保持します。</p>
         <input
           id="seed-title"
           ref={titleInputRef}
