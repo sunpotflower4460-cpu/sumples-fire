@@ -21,6 +21,8 @@ const tabs: { id: AppTab; label: string }[] = [
   { id: 'info', label: '設定' },
 ];
 
+const QUEUE_PAGE_SIZE = 5;
+
 const prefersReducedMotion = () => (
   typeof window !== 'undefined'
     ? window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
@@ -81,6 +83,7 @@ export default function App() {
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
+  const [queueVisibleCount, setQueueVisibleCount] = useState(QUEUE_PAGE_SIZE);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
   const [pendingDeleteSeed, setPendingDeleteSeed] = useState<FireSeed | null>(null);
   const appShellRef = useRef<HTMLElement | null>(null);
@@ -148,6 +151,7 @@ export default function App() {
     closeRecord();
     navigateToTab('today', true);
     setQuadrantFilter(null);
+    setQueueVisibleCount(QUEUE_PAGE_SIZE);
     setNewSeedId(id);
     window.setTimeout(() => setNewSeedId(null), 600);
   };
@@ -176,8 +180,14 @@ export default function App() {
     setPendingDeleteSeed(null);
   };
 
+  const resetQueueView = () => {
+    setQuadrantFilter(null);
+    setQueueVisibleCount(QUEUE_PAGE_SIZE);
+  };
+
   const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
     setQuadrantFilter((current) => (current === key ? null : key));
+    setQueueVisibleCount(QUEUE_PAGE_SIZE);
     window.setTimeout(() => {
       document.querySelector('.cards-stack')?.scrollIntoView({
         behavior: prefersReducedMotion() ? 'auto' : 'smooth',
@@ -211,10 +221,17 @@ export default function App() {
   const hasQueueTasks = queueTasks.length > 0;
   const shouldShowFloatingAction = activeTab !== 'today' || hasPendingTasks;
   const streakState = getStreakState(streakData.currentStreak);
-  const visibleTasks = useMemo(
+  const filteredQueueTasks = useMemo(
     () => (quadrantFilter ? queueTasks.filter((seed) => seed.quadrant === quadrantFilter) : queueTasks),
     [queueTasks, quadrantFilter],
   );
+  const visibleQueueTasks = useMemo(
+    () => filteredQueueTasks.slice(0, queueVisibleCount),
+    [filteredQueueTasks, queueVisibleCount],
+  );
+  const hiddenQueueCount = Math.max(0, filteredQueueTasks.length - visibleQueueTasks.length);
+  const nextQueuePageCount = Math.min(QUEUE_PAGE_SIZE, hiddenQueueCount);
+  const hasProgressiveQueue = filteredQueueTasks.length > QUEUE_PAGE_SIZE;
   const matrixItems = useMemo(() => ([
     { key: 'doNow', count: queueTasks.filter((seed) => seed.quadrant === 'doNow').length },
     { key: 'schedule', count: queueTasks.filter((seed) => seed.quadrant === 'schedule').length },
@@ -237,7 +254,7 @@ export default function App() {
 
   useEffect(() => {
     if (!hasQueueTasks && quadrantFilter !== null) {
-      setQuadrantFilter(null);
+      resetQueueView();
     }
   }, [hasQueueTasks, quadrantFilter]);
 
@@ -388,7 +405,11 @@ export default function App() {
                     <p className="eyebrow">UP NEXT</p>
                     <h2>その次のタスク</h2>
                   </div>
-                  <span className="task-queue-count">{visibleTasks.length}件</span>
+                  <span className="task-queue-count">
+                    {filteredQueueTasks.length > QUEUE_PAGE_SIZE
+                      ? `${visibleQueueTasks.length} / ${filteredQueueTasks.length}件`
+                      : `${filteredQueueTasks.length}件`}
+                  </span>
                 </div>
 
                 <section className="matrix-filter-shell" aria-label="次のタスクを4象限で絞り込む">
@@ -398,7 +419,7 @@ export default function App() {
                       <small>{quadrantFilter ? `${quadrantLabels[quadrantFilter]}を表示中` : '必要な時だけ絞り込む'}</small>
                     </div>
                     {quadrantFilter ? (
-                      <button type="button" className="matrix-reset-button" onClick={() => setQuadrantFilter(null)}>
+                      <button type="button" className="matrix-reset-button" onClick={resetQueueView}>
                         すべて
                       </button>
                     ) : null}
@@ -421,9 +442,9 @@ export default function App() {
                   </div>
                 </section>
 
-                <div className="cards-stack">
-                  {visibleTasks.length > 0 ? (
-                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
+                <div id="up-next-list" className="cards-stack">
+                  {filteredQueueTasks.length > 0 ? (
+                    visibleQueueTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
                   ) : (
                     <div className="empty-state useful-empty queue-empty-state">
                       <div className="empty-state-icon" aria-hidden="true" />
@@ -431,12 +452,32 @@ export default function App() {
                         <p>この象限に次のタスクはありません</p>
                         <span>4象限の絞り込みを解除すると、その次のタスクをすべて表示できます。</span>
                       </div>
-                      <button className="primary-button" type="button" onClick={() => setQuadrantFilter(null)}>
+                      <button className="primary-button" type="button" onClick={resetQueueView}>
                         絞り込みを解除
                       </button>
                     </div>
                   )}
                 </div>
+
+                {hasProgressiveQueue ? (
+                  <button
+                    type="button"
+                    className="task-queue-more"
+                    aria-controls="up-next-list"
+                    aria-expanded={hiddenQueueCount === 0}
+                    onClick={() => {
+                      if (hiddenQueueCount > 0) {
+                        setQueueVisibleCount((current) => Math.min(current + QUEUE_PAGE_SIZE, filteredQueueTasks.length));
+                      } else {
+                        setQueueVisibleCount(QUEUE_PAGE_SIZE);
+                      }
+                    }}
+                  >
+                    {hiddenQueueCount > 0
+                      ? `次の${nextQueuePageCount}件を見る（残り${hiddenQueueCount}件）`
+                      : `最初の${QUEUE_PAGE_SIZE}件に戻す`}
+                  </button>
+                ) : null}
               </section>
             ) : null}
 
