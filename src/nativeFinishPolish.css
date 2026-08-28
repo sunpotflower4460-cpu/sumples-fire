@@ -1,0 +1,291 @@
+/*
+ * Fire Task — native finish pass 4
+ * Removes the last platform-dependent glyphs and turns settings/empty states
+ * into quieter, product-like surfaces without changing feature behavior.
+ */
+
+/* ── Empty state: bespoke firewood mark, no OS emoji ─────────────── */
+.empty-state-icon {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 70%, rgba(232, 90, 36, 0.08), transparent 55%),
+    rgba(255, 253, 249, 0.9);
+  box-shadow: var(--wc-shadow-sm);
+  color: transparent;
+  font-size: 0;
+}
+
+.empty-state-icon::before,
+.empty-state-icon::after {
+  position: absolute;
+  top: 27px;
+  left: 50%;
+  width: 34px;
+  height: 9px;
+  content: '';
+  border: 1px solid rgba(80, 45, 29, 0.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.18), transparent 30%),
+    linear-gradient(90deg, #6c3d28, #9a5737 48%, #673923);
+  box-shadow: 0 5px 12px rgba(48, 26, 17, 0.12);
+}
+
+.empty-state-icon::before {
+  transform: translateX(-50%) rotate(28deg);
+}
+
+.empty-state-icon::after {
+  transform: translateX(-50%) rotate(-28deg);
+}
+
+/* The zero-result state should resolve the current filter, not create more noise. */
+.useful-empty {
+  min-height: 154px;
+  padding: 20px;
+}
+
+.useful-empty > span,
+.useful-empty > ul {
+  display: none;
+}
+
+/* ── Glyph controls: draw them ourselves instead of text symbols ── */
+.sheet-close,
+.floating-action {
+  position: relative;
+  font-size: 0;
+}
+
+.sheet-close::before,
+.sheet-close::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 1.8px;
+  content: '';
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.sheet-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.sheet-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.floating-action::before,
+.floating-action::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 2.2px;
+  content: '';
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.floating-action::before {
+  transform: translate(-50%, -50%);
+}
+
+.floating-action::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* ── Details disclosure indicators: quiet geometric chevrons ─────── */
+.advanced-fields summary::after {
+  width: 8px;
+  height: 8px;
+  content: '';
+  border-right: 1.7px solid currentColor;
+  border-bottom: 1.7px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transform-origin: center;
+  color: #8b6b5c;
+}
+
+.advanced-fields[open] summary::after {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.card-details > summary::after {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  content: '';
+  flex: none;
+  border-radius: 50%;
+  background:
+    linear-gradient(currentColor, currentColor) center / 8px 1.4px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.4px 8px no-repeat;
+  color: #9a7767;
+  opacity: 0.84;
+  transition: transform 160ms var(--wc-spring), opacity 160ms ease;
+}
+
+.card-details[open] > summary::after {
+  content: '';
+  transform: rotate(45deg);
+  opacity: 0.62;
+}
+
+/* ── Settings: one calm grouped surface instead of a stack of cards ─ */
+.settings-panel {
+  gap: 14px;
+}
+
+.settings-list {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 22px;
+  background: var(--wc-surface);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.settings-list > article,
+.settings-list > .comfort-settings-card {
+  margin: 0;
+  padding: 15px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--wc-hairline);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.settings-list > article:last-child {
+  border-bottom: 0;
+}
+
+.settings-list > article > span,
+.settings-list > .comfort-settings-card .comfort-setting-copy > span {
+  color: var(--wc-ink);
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+.settings-list > article > p {
+  margin-top: 4px;
+  color: var(--wc-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.settings-list > article:nth-child(5) {
+  border-top: 8px solid rgba(92, 60, 46, 0.035);
+}
+
+.settings-list a {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  margin: 4px 8px 0 0;
+  padding: 0 11px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 999px;
+  background: rgba(92, 60, 46, 0.035);
+  color: #744b39;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms var(--wc-spring);
+}
+
+.settings-list a:hover {
+  border-color: var(--wc-hairline-strong);
+  background: rgba(92, 60, 46, 0.065);
+  transform: translateY(-1px);
+}
+
+.settings-list a:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.settings-list .storage-note {
+  margin-top: 12px;
+}
+
+/* ── Touch behaviour: no desktop theatrics on coarse pointers ───── */
+@media (hover: none), (pointer: coarse) {
+  .settings-list a:hover,
+  .fire-card:hover:not(.is-burning),
+  .matrix-cell:hover,
+  .floating-action:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .settings-list > article,
+  .settings-list > .comfort-settings-card {
+    padding-inline: 14px;
+  }
+
+  .settings-list a {
+    min-height: 40px;
+    margin-right: 5px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .empty-state-icon,
+  .settings-list {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(25, 21, 19, 0.78);
+  }
+
+  .empty-state-icon::before,
+  .empty-state-icon::after {
+    border-color: rgba(255, 225, 205, 0.12);
+    background: linear-gradient(90deg, #4d2c20, #75452e 48%, #48291e);
+  }
+
+  .settings-list > article,
+  .settings-list > .comfort-settings-card {
+    border-color: rgba(255, 238, 224, 0.08);
+  }
+
+  .settings-list > article > span,
+  .settings-list > .comfort-settings-card .comfort-setting-copy > span {
+    color: #fff1e7;
+  }
+
+  .settings-list > article > p {
+    color: rgba(255, 239, 227, 0.58);
+  }
+
+  .settings-list > article:nth-child(5) {
+    border-top-color: rgba(255, 238, 224, 0.035);
+  }
+
+  .settings-list a {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.04);
+    color: #ffc6a4;
+  }
+
+  .settings-list a:hover {
+    border-color: rgba(255, 238, 224, 0.14);
+    background: rgba(255, 238, 224, 0.065);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-details > summary::after,
+  .settings-list a {
+    transition: none !important;
+  }
+}
