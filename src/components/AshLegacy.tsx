@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { FireSeed } from '../types/fireSeed';
 import { difficultyLabels } from '../types/fireSeed';
 
@@ -15,6 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
 });
 
 const MAX_MOSAIC_TILES = 80;
+const RECENT_RECORD_COUNT = 12;
 
 function DeleteGlyph() {
   return (
@@ -29,10 +30,13 @@ function DeleteGlyph() {
 }
 
 export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
+  const [showAllRecords, setShowAllRecords] = useState(false);
   const totalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
   const mosaicTiles = seeds.slice(-MAX_MOSAIC_TILES);
   const newestId = seeds[seeds.length - 1]?.id;
   const reversedSeeds = useMemo(() => [...seeds].reverse(), [seeds]);
+  const visibleRecords = showAllRecords ? reversedSeeds : reversedSeeds.slice(0, RECENT_RECORD_COUNT);
+  const olderRecordCount = Math.max(0, reversedSeeds.length - RECENT_RECORD_COUNT);
 
   return (
     <div className="ash-legacy-panel">
@@ -61,33 +65,59 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
       </div>
 
       {seeds.length > 0 ? (
-        <div className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
-          {reversedSeeds.map((seed) => {
-            const burnedDate = seed.burnedAt
-              ? dateFormatter.format(new Date(seed.burnedAt))
-              : null;
-            return (
-              <div key={seed.id} className={`ash-record-card is-${seed.difficulty}`} role="listitem">
-                <div className="ash-record-main">
-                  <p className="ash-record-title">{seed.title}</p>
-                  <div className="ash-record-meta">
-                    <span className="ash-record-points">+{seed.ashPoints}炭</span>
-                    <span className="ash-record-difficulty">{difficultyLabels[seed.difficulty]}</span>
-                    {burnedDate ? <span className="ash-record-date">{burnedDate}</span> : null}
+        <section className="ash-records-section" aria-labelledby="ash-records-heading">
+          <div className="ash-records-heading">
+            <div>
+              <p className="eyebrow">BURN HISTORY</p>
+              <h3 id="ash-records-heading">燃やした記録</h3>
+            </div>
+            <span aria-hidden="true">
+              {showAllRecords ? `${visibleRecords.length}件` : `最新${Math.min(RECENT_RECORD_COUNT, visibleRecords.length)}件`}
+            </span>
+          </div>
+
+          <div id="ash-records-list" className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
+            {visibleRecords.map((seed) => {
+              const burnedDate = seed.burnedAt
+                ? dateFormatter.format(new Date(seed.burnedAt))
+                : null;
+              return (
+                <div key={seed.id} className={`ash-record-card is-${seed.difficulty}`} role="listitem">
+                  <div className="ash-record-main">
+                    <p className="ash-record-title">{seed.title}</p>
+                    <div className="ash-record-meta">
+                      <span className="ash-record-points">+{seed.ashPoints}炭</span>
+                      <span className="ash-record-difficulty">{difficultyLabels[seed.difficulty]}</span>
+                      {burnedDate ? <span className="ash-record-date">{burnedDate}</span> : null}
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    className="ash-record-delete"
+                    onClick={() => onDelete(seed.id)}
+                    aria-label={`「${seed.title}」を削除`}
+                  >
+                    <DeleteGlyph />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="ash-record-delete"
-                  onClick={() => onDelete(seed.id)}
-                  aria-label={`「${seed.title}」を削除`}
-                >
-                  <DeleteGlyph />
-                </button>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {olderRecordCount > 0 ? (
+            <button
+              type="button"
+              className="ash-records-toggle"
+              aria-expanded={showAllRecords}
+              aria-controls="ash-records-list"
+              onClick={() => setShowAllRecords((current) => !current)}
+            >
+              {showAllRecords
+                ? `最近の${RECENT_RECORD_COUNT}件に戻す`
+                : `過去の記録をさらに見る（${olderRecordCount}件）`}
+            </button>
+          ) : null}
+        </section>
       ) : null}
     </div>
   );
