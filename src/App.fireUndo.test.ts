@@ -18,7 +18,8 @@ describe('one-tap Fire UX contract', () => {
     expect(appSource).toContain('undoBurnCandidate');
     expect(appSource).toContain('onClick={handleUndoBurn}');
     expect(appSource).toContain('onClick={handleDismissUndo}');
-    expect(appSource).toContain('undoLastBurn();');
+    expect(appSource).toContain('const didUndo = undoLastBurn();');
+    expect(appSource).toContain('if (!didUndo) return;');
     expect(appSource).toContain('dismissUndoBurn();');
     expect(appSource).toContain('元に戻す');
     expect(hookSource).not.toContain('FIRE_UNDO_WINDOW_MS');
