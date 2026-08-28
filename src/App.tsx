@@ -197,18 +197,22 @@ export default function App() {
   const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
   const pendingTasks = useMemo(() => allSeeds.filter((seed) => !seed.burned), [allSeeds]);
   const hasPendingTasks = pendingTasks.length > 0;
+  const queueTasks = useMemo(
+    () => pendingTasks.filter((seed) => seed.id !== focusSeed?.id),
+    [pendingTasks, focusSeed?.id],
+  );
+  const hasQueueTasks = queueTasks.length > 0;
   const streakState = getStreakState(streakData.currentStreak);
   const visibleTasks = useMemo(
-    () => (quadrantFilter ? pendingTasks.filter((seed) => seed.quadrant === quadrantFilter) : pendingTasks),
-    [pendingTasks, quadrantFilter],
+    () => (quadrantFilter ? queueTasks.filter((seed) => seed.quadrant === quadrantFilter) : queueTasks),
+    [queueTasks, quadrantFilter],
   );
-
-  const matrixItems = [
-    { key: 'doNow', count: stats.doNow },
-    { key: 'schedule', count: stats.schedule },
-    { key: 'quickBurn', count: stats.quickBurn },
-    { key: 'backlog', count: stats.backlog },
-  ] as const;
+  const matrixItems = useMemo(() => ([
+    { key: 'doNow', count: queueTasks.filter((seed) => seed.quadrant === 'doNow').length },
+    { key: 'schedule', count: queueTasks.filter((seed) => seed.quadrant === 'schedule').length },
+    { key: 'quickBurn', count: queueTasks.filter((seed) => seed.quadrant === 'quickBurn').length },
+    { key: 'backlog', count: queueTasks.filter((seed) => seed.quadrant === 'backlog').length },
+  ] as const), [queueTasks]);
 
   useLayoutEffect(() => {
     window.scrollTo({
@@ -222,6 +226,12 @@ export default function App() {
     const tab = tabs.find((item) => item.id === activeTab);
     document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
   }, [activeTab]);
+
+  useEffect(() => {
+    if (!hasQueueTasks && quadrantFilter !== null) {
+      setQuadrantFilter(null);
+    }
+  }, [hasQueueTasks, quadrantFilter]);
 
   useEffect(() => {
     const hasBlockingLayer = isRecordOpen || pendingDeleteSeed !== null || burningTask !== null;
@@ -365,72 +375,71 @@ export default function App() {
               </section>
             ) : null}
 
+            {hasQueueTasks ? (
+              <section className="panel app-panel compact-panel task-queue-panel">
+                <div className="task-queue-heading">
+                  <div className="section-heading">
+                    <p className="eyebrow">UP NEXT</p>
+                    <h2>その次のタスク</h2>
+                  </div>
+                  <span className="task-queue-count">{visibleTasks.length}件</span>
+                </div>
+
+                <section className="matrix-filter-shell" aria-label="次のタスクを4象限で絞り込む">
+                  <div className="matrix-filter-heading">
+                    <div>
+                      <span>4象限</span>
+                      <small>{quadrantFilter ? `${quadrantLabels[quadrantFilter]}を表示中` : '必要な時だけ絞り込む'}</small>
+                    </div>
+                    {quadrantFilter ? (
+                      <button type="button" className="matrix-reset-button" onClick={() => setQuadrantFilter(null)}>
+                        すべて
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="matrix-summary">
+                    {matrixItems.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
+                        aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
+                        aria-pressed={quadrantFilter === item.key}
+                        disabled={item.count === 0 && quadrantFilter !== item.key}
+                        onClick={() => handleMatrixCellClick(item.key)}
+                      >
+                        <span>{quadrantLabels[item.key]}</span>
+                        <strong>{item.count}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <div className="cards-stack">
+                  {visibleTasks.length > 0 ? (
+                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
+                  ) : (
+                    <div className="empty-state useful-empty queue-empty-state">
+                      <div className="empty-state-icon" aria-hidden="true" />
+                      <div className="useful-empty-header">
+                        <p>この象限に次のタスクはありません</p>
+                        <span>4象限の絞り込みを解除すると、その次のタスクをすべて表示できます。</span>
+                      </div>
+                      <button className="primary-button" type="button" onClick={() => setQuadrantFilter(null)}>
+                        絞り込みを解除
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
             {hasTasks ? (
               <FireCampfire
                 ashPoints={stats.totalAshPoints}
                 streakData={streakData}
                 hasPendingTasks={hasPendingTasks}
               />
-            ) : null}
-
-            {hasPendingTasks ? (
-              <section className="matrix-filter-shell" aria-label="4象限でタスクを絞り込む">
-                <div className="matrix-filter-heading">
-                  <div>
-                    <span>4象限</span>
-                    <small>{quadrantFilter ? `${quadrantLabels[quadrantFilter]}を表示中` : '必要な時だけ絞り込む'}</small>
-                  </div>
-                  {quadrantFilter ? (
-                    <button type="button" className="matrix-reset-button" onClick={() => setQuadrantFilter(null)}>
-                      すべて
-                    </button>
-                  ) : null}
-                </div>
-                <div className="matrix-summary">
-                  {matrixItems.map((item) => (
-                    <button
-                      key={item.key}
-                      type="button"
-                      className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
-                      aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
-                      aria-pressed={quadrantFilter === item.key}
-                      disabled={item.count === 0 && quadrantFilter !== item.key}
-                      onClick={() => handleMatrixCellClick(item.key)}
-                    >
-                      <span>{quadrantLabels[item.key]}</span>
-                      <strong>{item.count}</strong>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            {hasPendingTasks ? (
-              <section className="panel app-panel compact-panel">
-                <div className="task-queue-heading">
-                  <div className="section-heading">
-                    <p className="eyebrow">NEXT FIRE</p>
-                    <h2>次に燃やすタスク</h2>
-                  </div>
-                  <span className="task-queue-count">{visibleTasks.length}件</span>
-                </div>
-                <div className="cards-stack">
-                  {visibleTasks.length > 0 ? (
-                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
-                  ) : (
-                    <div className="empty-state useful-empty">
-                      <div className="empty-state-icon" aria-hidden="true" />
-                      <div className="useful-empty-header">
-                        <p>この象限のタスクはありません</p>
-                        <span>4象限の絞り込みを解除すると、未燃焼タスクをすべて表示できます。</span>
-                      </div>
-                      <button className="primary-button" type="button" onClick={() => setQuadrantFilter(null)}>
-                        未燃焼をすべて表示
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </section>
             ) : null}
 
             {hasTasks ? (
