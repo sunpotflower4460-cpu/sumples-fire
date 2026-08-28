@@ -11,10 +11,10 @@ describe('dialog initial focus', () => {
     expect(formSource).toContain('autoFocus');
   });
 
-  it('preserves an already focused control inside the trap', () => {
+  it('preserves an already focused control only when it is in the real Tab target set', () => {
     expect(trapSource).toContain('const activeElement = document.activeElement');
     expect(trapSource).toContain('container.contains(activeElement)');
-    expect(trapSource).toContain('activeElement.matches(FOCUSABLE_SELECTORS)');
+    expect(trapSource).toContain('initialFocusable.includes(activeElement)');
     expect(trapSource).toContain('const hasIntentionalFocusInside =');
   });
 
@@ -28,7 +28,7 @@ describe('dialog initial focus', () => {
 
   it('keeps dynamic Tab trapping after the initial-focus decision', () => {
     expect(trapSource).toContain("if (event.key !== 'Tab') return");
-    expect(trapSource).toContain('container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)');
+    expect(trapSource).toContain('const elements = getReachableFocusTargets(container);');
     expect(trapSource).toContain('document.addEventListener(\'keydown\', handleKeyDown)');
   });
 });
