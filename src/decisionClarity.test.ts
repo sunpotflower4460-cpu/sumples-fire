@@ -25,7 +25,8 @@ describe('decision clarity UI contracts', () => {
 
   it('only exposes card disclosure when there is an actual memo to reveal', () => {
     expect(cardSource).toContain('{seed.body ? (');
-    expect(cardSource).toContain('<summary>メモを見る</summary>');
+    expect(cardSource).toContain('>メモを見る</summary>');
+    expect(cardSource).toContain('aria-label={`「${seed.title}」のメモを見る`}');
     expect(cardSource).not.toContain('card-detail-list');
   });
 
