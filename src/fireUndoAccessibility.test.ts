@@ -12,6 +12,7 @@ describe('Fire undo accessibility', () => {
     expect(ritualSource).toContain('<span className="ritual-live-copy">「{seed.title}」を燃やしています。</span>');
     expect(ritualSource).not.toContain('をFireしました。${seed.ashPoints}炭を獲得しました。');
     expect(appSource).toContain('className="toast-action-message" role="status" aria-live="polite"');
+    expect(appSource).toContain('元に戻す操作が利用できます。');
   });
 
   it('keeps actionable completion copy stable while Undo remains available', () => {
@@ -33,6 +34,20 @@ describe('Fire undo accessibility', () => {
     expect(cssSource).toContain('bottom: max(154px, calc(env(safe-area-inset-bottom) + 154px));');
     expect(cssSource).toContain('@media (min-width: 760px)');
     expect(cssSource).toContain('bottom: 180px;');
+  });
+
+  it('matches keyboard source order to the snackbar visual order without stealing focus', () => {
+    const screenIndex = appSource.indexOf('className="app-screen"');
+    const toastIndex = appSource.indexOf('className="toast toast-action"');
+    const fabIndex = appSource.indexOf('className="floating-action"');
+    const navIndex = appSource.indexOf('className="bottom-tabs"');
+
+    expect(screenIndex).toBeGreaterThan(-1);
+    expect(toastIndex).toBeGreaterThan(screenIndex);
+    expect(fabIndex).toBeGreaterThan(toastIndex);
+    expect(navIndex).toBeGreaterThan(fabIndex);
+    expect(appSource).toContain('role="group" aria-label="直前のFire"');
+    expect(appSource).not.toContain('toastUndoRef');
   });
 
   it('invalidates stale undo when a different mutation happens', () => {
