@@ -13,11 +13,19 @@ describe('progressive ash history', () => {
     expect(source).not.toContain('showAllRecords ? newestFirstSeeds');
   });
 
-  it('shows visible progress and a bounded next-page action', () => {
+  it('shows visible progress and exposes the same summary to assistive technology', () => {
     expect(source).toContain('{visibleRecords.length} / {newestFirstSeeds.length}件');
+    expect(source).toContain('aria-hidden="true">{visibleRecords.length} / {newestFirstSeeds.length}件');
+    expect(source).toContain('className="sr-only">表示中{visibleRecords.length}件、全{newestFirstSeeds.length}件');
     expect(source).toContain('Math.min(RECORD_PAGE_SIZE, remainingRecordCount)');
     expect(source).toContain('最新${RECORD_PAGE_SIZE}件に戻す');
     expect(source).toContain('aria-controls="ash-records-list"');
+  });
+
+  it('exposes the large visual ash total as explicit text instead of naming a generic container', () => {
+    expect(source).toContain('<span aria-hidden="true">{totalAsh}</span>');
+    expect(source).toContain('<span className="sr-only">合計{totalAsh}炭</span>');
+    expect(source).not.toContain('aria-label={`合計${totalAsh}炭`}');
   });
 
   it('uses semantic time markup for burn timestamps', () => {
