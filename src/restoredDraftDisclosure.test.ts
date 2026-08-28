@@ -9,8 +9,15 @@ describe('restored draft disclosure UX', () => {
   it('opens only disclosures that contained restored hidden content', () => {
     expect(formSource).toContain('const restoredTuningDisclosure = initialDraft.hasAdjustedTuning');
     expect(formSource).toContain("const restoredAdvancedDisclosure = initialDraft.body.trim().length > 0 || initialDraft.category !== 'task'");
-    expect(formSource).toContain('defaultOpen={restoredTuningDisclosure}');
-    expect(formSource).toContain('defaultOpen={restoredAdvancedDisclosure}');
+    expect(formSource).toContain('useState(restoredTuningDisclosure)');
+    expect(formSource).toContain('useState(restoredAdvancedDisclosure)');
+  });
+
+  it('hands disclosure control back to the user after restoration', () => {
+    expect(formSource).toContain('open={isTuningOpen}');
+    expect(formSource).toContain('setIsTuningOpen(event.currentTarget.open)');
+    expect(formSource).toContain('open={isAdvancedOpen}');
+    expect(formSource).toContain('setIsAdvancedOpen(event.currentTarget.open)');
   });
 
   it('keeps disclosure summaries informative even while collapsed', () => {
