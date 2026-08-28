@@ -20,12 +20,13 @@ describe('rapid action safety', () => {
     expect(formSource).toContain('submitLockRef.current = true');
     expect(formSource).toContain('aria-busy={isSubmitting || undefined}');
     expect(formSource).toContain("isSubmitting ? '追加中…' : 'タスクを薪にする'");
-    expect(formSource).toContain('disabled={!canSubmit}');
+    expect(formSource).toContain('disabled={isSubmitting}');
   });
 
-  it('unlocks the form if the add callback throws', () => {
+  it('unlocks the form if the add callback throws and preserves retry context', () => {
     expect(formSource).toContain('submitLockRef.current = false');
     expect(formSource).toContain('setIsSubmitting(false)');
-    expect(formSource).toContain('追加できませんでした。もう一度お試しください');
+    expect(formSource).toContain('内容は残っています。もう一度お試しください');
+    expect(formSource).toContain('submitButtonRef.current?.focus()');
   });
 });
