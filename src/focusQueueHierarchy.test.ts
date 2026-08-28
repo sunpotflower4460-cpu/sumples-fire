@@ -32,6 +32,6 @@ describe('focus and queue hierarchy', () => {
   it('does not render queue chrome when there is nothing beyond the focus task', () => {
     expect(source).toContain('{hasQueueTasks ? (');
     expect(source).toContain('<p className="eyebrow">UP NEXT</p>');
-    expect(source).toContain('<h2>その次のタスク</h2>');
+    expect(source).toContain('<h2 id="up-next-heading">その次のタスク</h2>');
   });
 });
