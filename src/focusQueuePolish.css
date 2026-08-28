@@ -35,6 +35,34 @@
   padding-top: 1px;
 }
 
+.task-queue-more {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 15px;
+  background: rgba(92, 60, 46, 0.035);
+  color: var(--wc-muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms var(--wc-spring);
+}
+
+.task-queue-more:hover {
+  border-color: rgba(232, 90, 36, 0.16);
+  background: rgba(232, 90, 36, 0.055);
+  color: #8d3f24;
+  transform: translateY(-1px);
+}
+
+.task-queue-more:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.task-queue-more[aria-expanded='true'] {
+  background: rgba(92, 60, 46, 0.055);
+}
+
 .queue-empty-state {
   min-height: 142px;
   border: 0;
@@ -64,6 +92,12 @@
   margin-top: 2px;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .task-queue-more:hover {
+    transform: none;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .task-queue-panel .matrix-filter-shell {
     border-color: rgba(255, 238, 224, 0.065);
@@ -74,13 +108,37 @@
     background: rgba(255, 238, 224, 0.035);
   }
 
+  .task-queue-more {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(255, 238, 224, 0.03);
+    color: rgba(255, 238, 224, 0.66);
+  }
+
+  .task-queue-more:hover {
+    border-color: rgba(255, 173, 120, 0.16);
+    background: rgba(255, 173, 120, 0.055);
+    color: #ffad78;
+  }
+
   .queue-empty-state {
     background: transparent;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .task-queue-more {
+    transition: none !important;
+  }
+}
+
 @media (forced-colors: active) {
-  .task-queue-panel .matrix-filter-shell {
+  .task-queue-panel .matrix-filter-shell,
+  .task-queue-more {
     border-color: CanvasText;
+  }
+
+  .task-queue-more {
+    background: ButtonFace;
+    color: ButtonText;
   }
 }
