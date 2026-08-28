@@ -1,6 +1,13 @@
 import type { Variants } from 'framer-motion';
 import type { BurnSpectacleType } from './fireBurnSpectacle';
-import { BURN_EASE, BURST_SPRING, CARBONIZE_EASE, FIRE_SPRING, REWARD_SPRING } from './fireAnimationConstants';
+import {
+  BURN_EASE,
+  BURST_SPRING,
+  CARBONIZE_EASE,
+  FIRE_SPRING,
+  REWARD_SPRING,
+  SPECTACLE_BURST_DURATION_S,
+} from './fireAnimationConstants';
 
 /** Per-spectacle glow and particle configuration */
 export type SpecialVariantConfig = {
@@ -64,15 +71,15 @@ export const rewardVariants: Variants = {
   exit:    { opacity: 0, scale: 0.88, y: -8, transition: { duration: 0.25, ease: CARBONIZE_EASE } },
 };
 
-/** Spectacle burst ring */
+/** Spectacle burst ring — kept inside the complete phase. */
 export const spectacleBurstVariants: Variants = {
   hidden:  { opacity: 0, scale: 0.2 },
   visible: {
     opacity: [0, 0.9, 0.5, 0],
     scale:   [0.2, 1, 1.5, 2.2],
-    transition: { ...BURST_SPRING, duration: 1.4, times: [0, 0.25, 0.6, 1] },
+    transition: { ...BURST_SPRING, duration: SPECTACLE_BURST_DURATION_S, times: [0, 0.25, 0.6, 1] },
   },
-  exit: { opacity: 0, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.08 } },
 };
 
 /** Small phase label above the title */
