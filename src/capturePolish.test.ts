@@ -38,6 +38,15 @@ describe('progressive task capture contracts', () => {
     expect(cssSource).toContain('gap: 0;');
   });
 
+  it('preserves complete disclosure summaries at 320px-class reflow widths', () => {
+    expect(cssSource).toContain('@media (max-width: 340px)');
+    expect(cssSource).toContain('.task-tuning-fields > summary,\n  .advanced-fields-summary');
+    expect(cssSource).toContain('flex-wrap: wrap');
+    expect(cssSource).toContain('text-overflow: clip');
+    expect(cssSource).toContain('white-space: normal');
+    expect(cssSource).toContain('overflow-wrap: anywhere');
+  });
+
   it('keeps capture polish ahead of the final accessibility layer', () => {
     expect(mainSource.indexOf("import './capturePolish.css';"))
       .toBeLessThan(mainSource.indexOf("import './accessibilityPolish.css';"));
