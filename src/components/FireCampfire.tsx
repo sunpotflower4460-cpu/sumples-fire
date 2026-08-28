@@ -7,6 +7,15 @@ type FireCampfireProps = {
   hasPendingTasks: boolean;
 };
 
+function StreakFlameGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M13.5 3c.6 3.2-2.2 4.2-1 6.5.5 1 1.5 1.4 2.3 1.1 1.1-.5 1.4-1.9 1.1-3.4 2.3 1.8 3.6 4 3.6 6.5A7.5 7.5 0 1 1 4.5 14c0-3.4 2-5.9 5.2-8.2-.1 2 .2 3.3 1.1 4 .2-2.6.9-4.7 2.7-6.8Z" />
+      <path d="M12 13.2c1.8 1.5 2.7 2.8 2.7 4a2.7 2.7 0 0 1-5.4 0c0-1.2.9-2.5 2.7-4Z" fill="rgba(255,255,255,.5)" />
+    </svg>
+  );
+}
+
 export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCampfireProps) {
   const stage = getCampfireStage(ashPoints);
   const stageLabel = getCampfireStageLabel(stage);
@@ -41,8 +50,8 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         </div>
 
         <div className="campfire-embers">
-          {Array.from({ length: emberCount }, (_, i) => (
-            <i key={i} className={`campfire-ember ce-${i + 1}`} />
+          {Array.from({ length: emberCount }, (_, index) => (
+            <i key={index} className={`campfire-ember ce-${index + 1}`} />
           ))}
         </div>
 
@@ -61,7 +70,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
 
         {streakData.currentStreak > 0 ? (
           <div className={`campfire-streak streak-state-${streakState}`} aria-label={`連続燃焼${streakData.currentStreak}日`}>
-            <span className="streak-flame-icon" aria-hidden="true">🔥</span>
+            <span className="streak-flame-icon" aria-hidden="true"><StreakFlameGlyph /></span>
             <span className="streak-count">{streakData.currentStreak}</span>
             <span className="streak-label">日連続</span>
             {streakState !== 'cold' ? (
