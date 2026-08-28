@@ -127,23 +127,21 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         <i /><i /><i /><i /><i />
       </div>
 
-      {/* ── Spectacle burst ring (special effects only) ── */}
-      {isSpecial && !shouldReduceMotion ? (
+      {/* ── Spectacle burst ring — reserved for the reward beat. ── */}
+      {isSpecial && !shouldReduceMotion && phase === 'complete' ? (
         <AnimatePresence>
-          {(phase === 'burning' || phase === 'complete') ? (
-            <motion.div
-              key="spectacle-burst"
-              className="ritual-spectacle-burst"
-              aria-hidden="true"
-              style={{ '--burst-scale': variantConfig.burstScale } as React.CSSProperties}
-              variants={spectacleBurstVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <i /><i /><i /><i /><i /><i /><i /><i />
-            </motion.div>
-          ) : null}
+          <motion.div
+            key="spectacle-burst"
+            className="ritual-spectacle-burst"
+            aria-hidden="true"
+            style={{ '--burst-scale': variantConfig.burstScale } as React.CSSProperties}
+            variants={spectacleBurstVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <i /><i /><i /><i /><i /><i /><i /><i />
+          </motion.div>
         </AnimatePresence>
       ) : null}
 
