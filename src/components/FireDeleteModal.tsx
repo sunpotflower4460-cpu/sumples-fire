@@ -8,10 +8,19 @@ type FireDeleteModalProps = {
   onCancel: () => void;
 };
 
+const focusAfterDelete = () => {
+  const fallback = document.querySelector<HTMLElement>(
+    '.focus-seed .fire-button, .all-clear-card .primary-button, .floating-action, .tab-button[aria-current="page"]',
+  );
+  fallback?.focus({ preventScroll: true });
+};
+
 export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalProps) {
   const dialogRef = useFocusTrap<HTMLDivElement>(true);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const shouldRestorePreviousFocusRef = useRef(true);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
+  const isAshRecord = seed.burned;
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -26,9 +35,20 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.setTimeout(() => previousFocusRef.current?.focus(), 0);
+      if (!shouldRestorePreviousFocusRef.current) return;
+      window.setTimeout(() => {
+        if (previousFocusRef.current?.isConnected) {
+          previousFocusRef.current.focus({ preventScroll: true });
+        }
+      }, 0);
     };
   }, [onCancel]);
+
+  const handleConfirm = () => {
+    shouldRestorePreviousFocusRef.current = false;
+    onConfirm();
+    window.setTimeout(focusAfterDelete, 0);
+  };
 
   return (
     <div className="fire-delete-backdrop" role="presentation" onClick={onCancel}>
@@ -49,18 +69,22 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
             <path d="M10 11v5M14 11v5" />
           </svg>
         </div>
-        <p className="fire-delete-kicker">Remove task</p>
-        <h2 id="fire-delete-title" className="fire-delete-heading">このタスクを削除しますか？</h2>
+        <p className="fire-delete-kicker">REMOVE</p>
+        <h2 id="fire-delete-title" className="fire-delete-heading">
+          {isAshRecord ? 'この炭の記録を削除しますか？' : 'このタスクを削除しますか？'}
+        </h2>
         <p id="fire-delete-description" className="fire-delete-copy">
-          削除すると元に戻せません。迷う場合は、そのまま残しておくのがおすすめです。
+          {isAshRecord
+            ? `削除すると${seed.ashPoints}炭が合計から減り、称号の進捗にも反映されます。連続Fireの記録は変わりません。`
+            : '削除すると元に戻せません。迷う場合は、そのまま残しておけます。'}
         </p>
         <p className="fire-delete-seed">{seed.title}</p>
         <div className="fire-delete-actions">
           <button ref={cancelRef} className="fire-delete-cancel" type="button" onClick={onCancel}>
-            残しておく
+            {isAshRecord ? '記録を残す' : '残しておく'}
           </button>
-          <button className="fire-delete-confirm" type="button" onClick={onConfirm}>
-            削除する
+          <button className="fire-delete-confirm" type="button" onClick={handleConfirm}>
+            {isAshRecord ? '炭ごと削除' : '削除する'}
           </button>
         </div>
       </div>
