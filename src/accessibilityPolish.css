@@ -1,5 +1,5 @@
 /*
- * Fire Task — accessibility polish pass 9
+ * Fire Task — accessibility polish pass 9+
  * Decorative glow may stay subtle; meaningful labels, timestamps, state and
  * controls must remain readable and operable in both color schemes.
  */
@@ -84,12 +84,18 @@ html {
 }
 
 /* 44px gives mobile controls a comfortable target even where WCAG's minimum
-   target size would technically allow less. */
+   target size would technically allow less. Keep this as the final floor for
+   compact icon controls and secondary disclosures too. */
 .card-delete-button,
 .ash-record-delete,
 .sheet-close,
 .sound-pill {
   min-width: 44px;
+  min-height: 44px;
+}
+
+.matrix-reset-button,
+.fire-card .card-details > summary {
   min-height: 44px;
 }
 
