@@ -37,7 +37,7 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
         <div className="settings-section-heading">
           <p className="eyebrow">COMFORT</p>
           <h3 id="settings-comfort-title">快適さ</h3>
-          <p>毎回のFire体験に関わる設定だけを、すぐ触れる場所に置いています。</p>
+          <p>Fireの演出音を、好みに合わせて切り替えられます。</p>
         </div>
         <FireComfortSettings totalTasks={totalTasks} />
       </section>
@@ -46,7 +46,7 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
         <summary>
           <span>
             <strong>使い方</strong>
-            <small>3ステップだけ確認する</small>
+            <small>迷った時に3ステップを確認</small>
           </span>
           <i aria-hidden="true"><DisclosureGlyph /></i>
         </summary>
@@ -58,7 +58,7 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
             </li>
             <li>
               <strong>緊急度と重要度を決める</strong>
-              <p>高低を選ぶだけで、Fire Taskが4象限へ自動分類して順番を整えます。</p>
+              <p>高低を選ぶと、4象限へ自動分類されて燃やす順番が見つけやすくなります。</p>
             </li>
             <li>
               <strong>終わったらFireする</strong>
