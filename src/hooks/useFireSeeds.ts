@@ -13,6 +13,11 @@ import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
+type BurnCompletion = {
+  id: string;
+  status: 'succeeded' | 'failed';
+};
+
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -41,6 +46,7 @@ export function useFireSeeds() {
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
   const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
+  const [burnCompletion, setBurnCompletion] = useState<BurnCompletion | null>(null);
   const [undoBurnSnapshot, setUndoBurnSnapshot] = useState<FireBurnUndoSnapshot | null>(null);
 
   useEffect(() => {
@@ -176,6 +182,7 @@ export function useFireSeeds() {
     activeBurnIdRef.current = id;
 
     clearUndoBurn();
+    setBurnCompletion(null);
     const undoSnapshot = createFireBurnUndoSnapshot(target, streakData);
     const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
     const burningSeeds = seeds.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed));
@@ -197,6 +204,7 @@ export function useFireSeeds() {
 
       if (!saveStoredSeeds(storageDriverRef.current, completedSeeds)) {
         setSeeds(seeds);
+        setBurnCompletion({ id, status: 'failed' });
         setBurningSpectacle(null);
         activeBurnIdRef.current = null;
         completionTimerRef.current = null;
@@ -208,6 +216,7 @@ export function useFireSeeds() {
       setSeeds(completedSeeds);
       setStreakData(newStreakData);
       saveFireStreak(newStreakData);
+      setBurnCompletion({ id, status: 'succeeded' });
       setBurningSpectacle(null);
       activeBurnIdRef.current = null;
       completionTimerRef.current = null;
@@ -284,6 +293,7 @@ export function useFireSeeds() {
     stats,
     streakData,
     burningSpectacle,
+    burnCompletion,
     undoBurnCandidate,
     addSeed,
     burnTask,
