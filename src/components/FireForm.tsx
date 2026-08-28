@@ -7,6 +7,7 @@ import {
   levelLabels,
   priorityLabels,
   quadrantLabels,
+  quadrantShortDescriptions,
   stageLabels,
 } from '../types/fireSeed';
 import { getQuadrant } from '../lib/fireSeedModel';
@@ -42,13 +43,6 @@ const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
   { value: 'heavy', hint: '腰が重い' },
   { value: 'boss', hint: '大きい達成' },
 ];
-
-const matrixShortDescriptions = {
-  doNow: '今日の最優先候補です。',
-  schedule: '時間を取って進めましょう。',
-  quickBurn: '短時間で片付けられそうです。',
-  backlog: '余力がある日に燃やしましょう。',
-} as const;
 
 export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireFormProps) {
   const [title, setTitle] = useState('');
@@ -179,10 +173,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           </div>
         </fieldset>
 
-        <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite">
+        <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite" aria-atomic="true">
           <span>自動分類</span>
           <strong>{quadrantLabels[quadrant]}</strong>
-          <p>{matrixShortDescriptions[quadrant]}</p>
+          <p>{quadrantShortDescriptions[quadrant]}</p>
         </div>
       </section>
 

@@ -20,6 +20,7 @@ import './interactionPolish.css';
 import './nativeFinishPolish.css';
 import './ritualFlowPolish.css';
 import './flowContinuityPolish.css';
+import './archiveScalePolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
