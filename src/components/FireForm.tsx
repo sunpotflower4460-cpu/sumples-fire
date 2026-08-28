@@ -199,19 +199,24 @@ export function FireForm({ onAddSeed }: FireFormProps) {
               <legend>緊急度</legend>
               <div className="choice-grid two-choice">
                 {levelOptions.map((option) => (
-                  <button
+                  <label
                     key={option.value}
-                    type="button"
                     className={urgency === option.value ? 'choice-button is-selected' : 'choice-button'}
-                    onClick={() => {
-                      setUrgency(option.value);
-                      setHasAdjustedTuning(true);
-                    }}
-                    aria-pressed={urgency === option.value}
                   >
+                    <input
+                      className="choice-radio"
+                      type="radio"
+                      name="seed-urgency"
+                      value={option.value}
+                      checked={urgency === option.value}
+                      onChange={() => {
+                        setUrgency(option.value);
+                        setHasAdjustedTuning(true);
+                      }}
+                    />
                     <b>{levelLabels[option.value]}</b>
                     <small>{option.hint}</small>
-                  </button>
+                  </label>
                 ))}
               </div>
             </fieldset>
@@ -220,19 +225,24 @@ export function FireForm({ onAddSeed }: FireFormProps) {
               <legend>重要度</legend>
               <div className="choice-grid two-choice">
                 {levelOptions.map((option) => (
-                  <button
+                  <label
                     key={option.value}
-                    type="button"
                     className={importance === option.value ? 'choice-button is-selected' : 'choice-button'}
-                    onClick={() => {
-                      setImportance(option.value);
-                      setHasAdjustedTuning(true);
-                    }}
-                    aria-pressed={importance === option.value}
                   >
+                    <input
+                      className="choice-radio"
+                      type="radio"
+                      name="seed-importance"
+                      value={option.value}
+                      checked={importance === option.value}
+                      onChange={() => {
+                        setImportance(option.value);
+                        setHasAdjustedTuning(true);
+                      }}
+                    />
                     <b>{levelLabels[option.value]}</b>
                     <small>{option.value === 'high' ? '大事・放置したくない' : '軽め・今は小さい'}</small>
-                  </button>
+                  </label>
                 ))}
               </div>
             </fieldset>
@@ -248,19 +258,24 @@ export function FireForm({ onAddSeed }: FireFormProps) {
             <legend>タスクの重さ <span className="optional-label">だいたいでOK</span></legend>
             <div className="choice-grid difficulty-choice-grid">
               {difficultyOptions.map((option) => (
-                <button
+                <label
                   key={option.value}
-                  type="button"
                   className={difficulty === option.value ? 'choice-button is-selected' : 'choice-button'}
-                  onClick={() => {
-                    setDifficulty(option.value);
-                    setHasAdjustedTuning(true);
-                  }}
-                  aria-pressed={difficulty === option.value}
                 >
+                  <input
+                    className="choice-radio"
+                    type="radio"
+                    name="seed-difficulty"
+                    value={option.value}
+                    checked={difficulty === option.value}
+                    onChange={() => {
+                      setDifficulty(option.value);
+                      setHasAdjustedTuning(true);
+                    }}
+                  />
                   <b>{difficultyLabels[option.value]}</b>
                   <small>{option.hint} / +{difficultyAshPoints[option.value]}炭</small>
-                </button>
+                </label>
               ))}
             </div>
           </fieldset>

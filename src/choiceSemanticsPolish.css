@@ -1,0 +1,75 @@
+/*
+ * Fire Task — native choice semantics polish pass 52
+ * Preserve the existing card visuals while the underlying mutually-exclusive
+ * controls use real radio inputs with native keyboard behavior.
+ */
+
+.choice-button {
+  position: relative;
+  cursor: pointer;
+}
+
+.choice-radio {
+  position: absolute;
+  width: 1px;
+  min-width: 1px;
+  height: 1px;
+  min-height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* The native radio owns keyboard focus; expose that focus on the full visual
+   card so the target remains obvious without adding a second focusable layer. */
+.choice-button:has(.choice-radio:focus-visible) {
+  outline: 2px solid var(--wc-focus);
+  outline-offset: 3px;
+}
+
+/* Labels are not disabled elements, so use plain hover/active states after the
+   previous button-based implementation moved to native radios. */
+.choice-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--wc-hairline-strong);
+  background: rgba(255, 253, 249, 0.98);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.choice-button:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-color-scheme: dark) {
+  .choice-button:hover {
+    border-color: rgba(255, 238, 224, 0.15);
+    background: rgba(255, 238, 224, 0.065);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-button {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .choice-button {
+    border: 1px solid ButtonText;
+  }
+
+  .choice-button.is-selected {
+    border-color: Highlight;
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+
+  .choice-button:has(.choice-radio:focus-visible) {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+}

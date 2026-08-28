@@ -35,6 +35,7 @@ import './mobileViewportPolish.css';
 import './screenReaderPolish.css';
 import './textScaleResilience.css';
 import './dialogViewportPolish.css';
+import './choiceSemanticsPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
