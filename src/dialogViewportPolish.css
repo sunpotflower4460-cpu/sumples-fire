@@ -1,0 +1,94 @@
+/*
+ * Fire Task — destructive dialog viewport resilience pass 35
+ * Keep every destructive choice reachable when text is enlarged, browser zoom
+ * reduces the CSS viewport, or safe-area insets leave very little vertical room.
+ */
+
+.fire-delete-backdrop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+  -webkit-overflow-scrolling: touch;
+}
+
+.fire-delete-modal {
+  flex: none;
+  width: min(100%, 390px);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  margin-block: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fire-delete-heading,
+.fire-delete-copy,
+.fire-delete-seed {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.fire-delete-cancel,
+.fire-delete-confirm {
+  height: auto;
+  min-height: 48px;
+  padding: 11px 14px;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+/* At reflow widths, preserving complete action labels is more important than
+   keeping destructive choices on a single row. */
+@media (max-width: 420px) {
+  .fire-delete-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .fire-delete-cancel,
+  .fire-delete-confirm {
+    width: 100%;
+  }
+}
+
+/* A short viewport usually means landscape, browser zoom, or an onscreen
+   keyboard. Compress decoration first, never the explanation or actions. */
+@media (max-height: 520px) {
+  .fire-delete-modal {
+    padding: 18px;
+  }
+
+  .fire-delete-icon {
+    display: none;
+  }
+
+  .fire-delete-seed {
+    margin-block: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fire-delete-modal {
+    scroll-behavior: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  .fire-delete-modal {
+    border-color: CanvasText;
+  }
+
+  .fire-delete-cancel,
+  .fire-delete-confirm {
+    border: 1px solid ButtonText;
+  }
+}
