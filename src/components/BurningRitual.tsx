@@ -68,7 +68,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       ].join(' ').trim()}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
       role="status"
       aria-live="polite"
       aria-atomic="true"
@@ -128,7 +128,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       </div>
 
       {/* ── Spectacle burst ring (special effects only) ── */}
-      {isSpecial ? (
+      {isSpecial && !shouldReduceMotion ? (
         <AnimatePresence>
           {(phase === 'burning' || phase === 'complete') ? (
             <motion.div
