@@ -437,32 +437,6 @@ export default function App() {
         </div>
       </header>
 
-      {undoBurnCandidate ? (
-        <div className="toast toast-action">
-          <span className="toast-action-message" role="status" aria-live="polite">
-            {notice || `「${undoBurnCandidate.title}」をFireしました`}
-          </span>
-          <button
-            type="button"
-            className="toast-undo-button"
-            onClick={handleUndoBurn}
-            aria-label={`「${undoBurnCandidate.title}」のFireを元に戻す`}
-          >
-            元に戻す
-          </button>
-          <button
-            type="button"
-            className="toast-dismiss-button"
-            onClick={handleDismissUndo}
-            aria-label="Fire通知を閉じる"
-          >
-            <CloseGlyph />
-          </button>
-        </div>
-      ) : notice ? (
-        <div className="toast" role="status" aria-live="polite">{notice}</div>
-      ) : null}
-
       <section className="app-screen" aria-labelledby="app-screen-title">
         {activeTab === 'today' ? (
           <div className="screen-stack">
@@ -652,6 +626,33 @@ export default function App() {
           </section>
         ) : null}
       </section>
+
+      {undoBurnCandidate ? (
+        <div className="toast toast-action" role="group" aria-label="直前のFire">
+          <span className="toast-action-message" role="status" aria-live="polite">
+            {notice || `「${undoBurnCandidate.title}」をFireしました`}
+            <span className="sr-only"> 元に戻す操作が利用できます。</span>
+          </span>
+          <button
+            type="button"
+            className="toast-undo-button"
+            onClick={handleUndoBurn}
+            aria-label={`「${undoBurnCandidate.title}」のFireを元に戻す`}
+          >
+            元に戻す
+          </button>
+          <button
+            type="button"
+            className="toast-dismiss-button"
+            onClick={handleDismissUndo}
+            aria-label="Fire通知を閉じる"
+          >
+            <CloseGlyph />
+          </button>
+        </div>
+      ) : notice ? (
+        <div className="toast" role="status" aria-live="polite">{notice}</div>
+      ) : null}
 
       {shouldShowFloatingAction ? (
         <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く" />
