@@ -44,8 +44,7 @@ export const titleVariants: Variants = {
   ignite: {
     opacity: 1,
     scale: 1,
-    // Slightly longer entrance supports the quiet tension of the ignite phase
-    transition: { duration: 0.45, ease: BURN_EASE },
+    transition: { duration: 0.42, ease: BURN_EASE },
   },
   burning: {
     opacity: 0.95,
@@ -55,12 +54,12 @@ export const titleVariants: Variants = {
   carbonizing: {
     opacity: 0.6,
     scale: 0.96,
-    transition: { duration: 0.85, ease: CARBONIZE_EASE },
+    transition: { duration: 0.5, ease: CARBONIZE_EASE },
   },
   complete: {
     opacity: 0.45,
     scale: 0.92,
-    transition: { duration: 0.65, ease: CARBONIZE_EASE },
+    transition: { duration: 0.45, ease: CARBONIZE_EASE },
   },
 };
 
@@ -68,7 +67,7 @@ export const titleVariants: Variants = {
 export const rewardVariants: Variants = {
   hidden:  { opacity: 0, scale: 0.72, y: 16 },
   visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...REWARD_SPRING } },
-  exit:    { opacity: 0, scale: 0.88, y: -8, transition: { duration: 0.25, ease: CARBONIZE_EASE } },
+  exit:    { opacity: 0, scale: 0.88, y: -8, transition: { duration: 0.18, ease: CARBONIZE_EASE } },
 };
 
 /** Spectacle burst ring — kept inside the complete phase. */
@@ -85,13 +84,13 @@ export const spectacleBurstVariants: Variants = {
 /** Small phase label above the title */
 export const phaseLabelVariants: Variants = {
   hidden:  { opacity: 0, y: -6 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.22, ease: BURN_EASE } },
-  exit:    { opacity: 0, y:  4, transition: { duration: 0.15 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.18, ease: BURN_EASE } },
+  exit:    { opacity: 0, y:  4, transition: { duration: 0.12 } },
 };
 
 /** Difficulty / flavour text below the title */
 export const difficultyVariants: Variants = {
   hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit:    { opacity: 0, transition: { duration: 0.15 } },
+  visible: { opacity: 1, transition: { duration: 0.16 } },
+  exit:    { opacity: 0, transition: { duration: 0.12 } },
 };
