@@ -9,8 +9,9 @@ describe('one-tap Fire UX contract', () => {
   it('starts Fire directly without a confirmation dialog', () => {
     expect(appSource).not.toContain('FireConfirmModal');
     expect(appSource).not.toContain('pendingBurnSeed');
-    expect(appSource).toContain('onClick={() => burnTask(focusSeed.id)}');
-    expect(appSource).toContain('onFire={burnTask}');
+    expect(appSource).toContain('onClick={() => handleFireTask(focusSeed.id)}');
+    expect(appSource).toContain('onFire={handleFireTask}');
+    expect(appSource).toContain('burnTask(id);');
   });
 
   it('offers a reversible completion action without a short expiry timer', () => {
