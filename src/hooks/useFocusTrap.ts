@@ -12,6 +12,8 @@ const FOCUSABLE_SELECTORS = [
 
 /**
  * Traps keyboard focus inside the referenced container while `active` is true.
+ * Existing intentional focus inside the container (for example an autoFocused
+ * primary input) is preserved; otherwise focus moves to the first control.
  * Returns a ref to attach to the container element.
  */
 export function useFocusTrap<T extends HTMLElement>(active: boolean) {
@@ -21,10 +23,17 @@ export function useFocusTrap<T extends HTMLElement>(active: boolean) {
     if (!active || !containerRef.current) return;
 
     const container = containerRef.current;
-
-    // Move focus to the first focusable element inside the trap
     const initialFocusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS));
-    initialFocusable[0]?.focus();
+    const activeElement = document.activeElement;
+    const hasIntentionalFocusInside = activeElement instanceof HTMLElement
+      && container.contains(activeElement)
+      && activeElement.matches(FOCUSABLE_SELECTORS);
+
+    // React/browser autofocus runs during commit before passive effects. Do not
+    // replace that intentional target with an earlier close button in the DOM.
+    if (!hasIntentionalFocusInside) {
+      initialFocusable[0]?.focus();
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
