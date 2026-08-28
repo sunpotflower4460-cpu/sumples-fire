@@ -21,6 +21,11 @@ describe('Fire sound switch semantics', () => {
     expect(source).toContain('aria-describedby={soundDescriptionId}');
   });
 
+  it('keeps the settings card out of article navigation because it is not standalone content', () => {
+    expect(source).toContain('<div className="comfort-settings-card">');
+    expect(source).not.toContain('<article className="comfort-settings-card">');
+  });
+
   it('keeps the visible state text and sound glyph for sighted users', () => {
     expect(source).toContain("{soundEnabled ? 'オン' : 'オフ'}");
     expect(source).toContain('<SoundGlyph muted={!soundEnabled} />');
