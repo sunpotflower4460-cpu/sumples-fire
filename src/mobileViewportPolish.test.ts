@@ -19,6 +19,12 @@ describe('mobile capture viewport contracts', () => {
     expect(css).toContain('.form-sticky-submit {\n  bottom: 0;');
   });
 
+  it('keeps final content above fixed navigation, FAB, and bottom safe areas', () => {
+    expect(css).toContain('padding-bottom: max(164px, calc(env(safe-area-inset-bottom) + 162px));');
+    expect(css).toContain('@media (min-width: 760px)');
+    expect(css).toContain('padding-bottom: 184px;');
+  });
+
   it('promotes the sheet to a full-height surface on short phone landscape', () => {
     expect(css).toContain('(max-height: 500px) and (orientation: landscape)');
     expect(css).toContain('height: 100dvh');
