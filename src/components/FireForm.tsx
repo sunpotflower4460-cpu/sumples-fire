@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { FireCategory, FireDifficulty, FireLevel, NewFireSeedInput } from '../types/fireSeed';
 import {
   categoryLabels,
@@ -12,12 +12,11 @@ import { getQuadrant } from '../lib/fireSeedModel';
 import { clearFireFormDraft, loadFireFormDraft, saveFireFormDraft } from '../lib/fireFormDraft';
 
 type FireFormProps = {
-  defaultTitle?: string;
-  onClearDefaultTitle?: () => void;
   onAddSeed: (input: NewFireSeedInput) => void;
 };
 
 const titleMaxLength = 60;
+const titleCounterThreshold = 45;
 const titleHelperId = 'seed-title-helper';
 const titleErrorId = 'seed-title-error';
 
@@ -33,7 +32,7 @@ const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
   { value: 'boss', hint: '大きい達成' },
 ];
 
-export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireFormProps) {
+export function FireForm({ onAddSeed }: FireFormProps) {
   const [initialDraft] = useState(loadFireFormDraft);
   const [title, setTitle] = useState(initialDraft.title);
   const [body, setBody] = useState(initialDraft.body);
@@ -50,16 +49,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
 
   const quadrant = getQuadrant(urgency, importance);
   const canSubmit = title.trim().length > 0 && !isSubmitting;
-  const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
+  const titleRemaining = titleMaxLength - title.length;
+  const showTitleCounter = title.length >= titleCounterThreshold;
   const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
   const tuningSummary = `${quadrantLabels[quadrant]} ・ ${difficultyLabels[difficulty]}`;
-
-  useEffect(() => {
-    if (!defaultTitle) return;
-    setTitle(defaultTitle);
-    onClearDefaultTitle?.();
-    window.setTimeout(() => titleInputRef.current?.focus(), 0);
-  }, [defaultTitle, onClearDefaultTitle]);
 
   useEffect(() => {
     saveFireFormDraft({
@@ -139,9 +132,16 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={titleDescribedBy}
         />
-        <div className="field-meta form-primary-meta">
-          <span className="char-count" aria-label="文字数">{titleCounter}</span>
-        </div>
+        {showTitleCounter ? (
+          <div className="field-meta form-primary-meta">
+            <span
+              className={`char-count${titleRemaining <= 5 ? ' is-near-limit' : ''}`}
+              aria-label={`残り${titleRemaining}文字`}
+            >
+              あと{titleRemaining}文字
+            </span>
+          </div>
+        ) : null}
       </div>
 
       <div className="field-group compact-field">
