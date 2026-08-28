@@ -1,0 +1,97 @@
+/*
+ * Fire Task — archive scale polish pass 7
+ * Keeps the ash archive rewarding when it grows from a handful of records to
+ * hundreds, without rendering the entire history by default.
+ */
+
+.ash-records-section {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ash-records-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 2px 2px 0;
+}
+
+.ash-records-heading > div {
+  min-width: 0;
+}
+
+.ash-records-heading .eyebrow {
+  margin-bottom: 2px;
+  color: rgba(232, 185, 35, 0.5);
+}
+
+.ash-records-heading h3 {
+  margin: 0;
+  color: rgba(245, 232, 211, 0.86);
+  font-size: 1.05rem;
+  letter-spacing: -0.025em;
+}
+
+.ash-records-heading > span {
+  flex: none;
+  color: rgba(245, 232, 211, 0.38);
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Expanded archives can still get large; let the browser skip off-screen paint work. */
+.ash-record-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 68px;
+}
+
+.ash-records-toggle {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 2px;
+  border: 1px solid rgba(245, 232, 211, 0.09);
+  border-radius: 15px;
+  background: rgba(245, 232, 211, 0.035);
+  color: rgba(245, 232, 211, 0.62);
+  font-size: 0.8rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms var(--wc-spring);
+}
+
+.ash-records-toggle:hover {
+  border-color: rgba(255, 154, 61, 0.16);
+  background: rgba(255, 154, 61, 0.055);
+  color: rgba(245, 232, 211, 0.8);
+  transform: translateY(-1px);
+}
+
+.ash-records-toggle:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.ash-records-toggle[aria-expanded='true'] {
+  background: rgba(245, 232, 211, 0.055);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ash-records-toggle:hover,
+  .ash-record-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .ash-records-heading {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-records-toggle {
+    transition: none !important;
+  }
+}
