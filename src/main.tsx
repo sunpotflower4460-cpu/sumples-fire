@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MotionConfig } from 'framer-motion';
 import App from './App';
+import { AppScreenAnnouncer } from './components/AppScreenAnnouncer';
 import './styles.css';
 import './fireTaskEffects.css';
 import './rewardEffects.css';
@@ -30,12 +31,14 @@ import './capturePolish.css';
 import './ritualFeedbackPolish.css';
 import './actionEntryPolish.css';
 import './mobileViewportPolish.css';
+import './screenReaderPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MotionConfig reducedMotion="user">
       <App />
+      <AppScreenAnnouncer />
     </MotionConfig>
   </StrictMode>,
 );
