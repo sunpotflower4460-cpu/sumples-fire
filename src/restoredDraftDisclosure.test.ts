@@ -27,10 +27,13 @@ describe('restored draft disclosure UX', () => {
     expect(formSource).toContain("className={hasAdvancedContent ? 'has-content' : undefined}");
   });
 
-  it('announces restoration only when meaningful session content was recovered', () => {
+  it('describes restoration through the autofocus target instead of a competing live region', () => {
     expect(formSource).toContain('const restoredDraft = initialDraft.title.trim().length > 0');
-    expect(formSource).toContain('書きかけを復元しました');
-    expect(formSource).toContain('className="draft-restored-status" role="status"');
+    expect(formSource).toContain("const draftRestoredStatusId = 'seed-draft-restored-status'");
+    expect(formSource).toContain('restoredDraft ? draftRestoredStatusId : \'\'');
+    expect(formSource).toContain('id={draftRestoredStatusId} className="draft-restored-status"');
+    expect(formSource).toContain('aria-describedby={titleDescribedBy}');
+    expect(formSource).not.toContain('className="draft-restored-status" role="status"');
   });
 
   it('keeps restoration cues quiet in light, dark, and forced-color modes', () => {
