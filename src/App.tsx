@@ -202,6 +202,7 @@ export default function App() {
     [pendingTasks, focusSeed?.id],
   );
   const hasQueueTasks = queueTasks.length > 0;
+  const shouldShowFloatingAction = activeTab !== 'today' || hasPendingTasks;
   const streakState = getStreakState(streakData.currentStreak);
   const visibleTasks = useMemo(
     () => (quadrantFilter ? queueTasks.filter((seed) => seed.quadrant === quadrantFilter) : queueTasks),
@@ -323,7 +324,6 @@ export default function App() {
             {!hasTasks ? (
               <section className="brand-hero" aria-label="Fire Task の概要">
                 <div className="brand-mark"><FlameGlyph /></div>
-                <p className="app-kicker">Fire Task</p>
                 <h2>嫌なタスクを、燃やして終わらせる。</h2>
                 <p>まずは1つだけ、燃やしたいことを書きましょう。</p>
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
@@ -360,7 +360,6 @@ export default function App() {
                   >
                     {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
                   </button>
-                  <button className="ghost-button" type="button" onClick={openRecord}>タスクを追加</button>
                 </div>
               </section>
             ) : null}
@@ -478,14 +477,15 @@ export default function App() {
             <div className="section-heading">
               <p className="eyebrow">SETTINGS</p>
               <h2>設定</h2>
-              <p className="settings-screen-intro">毎回触るものを手前に、説明は必要な時だけ開けるように整理しています。</p>
             </div>
             <FireSettingsPanel totalTasks={stats.total} />
           </section>
         ) : null}
       </section>
 
-      <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く" />
+      {shouldShowFloatingAction ? (
+        <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く" />
+      ) : null}
 
       <nav className="bottom-tabs" aria-label="アプリの画面切り替え">
         {tabs.map((tab) => (
