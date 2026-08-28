@@ -7,11 +7,13 @@ describe('screen-reader navigation continuity', () => {
   const mainSource = readFileSync(resolve(__dirname, 'main.tsx'), 'utf-8');
   const cssSource = readFileSync(resolve(__dirname, 'screenReaderPolish.css'), 'utf-8');
 
-  it('announces actual screen-title changes without announcing the initial mount', () => {
-    expect(announcerSource).toContain('previousTitleRef.current = document.title;');
+  it('announces visible screen-heading changes without announcing the initial mount', () => {
+    expect(announcerSource).toContain("document.querySelector<HTMLElement>('#app-screen-title')");
+    expect(announcerSource).toContain("previousScreenNameRef.current = titleElement.textContent?.trim() ?? '';");
     expect(announcerSource).toContain('new MutationObserver(announceScreenChange)');
-    expect(announcerSource).toContain("setAnnouncement(`${screenNameFromTitle(nextTitle)}画面を表示しました`)");
-    expect(announcerSource).toContain('nextTitle === previousTitleRef.current');
+    expect(announcerSource).toContain('setAnnouncement(`${nextScreenName}画面を表示しました`)');
+    expect(announcerSource).toContain('nextScreenName === previousScreenNameRef.current');
+    expect(announcerSource).not.toContain('document.title');
   });
 
   it('uses one quiet atomic polite live region', () => {
