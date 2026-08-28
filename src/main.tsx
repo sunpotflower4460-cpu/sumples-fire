@@ -13,6 +13,9 @@ import './darkTheme.css';
 import './campfire.css';
 import './ashLegacy.css';
 import './worldClassPolish.css';
+import './hierarchyPolish.css';
+import './taskCardPolish.css';
+import './dialogPolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,0 +1,424 @@
+/*
+ * Fire Task — hierarchy polish pass 2
+ *
+ * Loaded after worldClassPolish.css. This pass focuses on daily-use hierarchy:
+ * action first, organization second, progression third.
+ */
+
+/* ── Daily hierarchy ───────────────────────────────── */
+.screen-stack {
+  gap: 14px;
+}
+
+.focus-seed {
+  isolation: isolate;
+}
+
+.focus-seed::after {
+  position: absolute;
+  z-index: -1;
+  top: -54px;
+  right: -42px;
+  width: 170px;
+  height: 170px;
+  content: '';
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 179, 77, 0.14), rgba(232, 90, 36, 0.035) 48%, transparent 70%);
+  pointer-events: none;
+}
+
+.focus-seed .section-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.focus-seed .eyebrow {
+  margin-bottom: 0;
+}
+
+.focus-seed .fire-button-wrapper {
+  min-width: 0;
+}
+
+.focus-seed .fire-button {
+  width: 100%;
+  min-height: 56px;
+  font-size: 0.98rem;
+}
+
+.focus-seed .ghost-button {
+  min-height: 50px;
+}
+
+/* The campfire is identity and reward, but not the first task to complete. */
+.fire-campfire {
+  padding: 16px 18px 15px;
+  border-radius: 24px;
+}
+
+.fire-campfire .campfire-visual {
+  height: 88px;
+}
+
+.fire-campfire.campfire-stage-3 .campfire-visual,
+.fire-campfire.campfire-stage-4 .campfire-visual,
+.fire-campfire.campfire-stage-5 .campfire-visual {
+  height: 104px;
+}
+
+.fire-campfire .campfire-info {
+  gap: 8px;
+}
+
+.campfire-stage-badge {
+  justify-content: center;
+}
+
+.campfire-craving-copy {
+  text-align: center;
+}
+
+.campfire-streak {
+  margin-inline: auto;
+}
+
+.streak-flame-icon {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+}
+
+.streak-flame-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ── All-clear state ───────────────────────────────── */
+.all-clear-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: var(--wc-radius-lg);
+  background: var(--wc-surface-strong);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.all-clear-card::after {
+  position: absolute;
+  right: -56px;
+  bottom: -72px;
+  width: 170px;
+  height: 170px;
+  content: '';
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 179, 77, 0.12), transparent 68%);
+  pointer-events: none;
+}
+
+.all-clear-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(232, 90, 36, 0.12);
+  border-radius: 16px;
+  background: rgba(232, 90, 36, 0.055);
+  color: var(--wc-ember);
+}
+
+.all-clear-mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.all-clear-card h2 {
+  max-width: 15ch;
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.all-clear-card p {
+  max-width: 35ch;
+  margin: 0;
+  color: var(--wc-muted);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.all-clear-card .primary-button {
+  width: fit-content;
+  min-width: 154px;
+  padding-inline: 18px;
+}
+
+/* ── Matrix as a real segmented control ────────────── */
+.matrix-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+button.matrix-cell {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.matrix-cell[aria-pressed='true'] {
+  border-color: rgba(232, 90, 36, 0.28);
+  background: rgba(232, 90, 36, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(232, 90, 36, 0.055);
+}
+
+.matrix-cell[aria-pressed='true'] strong,
+.matrix-cell[aria-pressed='true'] > span {
+  color: #9e3f20;
+}
+
+.matrix-cell:focus-visible {
+  z-index: 1;
+}
+
+/* ── Queue: content before analytics ───────────────── */
+.task-queue-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.task-queue-count {
+  flex: none;
+  padding-bottom: 2px;
+  color: var(--wc-muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-panel .cards-stack {
+  scroll-margin-top: 86px;
+}
+
+/* ── Progress becomes progressive disclosure ───────── */
+.progress-disclosure {
+  overflow: hidden;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 22px;
+  background: rgba(255, 252, 247, 0.62);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.progress-disclosure > summary {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.progress-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.progress-summary-title {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.progress-summary-title .eyebrow {
+  margin: 0;
+}
+
+.progress-summary-title strong {
+  font-size: 0.96rem;
+  letter-spacing: -0.02em;
+}
+
+.progress-summary-meta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  color: var(--wc-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.progress-summary-meta span {
+  padding: 6px 9px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 999px;
+  background: rgba(92, 60, 46, 0.04);
+}
+
+.progress-summary-chevron {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(92, 60, 46, 0.05);
+  transition: transform 180ms var(--wc-spring);
+}
+
+.progress-summary-chevron svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.progress-disclosure[open] .progress-summary-chevron {
+  transform: rotate(180deg);
+}
+
+.progress-disclosure-body {
+  padding: 0 12px 12px;
+  border-top: 1px solid var(--wc-hairline);
+}
+
+.progress-disclosure .stats-grid {
+  margin-top: 12px;
+}
+
+/* Redundant standalone ash score is intentionally removed from Home in pass 2. */
+
+/* ── Ash archive ───────────────────────────────────── */
+.ash-screen-heading {
+  margin-bottom: 4px;
+}
+
+.ash-record-delete {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.ash-record-delete svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Navigation and screen rhythm ──────────────────── */
+.tab-button .tab-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.tab-button[aria-current='page'] {
+  cursor: default;
+}
+
+.app-screen {
+  overflow-anchor: none;
+}
+
+/* ── Small-screen ergonomics ───────────────────────── */
+@media (max-width: 420px) {
+  .mobile-app-shell {
+    padding-inline: 12px;
+  }
+
+  .focus-seed {
+    padding: 19px;
+  }
+
+  .focus-seed .section-heading h2 {
+    font-size: clamp(1.75rem, 8.8vw, 2.25rem);
+  }
+
+  .matrix-cell {
+    min-height: 102px;
+  }
+
+  .progress-disclosure > summary {
+    align-items: flex-start;
+  }
+
+  .progress-summary-meta {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 360px) {
+  .focus-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .matrix-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .matrix-cell {
+    min-height: 86px;
+  }
+
+  .progress-summary-meta span:first-child {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-summary-chevron,
+  .focus-seed::after {
+    transition: none !important;
+  }
+}
+
+/* ── Dark mode parity ──────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .all-clear-card,
+  .progress-disclosure {
+    border-color: rgba(255, 238, 224, 0.1);
+    background: rgba(26, 21, 19, 0.78);
+  }
+
+  .all-clear-card p,
+  .task-queue-count,
+  .progress-summary-meta {
+    color: rgba(255, 239, 227, 0.58);
+  }
+
+  .all-clear-mark,
+  .progress-summary-meta span,
+  .progress-summary-chevron {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(255, 238, 224, 0.045);
+  }
+
+  .matrix-cell[aria-pressed='true'] {
+    border-color: rgba(255, 129, 65, 0.28);
+    background: rgba(255, 111, 48, 0.09);
+  }
+
+  .matrix-cell[aria-pressed='true'] strong,
+  .matrix-cell[aria-pressed='true'] > span {
+    color: #ffad78;
+  }
+}

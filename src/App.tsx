@@ -32,7 +32,7 @@ type NewFireSeedInput = {
 const tabs: { id: AppTab; label: string }[] = [
   { id: 'today', label: '今日' },
   { id: 'ash', label: '炭' },
-  { id: 'info', label: '使い方' },
+  { id: 'info', label: '設定' },
 ];
 
 function FlameGlyph() {
@@ -43,6 +43,14 @@ function FlameGlyph() {
         fill="currentColor"
       />
       <path d="M12.2 13.1c2 1.7 2.9 3.1 2.9 4.4a3.1 3.1 0 0 1-6.2 0c0-1.3 1.1-2.7 3.3-4.4Z" fill="rgba(255,255,255,.72)" />
+    </svg>
+  );
+}
+
+function ChevronGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m7 9.5 5 5 5-5" />
     </svg>
   );
 }
@@ -70,9 +78,8 @@ function TabIcon({ tab }: { tab: AppTab }) {
 
   return (
     <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 10.5V16" />
-      <path d="M12 7.6h.01" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3.7v2.1M12 18.2v2.1M20.3 12h-2.1M5.8 12H3.7M17.9 6.1l-1.5 1.5M7.6 16.4l-1.5 1.5M17.9 17.9l-1.5-1.5M7.6 7.6 6.1 6.1" />
     </svg>
   );
 }
@@ -255,7 +262,7 @@ export default function App() {
 
       {notice ? <div className="toast" role="status" aria-live="polite">{notice}</div> : null}
 
-      <section className="app-screen" aria-live="polite">
+      <section className="app-screen">
         {activeTab === 'today' ? (
           <div className="screen-stack">
             {!hasTasks ? (
@@ -267,12 +274,6 @@ export default function App() {
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
               </section>
             ) : null}
-
-            <FireCampfire
-              ashPoints={stats.totalAshPoints}
-              streakData={streakData}
-              hasPendingTasks={hasPendingTasks}
-            />
 
             {focusSeed ? (
               <section className="focus-seed" aria-label="今日の火種">
@@ -306,85 +307,119 @@ export default function App() {
               </section>
             ) : null}
 
-            <section className="ash-score-card" aria-label="炭ポイント">
-              <span>炭ポイント</span>
-              <strong>{stats.totalAshPoints}</strong>
-              <p>{stats.burned}個のタスクを燃やしました</p>
-            </section>
+            {hasTasks && !hasPendingTasks ? (
+              <section className="all-clear-card" aria-label="未燃焼タスクはありません">
+                <div className="all-clear-mark" aria-hidden="true"><FlameGlyph /></div>
+                <p className="eyebrow">ALL CLEAR</p>
+                <h2>今日の薪は、きれいに燃え尽きました。</h2>
+                <p>必要なら次のひとつだけを追加しましょう。何も足さず、火を眺めて終わるのも正解です。</p>
+                <button className="primary-button" type="button" onClick={openRecord}>次の薪をくべる</button>
+              </section>
+            ) : null}
 
-            <FireStats stats={stats} />
+            {hasTasks ? (
+              <FireCampfire
+                ashPoints={stats.totalAshPoints}
+                streakData={streakData}
+                hasPendingTasks={hasPendingTasks}
+              />
+            ) : null}
 
-            <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
-              {matrixItems.map((item) => (
-                <article
-                  key={item.key}
-                  className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
-                  onClick={() => handleMatrixCellClick(item.key)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      handleMatrixCellClick(item.key);
-                    }
-                  }}
-                >
-                  <span>{quadrantLabels[item.key]}</span>
-                  <strong>{item.count}</strong>
-                  <p>{quadrantDescriptions[item.key]}</p>
-                </article>
-              ))}
-            </section>
+            {hasPendingTasks ? (
+              <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
+                {matrixItems.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
+                    aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
+                    aria-pressed={quadrantFilter === item.key}
+                    onClick={() => handleMatrixCellClick(item.key)}
+                  >
+                    <span>{quadrantLabels[item.key]}</span>
+                    <strong>{item.count}</strong>
+                    <p>{quadrantDescriptions[item.key]}</p>
+                  </button>
+                ))}
+              </section>
+            ) : null}
 
-            <section className="panel app-panel compact-panel">
-              <div className="section-heading">
-                <p className="eyebrow">Matrix Sorted</p>
-                <h2>自動で並んだタスク</h2>
-              </div>
-              {hasTasks ? <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(nextFilter) => { setFilter(nextFilter); setQuadrantFilter(null); }} /> : null}
-              {quadrantFilter ? (
-                <div className="quadrant-filter-bar">
-                  <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
-                  <button type="button" className="ghost-button" onClick={() => setQuadrantFilter(null)}>クリア</button>
-                </div>
-              ) : null}
-              <div className="cards-stack">
-                {visibleTasks.length > 0 ? (
-                  visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
-                ) : (
-                  <div className="empty-state useful-empty">
-                    <div className="empty-state-icon" aria-hidden="true">🪵</div>
-                    <div className="useful-empty-header">
-                      <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : '薪（タスク）をくべよう！'}</p>
-                      <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '燃やしたいことを1つだけ書いてみましょう'}</span>
-                    </div>
-                    {shouldShowViewAllButton ? (
-                      <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
-                    ) : null}
-                    <span>おすすめ:</span>
-                    <ul>
-                      {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
-                        <li key={idea}>
-                          <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
-                            {idea}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    <button className="primary-button" type="button" onClick={openRecord}>{hasPendingTasks ? 'タスクを追加' : '最初のタスクを書く'}</button>
+            {hasTasks ? (
+              <section className="panel app-panel compact-panel">
+                <div className="task-queue-heading">
+                  <div className="section-heading">
+                    <p className="eyebrow">NEXT FIRE</p>
+                    <h2>次に燃やすタスク</h2>
                   </div>
-                )}
-              </div>
-            </section>
+                  <span className="task-queue-count">{visibleTasks.length}件</span>
+                </div>
+                <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(nextFilter) => { setFilter(nextFilter); setQuadrantFilter(null); }} />
+                {quadrantFilter ? (
+                  <div className="quadrant-filter-bar">
+                    <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
+                    <button type="button" className="ghost-button" onClick={() => setQuadrantFilter(null)}>クリア</button>
+                  </div>
+                ) : null}
+                <div className="cards-stack">
+                  {visibleTasks.length > 0 ? (
+                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
+                  ) : (
+                    <div className="empty-state useful-empty">
+                      <div className="empty-state-icon" aria-hidden="true">🪵</div>
+                      <div className="useful-empty-header">
+                        <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : 'すべて燃やしました'}</p>
+                        <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '次に燃やすものができたら、ひとつだけ追加しましょう'}</span>
+                      </div>
+                      {shouldShowViewAllButton ? (
+                        <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
+                      ) : null}
+                      {hasPendingTasks ? (
+                        <>
+                          <span>おすすめ:</span>
+                          <ul>
+                            {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
+                              <li key={idea}>
+                                <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
+                                  {idea}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      ) : null}
+                      <button className="primary-button" type="button" onClick={openRecord}>タスクを追加</button>
+                    </div>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {hasTasks ? (
+              <details className="progress-disclosure">
+                <summary>
+                  <span className="progress-summary-title">
+                    <span className="eyebrow">PROGRESS</span>
+                    <strong>進捗と称号</strong>
+                  </span>
+                  <span className="progress-summary-meta" aria-hidden="true">
+                    <span>{stats.rank}</span>
+                    <span>{stats.totalAshPoints}炭</span>
+                    <span className="progress-summary-chevron"><ChevronGlyph /></span>
+                  </span>
+                </summary>
+                <div className="progress-disclosure-body">
+                  <FireStats stats={stats} />
+                </div>
+              </details>
+            ) : null}
           </div>
         ) : null}
 
         {activeTab === 'ash' ? (
           <section className="panel app-panel">
-            <div className="section-heading">
-              <p className="eyebrow">Ash Legacy</p>
-              <h2>炭の遺産</h2>
+            <div className="section-heading ash-screen-heading">
+              <p className="eyebrow">ASH ARCHIVE</p>
+              <h2>炭の記録</h2>
             </div>
             <AshLegacy seeds={burnedTasks} onDelete={requestDelete} />
           </section>
@@ -393,8 +428,8 @@ export default function App() {
         {activeTab === 'info' ? (
           <section className="panel app-panel settings-panel">
             <div className="section-heading">
-              <p className="eyebrow">使い方</p>
-              <h2>燃やして終わらせるタスク帳です</h2>
+              <p className="eyebrow">SETTINGS & GUIDE</p>
+              <h2>設定と使い方</h2>
             </div>
             <div className="settings-list">
               <FireComfortSettings totalTasks={stats.total} />
