@@ -77,8 +77,9 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
     <div className="ash-legacy-panel">
       <div className="ash-legacy-header">
         <p className="ash-legacy-total-label">積み上がった炭</p>
-        <div className="ash-legacy-total-points" aria-label={`合計${totalAsh}炭`}>
-          {totalAsh}
+        <div className="ash-legacy-total-points">
+          <span aria-hidden="true">{totalAsh}</span>
+          <span className="sr-only">合計{totalAsh}炭</span>
         </div>
         <p className="ash-legacy-count">{seeds.length}個のタスクを燃やしてきました</p>
       </div>
