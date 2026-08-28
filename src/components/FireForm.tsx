@@ -152,7 +152,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           aria-invalid={titleError ? 'true' : undefined}
           aria-describedby={titleDescribedBy}
         />
-        {titleError ? <p id={titleErrorId} className="form-error" role="alert">{titleError}</p> : null}
+        {titleError ? <p id={titleErrorId} className="form-error">{titleError}</p> : null}
         {showTitleCounter ? (
           <div className="field-meta form-primary-meta">
             <span
@@ -318,7 +318,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         </div>
       </details>
 
-      {submitError ? <p id={submitErrorId} className="form-error form-submit-error" role="alert">{submitError}</p> : null}
+      {submitError ? <p id={submitErrorId} className="form-error form-submit-error">{submitError}</p> : null}
 
       <div className="submit-row form-sticky-submit">
         <button ref={submitButtonRef} className="primary-button" type="submit" disabled={isSubmitting} aria-describedby={submitError ? submitErrorId : undefined}>
