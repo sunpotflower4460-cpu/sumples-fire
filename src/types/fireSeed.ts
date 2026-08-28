@@ -81,13 +81,20 @@ export const levelLabels: Record<FireLevel, string> = {
 export const quadrantLabels: Record<FireMatrixQuadrant, string> = {
   doNow: '今すぐ燃やす',
   schedule: '大事に進める',
-  quickBurn: 'すぐ片付ける',
+  quickBurn: '先に片付ける',
   backlog: 'あとで燃やす',
+};
+
+export const quadrantShortDescriptions: Record<FireMatrixQuadrant, string> = {
+  doNow: '今日の最優先候補です。',
+  schedule: '時間を取って進める候補です。',
+  quickBurn: '急ぎを先に片付ける候補です。',
+  backlog: '余力がある日に回せます。',
 };
 
 export const quadrantDescriptions: Record<FireMatrixQuadrant, string> = {
   doNow: '緊急度も重要度も高い、最優先でFireしたいタスクです。',
   schedule: '重要だけど急ぎすぎなくていい、時間を取って進めるタスクです。',
-  quickBurn: '緊急だけど軽め。短時間で片付けてFireする候補です。',
+  quickBurn: '緊急度は高いが重要度は低め。必要以上に抱えず、早めに区切りをつけたいタスクです。',
   backlog: '今すぐでなくていいタスク。余力がある時に燃やします。',
 };
