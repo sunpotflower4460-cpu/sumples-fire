@@ -27,25 +27,33 @@ export const BURN_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 /** Carbonize — slow and heavy */
 export const CARBONIZE_EASE: [number, number, number, number] = [0.4, 0, 0.8, 1];
 
-/** Phase timing in milliseconds */
+/**
+ * Phase timing in milliseconds.
+ * The full ritual is intentionally kept at 3 seconds: long enough to feel
+ * ceremonial, short enough to repeat during everyday task completion.
+ */
 export const BURN_TIMING = {
-  IGNITE_END: 800,
-  BURNING_END: 2600,
-  CARBONIZING_END: 3400,
-  COMPLETE_END: 4200,
+  IGNITE_END: 500,
+  BURNING_END: 1700,
+  CARBONIZING_END: 2300,
+  COMPLETE_END: 3000,
 } as const;
 
 export const BURN_SEQUENCE_DURATION = BURN_TIMING.COMPLETE_END;
 
-/** Reduced-motion multiplier (25 % of normal duration) */
-export const REDUCED_MOTION_FACTOR = 0.25;
+/** Reduced-motion keeps the semantic phases but completes in about one second. */
+export const REDUCED_MOTION_FACTOR = 0.35;
+
+export const getBurnSequenceDuration = (reduceMotion: boolean) => Math.round(
+  BURN_SEQUENCE_DURATION * (reduceMotion ? REDUCED_MOTION_FACTOR : 1),
+);
 
 export const IGNITE_TRANSITION: Transition = {
-  duration: 0.35,
+  duration: 0.3,
   ease: BURN_EASE,
 };
 
 export const PHASE_LABEL_TRANSITION: Transition = {
-  duration: 0.22,
+  duration: 0.18,
   ease: BURN_EASE,
 };
