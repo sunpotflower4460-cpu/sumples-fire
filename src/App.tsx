@@ -5,6 +5,7 @@ import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
 import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireConfirmModal } from './components/FireConfirmModal';
+import { FireDeleteModal } from './components/FireDeleteModal';
 import { FireFilters, type TodayFireFilter } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireStats } from './components/FireStats';
@@ -28,11 +29,53 @@ type NewFireSeedInput = {
   importance: FireLevel;
 };
 
-const tabs: { id: AppTab; label: string; icon: string }[] = [
-  { id: 'today', label: '今日', icon: '🔥' },
-  { id: 'ash', label: '炭', icon: '🌑' },
-  { id: 'info', label: '使い方', icon: '💡' },
+const tabs: { id: AppTab; label: string }[] = [
+  { id: 'today', label: '今日' },
+  { id: 'ash', label: '炭' },
+  { id: 'info', label: '使い方' },
 ];
+
+function FlameGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M13.4 2.8c.7 3.6-2.5 4.7-1.2 7.2.6 1.1 1.7 1.6 2.6 1.2 1.2-.5 1.5-2.1 1.2-3.8 2.6 2 4.1 4.5 4.1 7.2A8.1 8.1 0 0 1 12 22a8.1 8.1 0 0 1-8.1-7.4c0-3.8 2.2-6.5 5.8-9.1-.1 2.2.2 3.7 1.2 4.4.2-2.8 1-5.1 2.5-7.1Z"
+        fill="currentColor"
+      />
+      <path d="M12.2 13.1c2 1.7 2.9 3.1 2.9 4.4a3.1 3.1 0 0 1-6.2 0c0-1.3 1.1-2.7 3.3-4.4Z" fill="rgba(255,255,255,.72)" />
+    </svg>
+  );
+}
+
+function TabIcon({ tab }: { tab: AppTab }) {
+  if (tab === 'today') {
+    return (
+      <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M13.5 3c.6 3.2-2.2 4.2-1 6.5.5 1 1.5 1.4 2.3 1.1 1.1-.5 1.4-1.9 1.1-3.4 2.3 1.8 3.6 4 3.6 6.5A7.5 7.5 0 1 1 4.5 14c0-3.4 2-5.9 5.2-8.2-.1 2 .2 3.3 1.1 4 .2-2.6.9-4.7 2.7-6.8Z" />
+        <path d="M12 13.2c1.8 1.5 2.7 2.8 2.7 4a2.7 2.7 0 0 1-5.4 0c0-1.2.9-2.5 2.7-4Z" />
+      </svg>
+    );
+  }
+
+  if (tab === 'ash') {
+    return (
+      <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 17.5c2.2-1.3 4.5-2 7-2s4.8.7 7 2" />
+        <path d="M7 13.2c1.6-.9 3.3-1.4 5-1.4s3.4.5 5 1.4" />
+        <path d="M9.2 8.8c.9-.5 1.9-.8 2.8-.8s1.9.3 2.8.8" />
+        <path d="M6.5 20h11" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 10.5V16" />
+      <path d="M12 7.6h.01" />
+    </svg>
+  );
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('today');
@@ -41,8 +84,9 @@ export default function App() {
   const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
   const [pendingBurnSeed, setPendingBurnSeed] = useState<FireSeed | null>(null);
+  const [pendingDeleteSeed, setPendingDeleteSeed] = useState<FireSeed | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
-  const topbarAddRef = useRef<HTMLButtonElement | null>(null);
+  const floatingActionRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const swipeTouchStartY = useRef<number | null>(null);
   const {
@@ -68,7 +112,7 @@ export default function App() {
   const closeRecord = () => {
     setIsRecordOpen(false);
     window.setTimeout(() => {
-      (previouslyFocusedElementRef.current ?? topbarAddRef.current)?.focus();
+      (previouslyFocusedElementRef.current ?? floatingActionRef.current)?.focus();
     }, 0);
   };
 
@@ -101,6 +145,23 @@ export default function App() {
 
   const handleCancelBurn = () => {
     setPendingBurnSeed(null);
+  };
+
+  const requestDelete = (id: string) => {
+    const target = allSeeds.find((seed) => seed.id === id);
+    if (!target || target.isBurning) return;
+    setPendingDeleteSeed(target);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteSeed) return;
+    const id = pendingDeleteSeed.id;
+    setPendingDeleteSeed(null);
+    deleteSeed(id);
+  };
+
+  const handleCancelDelete = () => {
+    setPendingDeleteSeed(null);
   };
 
   const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
@@ -149,21 +210,21 @@ export default function App() {
     { key: 'backlog', count: stats.backlog },
   ] as const;
 
-  // Update document title to reflect the active tab
   useEffect(() => {
-    const tab = tabs.find((t) => t.id === activeTab);
+    const tab = tabs.find((item) => item.id === activeTab);
     document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
   }, [activeTab]);
 
   useEffect(() => {
-    if (!isRecordOpen) return;
+    const hasBlockingDialog = isRecordOpen || pendingBurnSeed !== null || pendingDeleteSeed !== null;
+    if (!hasBlockingDialog) return;
 
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = original;
     };
-  }, [isRecordOpen]);
+  }, [isRecordOpen, pendingBurnSeed, pendingDeleteSeed]);
 
   useEffect(() => {
     if (activeTab !== 'today') return;
@@ -190,17 +251,16 @@ export default function App() {
           <p className="app-kicker">Fire Task</p>
           <h1>{activeTab === 'today' ? '今日燃やす' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
-        <button ref={topbarAddRef} className="topbar-add" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
       </header>
 
-      {notice ? <div className="toast" role="alert">{notice}</div> : null}
+      {notice ? <div className="toast" role="status" aria-live="polite">{notice}</div> : null}
 
       <section className="app-screen" aria-live="polite">
         {activeTab === 'today' ? (
           <div className="screen-stack">
             {!hasTasks ? (
               <section className="brand-hero" aria-label="Fire Task の概要">
-                <div className="brand-mark" aria-hidden="true">🔥</div>
+                <div className="brand-mark"><FlameGlyph /></div>
                 <p className="app-kicker">Fire Task</p>
                 <h2>嫌なタスクを、燃やして終わらせる。</h2>
                 <p>まずは1つだけ、燃やしたいことを書きましょう。</p>
@@ -263,7 +323,12 @@ export default function App() {
                   tabIndex={0}
                   aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
                   onClick={() => handleMatrixCellClick(item.key)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMatrixCellClick(item.key); } }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleMatrixCellClick(item.key);
+                    }
+                  }}
                 >
                   <span>{quadrantLabels[item.key]}</span>
                   <strong>{item.count}</strong>
@@ -277,7 +342,7 @@ export default function App() {
                 <p className="eyebrow">Matrix Sorted</p>
                 <h2>自動で並んだタスク</h2>
               </div>
-              {hasTasks ? <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(f) => { setFilter(f); setQuadrantFilter(null); }} /> : null}
+              {hasTasks ? <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(nextFilter) => { setFilter(nextFilter); setQuadrantFilter(null); }} /> : null}
               {quadrantFilter ? (
                 <div className="quadrant-filter-bar">
                   <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
@@ -286,29 +351,29 @@ export default function App() {
               ) : null}
               <div className="cards-stack">
                 {visibleTasks.length > 0 ? (
-                  visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={deleteSeed} isNew={seed.id === newSeedId} />)
+                  visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
                 ) : (
                   <div className="empty-state useful-empty">
-                <div className="empty-state-icon" aria-hidden="true">🪵</div>
-                <div className="useful-empty-header">
-                  <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : '薪（タスク）をくべよう！'}</p>
-                  <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '燃やしたいことを1つだけ書いてみましょう'}</span>
-                </div>
-                {shouldShowViewAllButton ? (
-                  <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
-                ) : null}
-                <span>おすすめ:</span>
-                <ul>
-                  {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
-                    <li key={idea}>
-                      <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
-                        {idea}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <button className="primary-button" type="button" onClick={openRecord}>{hasPendingTasks ? 'タスクを追加' : '最初のタスクを書く'}</button>
-              </div>
+                    <div className="empty-state-icon" aria-hidden="true">🪵</div>
+                    <div className="useful-empty-header">
+                      <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : '薪（タスク）をくべよう！'}</p>
+                      <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '燃やしたいことを1つだけ書いてみましょう'}</span>
+                    </div>
+                    {shouldShowViewAllButton ? (
+                      <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
+                    ) : null}
+                    <span>おすすめ:</span>
+                    <ul>
+                      {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
+                        <li key={idea}>
+                          <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
+                            {idea}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="primary-button" type="button" onClick={openRecord}>{hasPendingTasks ? 'タスクを追加' : '最初のタスクを書く'}</button>
+                  </div>
                 )}
               </div>
             </section>
@@ -321,7 +386,7 @@ export default function App() {
               <p className="eyebrow">Ash Legacy</p>
               <h2>炭の遺産</h2>
             </div>
-            <AshLegacy seeds={burnedTasks} onDelete={deleteSeed} />
+            <AshLegacy seeds={burnedTasks} onDelete={requestDelete} />
           </section>
         ) : null}
 
@@ -362,7 +427,7 @@ export default function App() {
         ) : null}
       </section>
 
-      <button className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
+      <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
 
       <nav className="bottom-tabs" aria-label="アプリの画面切り替え">
         {tabs.map((tab) => (
@@ -373,18 +438,14 @@ export default function App() {
             className={activeTab === tab.id ? 'tab-button is-active' : 'tab-button'}
             onClick={() => setActiveTab(tab.id)}
           >
-            <span>{tab.icon}</span>
+            <span><TabIcon tab={tab.id} /></span>
             {tab.label}
           </button>
         ))}
       </nav>
 
       {isRecordOpen ? (
-        <div
-          className="sheet-backdrop"
-          role="presentation"
-          onClick={closeRecord}
-        >
+        <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
           <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
             <div className="sheet-drag-zone" onTouchStart={handleSheetSwipeStart} onTouchEnd={handleSheetSwipeEnd}>
               <div className="sheet-handle" aria-hidden="true" />
@@ -402,11 +463,11 @@ export default function App() {
       ) : null}
 
       {pendingBurnSeed ? (
-        <FireConfirmModal
-          seed={pendingBurnSeed}
-          onConfirm={handleConfirmBurn}
-          onCancel={handleCancelBurn}
-        />
+        <FireConfirmModal seed={pendingBurnSeed} onConfirm={handleConfirmBurn} onCancel={handleCancelBurn} />
+      ) : null}
+
+      {pendingDeleteSeed ? (
+        <FireDeleteModal seed={pendingDeleteSeed} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} />
       ) : null}
 
       {burningTask ? <BurningRitual seed={burningTask} spectacle={burningSpectacle ?? undefined} /> : null}
