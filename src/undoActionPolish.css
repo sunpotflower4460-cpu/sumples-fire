@@ -4,6 +4,8 @@
  */
 
 .toast.toast-action {
+  top: auto;
+  bottom: max(154px, calc(env(safe-area-inset-bottom) + 154px));
   display: flex;
   width: min(calc(100% - 32px), 430px);
   max-width: 430px;
@@ -90,6 +92,12 @@
   .toast-undo-button {
     min-width: 78px;
     padding-inline: 9px;
+  }
+}
+
+@media (min-width: 760px) {
+  .toast.toast-action {
+    bottom: 180px;
   }
 }
 
