@@ -9,13 +9,15 @@
   max-width: 430px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 8px 8px 14px;
+  gap: 8px;
+  padding: 8px;
+  padding-left: 14px;
   border-radius: 18px;
 }
 
 .toast-action-message {
   min-width: 0;
+  flex: 1 1 auto;
   overflow: hidden;
   color: #fff7f0;
   font-size: 0.82rem;
@@ -25,27 +27,42 @@
   white-space: nowrap;
 }
 
-.toast-undo-button {
-  min-width: 88px;
+.toast-undo-button,
+.toast-dismiss-button {
   min-height: 44px;
   flex: none;
-  padding: 8px 13px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   color: #ffd6bf;
-  font-size: 0.78rem;
   font-weight: 900;
+}
+
+.toast-undo-button {
+  min-width: 88px;
+  padding: 8px 13px;
+  font-size: 0.78rem;
   letter-spacing: -0.01em;
 }
 
-.toast-undo-button:focus-visible {
+.toast-dismiss-button {
+  width: 44px;
+  min-width: 44px;
+  padding: 0;
+  color: rgba(255, 247, 240, 0.72);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.toast-undo-button:focus-visible,
+.toast-dismiss-button:focus-visible {
   outline-color: #ffd0b5;
   outline-offset: 2px;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .toast-undo-button:hover {
+  .toast-undo-button:hover,
+  .toast-dismiss-button:hover {
     background: rgba(255, 255, 255, 0.16);
     color: #fff7f0;
   }
@@ -53,7 +70,7 @@
 
 @media (max-width: 360px) {
   .toast.toast-action {
-    gap: 8px;
+    gap: 6px;
     padding-left: 12px;
   }
 
@@ -62,8 +79,8 @@
   }
 
   .toast-undo-button {
-    min-width: 80px;
-    padding-inline: 10px;
+    min-width: 78px;
+    padding-inline: 9px;
   }
 }
 
@@ -75,11 +92,13 @@
   }
 
   .toast-action-message,
-  .toast-undo-button {
+  .toast-undo-button,
+  .toast-dismiss-button {
     color: CanvasText;
   }
 
-  .toast-undo-button {
+  .toast-undo-button,
+  .toast-dismiss-button {
     border-color: CanvasText;
     background: ButtonFace;
   }
