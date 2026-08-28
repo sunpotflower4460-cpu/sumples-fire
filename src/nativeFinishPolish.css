@@ -44,6 +44,17 @@
   transform: translateX(-50%) rotate(-28deg);
 }
 
+/* The zero-result state should resolve the current filter, not create more noise. */
+.useful-empty {
+  min-height: 154px;
+  padding: 20px;
+}
+
+.useful-empty > span,
+.useful-empty > ul {
+  display: none;
+}
+
 /* ── Glyph controls: draw them ourselves instead of text symbols ── */
 .sheet-close,
 .floating-action {
