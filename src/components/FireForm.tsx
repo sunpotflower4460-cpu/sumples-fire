@@ -5,12 +5,10 @@ import {
   difficultyAshPoints,
   difficultyLabels,
   levelLabels,
-  priorityLabels,
   quadrantLabels,
   quadrantShortDescriptions,
-  stageLabels,
 } from '../types/fireSeed';
-import { getQuadrant } from '../lib/fireSeedModel';
+import { derivePriority, getQuadrant } from '../lib/fireSeedModel';
 
 type FireFormProps = {
   defaultTitle?: string;
@@ -49,8 +47,6 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const [body, setBody] = useState('');
   const [nextAction, setNextAction] = useState('');
   const [category, setCategory] = useState<FireCategory>('task');
-  const [priority, setPriority] = useState<FirePriority>('medium');
-  const [stage, setStage] = useState<FireStage>('spark');
   const [difficulty, setDifficulty] = useState<FireDifficulty>('normal');
   const [urgency, setUrgency] = useState<FireLevel>('high');
   const [importance, setImportance] = useState<FireLevel>('high');
@@ -58,6 +54,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const quadrant = getQuadrant(urgency, importance);
+  const priority = derivePriority(urgency, importance);
   const canSubmit = title.trim().length > 0;
   const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
   const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
@@ -78,13 +75,21 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
       return;
     }
 
-    onAddSeed({ title, body, nextAction, category, priority, stage, difficulty, urgency, importance });
+    onAddSeed({
+      title,
+      body,
+      nextAction,
+      category,
+      priority,
+      stage: 'spark',
+      difficulty,
+      urgency,
+      importance,
+    });
     setTitle('');
     setBody('');
     setNextAction('');
     setCategory('task');
-    setPriority('medium');
-    setStage('spark');
     setDifficulty('normal');
     setUrgency('high');
     setImportance('high');
@@ -199,7 +204,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
       </fieldset>
 
       <details className="advanced-fields">
-        <summary>メモ・カテゴリなど</summary>
+        <summary>メモ・カテゴリ</summary>
 
         <div className="field-group">
           <label htmlFor="seed-body">メモ</label>
@@ -213,41 +218,17 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           />
         </div>
 
-        <div className="form-grid form-grid-three">
-          <div className="field-group">
-            <label htmlFor="seed-category">カテゴリ</label>
-            <select
-              id="seed-category"
-              value={category}
-              onChange={(event) => setCategory(event.target.value as FireCategory)}
-            >
-              {Object.entries(categoryLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field-group">
-            <label htmlFor="seed-priority">優先度</label>
-            <select
-              id="seed-priority"
-              value={priority}
-              onChange={(event) => setPriority(event.target.value as FirePriority)}
-            >
-              {Object.entries(priorityLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field-group">
-            <label htmlFor="seed-stage">状態</label>
-            <select id="seed-stage" value={stage} onChange={(event) => setStage(event.target.value as FireStage)}>
-              {Object.entries(stageLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
+        <div className="field-group advanced-category-field">
+          <label htmlFor="seed-category">カテゴリ</label>
+          <select
+            id="seed-category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value as FireCategory)}
+          >
+            {Object.entries(categoryLabels).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
         </div>
       </details>
 
