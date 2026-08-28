@@ -16,12 +16,13 @@ const sleep = (ms: number) => new Promise<void>((resolve) => { window.setTimeout
  * useBurnSequence — orchestrates the 4-phase visual burn sequence.
  *
  * Phase timing (full motion):
- *   ignite      (0 – 800 ms)    overlay fades in, title appears
- *   burning     (800 – 2600 ms) intense flames, text distortion, particles
- *   carbonizing (2600 – 3400 ms) flames settle, edges char, brightness dims
- *   complete    (3400 – 4200 ms) reward badge pops, spectacle burst
+ *   ignite      (0 – 500 ms)     overlay fades in, title appears
+ *   burning     (500 – 1700 ms)  intense flames, text distortion, particles
+ *   carbonizing (1700 – 2300 ms) flames settle, edges char, brightness dims
+ *   complete    (2300 – 3000 ms) reward badge pops, spectacle burst
  *
- * Respects prefers-reduced-motion: all durations scaled to 25 %.
+ * Respects prefers-reduced-motion: all durations scale to 35%, keeping the
+ * same semantic phases while reducing the full sequence to about one second.
  * Use the returned `scope` ref on the root motion element.
  */
 export function useBurnSequence() {
@@ -36,18 +37,12 @@ export function useBurnSequence() {
 
     const f = shouldReduceMotion ? REDUCED_MOTION_FACTOR : 1;
 
-    // ── Phase 1: Ignite (0 – 800 ms) ─────────────────────────────
-    // The motion.div's own initial→animate handles the fade-in;
-    // we simply wait out the ignite window.
     setPhase('ignite');
     await sleep(BURN_TIMING.IGNITE_END * f);
 
-    // ── Phase 2: Burning (800 – 2600 ms) ─────────────────────────
     setPhase('burning');
     await sleep((BURN_TIMING.BURNING_END - BURN_TIMING.IGNITE_END) * f);
 
-    // ── Phase 3: Carbonizing (2600 – 3400 ms) ────────────────────
-    // Dim the overlay with a brightness animation via useAnimate.
     setPhase('carbonizing');
     const carbonizeDurS = 0.6 * f;
     await animate(
@@ -61,7 +56,6 @@ export function useBurnSequence() {
     );
     await sleep(remainingCarbonizeMs);
 
-    // ── Phase 4: Complete (3400 – 4200 ms) ───────────────────────
     setPhase('complete');
     await sleep((BURN_TIMING.COMPLETE_END - BURN_TIMING.CARBONIZING_END) * f);
   }, [scope, animate, shouldReduceMotion]);
