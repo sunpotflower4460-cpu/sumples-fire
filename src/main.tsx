@@ -18,6 +18,7 @@ import './taskCardPolish.css';
 import './dialogPolish.css';
 import './interactionPolish.css';
 import './nativeFinishPolish.css';
+import './ritualFlowPolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
