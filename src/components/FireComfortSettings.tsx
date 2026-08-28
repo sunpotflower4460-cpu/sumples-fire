@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { warmUpFireSound } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled, setFireSoundEnabled } from '../lib/fireSoundSettings';
 
@@ -29,11 +29,7 @@ function SoundGlyph({ muted }: { muted: boolean }) {
 }
 
 export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-
-  useEffect(() => {
-    setSoundEnabled(isFireSoundEnabled());
-  }, []);
+  const [soundEnabled, setSoundEnabled] = useState(isFireSoundEnabled);
 
   const handleToggleSound = () => {
     const nextEnabled = !soundEnabled;

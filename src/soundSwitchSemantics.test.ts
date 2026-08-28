@@ -13,6 +13,13 @@ describe('Fire sound switch semantics', () => {
     expect(source).not.toContain('Fireサウンドをオンにする');
   });
 
+  it('hydrates the saved preference on the first render instead of flipping after mount', () => {
+    expect(source).toContain('const [soundEnabled, setSoundEnabled] = useState(isFireSoundEnabled)');
+    expect(source).not.toContain('const [soundEnabled, setSoundEnabled] = useState(true)');
+    expect(source).not.toContain('useEffect(() =>');
+    expect(source).not.toContain('setSoundEnabled(isFireSoundEnabled())');
+  });
+
   it('uses switch state for on/off and links the visible explanation', () => {
     expect(source).toContain('role="switch"');
     expect(source).toContain('aria-checked={soundEnabled}');
