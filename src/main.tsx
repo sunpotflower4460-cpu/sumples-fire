@@ -32,6 +32,7 @@ import './ritualFeedbackPolish.css';
 import './actionEntryPolish.css';
 import './mobileViewportPolish.css';
 import './screenReaderPolish.css';
+import './textScaleResilience.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
