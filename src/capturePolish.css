@@ -192,6 +192,38 @@
   }
 }
 
+/* At 320px-class reflow widths, preserve the complete meaning of disclosure
+   summaries. Let the controls grow vertically instead of truncating the value
+   the user already chose. */
+@media (max-width: 340px) {
+  .task-tuning-fields > summary,
+  .advanced-fields-summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .task-tuning-summary-copy {
+    flex: 1 1 100%;
+  }
+
+  .task-tuning-summary-copy small,
+  .advanced-fields-summary > small {
+    overflow: visible;
+    max-width: 100%;
+    flex: 1 1 100%;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+
+  .task-tuning-summary-action {
+    max-width: none;
+    flex: 1 1 auto;
+    text-align: left;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .task-tuning-fields {
     border-color: rgba(255, 238, 224, 0.09);
