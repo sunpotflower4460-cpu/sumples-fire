@@ -1,0 +1,255 @@
+/*
+ * Fire Task — decision clarity polish pass 11
+ * One filter model, fewer duplicated labels, and less chrome between intent
+ * and the Fire action.
+ */
+
+/* The matrix is now the single filtering model, so it can become a compact
+   segmented decision control instead of four explanatory cards. */
+.matrix-filter-shell {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 22px;
+  background: rgba(255, 252, 247, 0.48);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.matrix-filter-heading {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 3px;
+}
+
+.matrix-filter-heading > div {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.matrix-filter-heading span {
+  color: var(--wc-ink);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.matrix-filter-heading small {
+  overflow: hidden;
+  color: var(--wc-muted);
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matrix-reset-button {
+  min-width: 56px;
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 999px;
+  background: rgba(92, 60, 46, 0.045);
+  color: var(--wc-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.matrix-filter-shell .matrix-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.matrix-filter-shell .matrix-cell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 64px;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 11px;
+  border-radius: 15px;
+  background: rgba(255, 253, 249, 0.68);
+}
+
+.matrix-filter-shell .matrix-cell > span {
+  min-width: 0;
+  color: #67534a;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.matrix-filter-shell .matrix-cell > strong {
+  min-width: 25px;
+  color: var(--wc-ink);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: right;
+}
+
+.matrix-filter-shell .matrix-cell[aria-pressed='true'] {
+  border-color: rgba(232, 90, 36, 0.24);
+  background: rgba(232, 90, 36, 0.075);
+}
+
+.matrix-filter-shell .matrix-cell[aria-pressed='true'] > span,
+.matrix-filter-shell .matrix-cell[aria-pressed='true'] > strong {
+  color: #9b4022;
+}
+
+.matrix-filter-shell .matrix-cell:disabled {
+  opacity: 0.72;
+}
+
+.matrix-filter-shell .matrix-cell:disabled > span,
+.matrix-filter-shell .matrix-cell:disabled > strong {
+  opacity: 0.8;
+}
+
+/* The focus card contains only decision-relevant metadata. */
+.focus-meta {
+  gap: 5px;
+}
+
+.focus-meta span {
+  padding: 6px 9px;
+  font-size: 0.74rem;
+}
+
+.focus-actions .fire-button,
+.focus-actions .ghost-button {
+  width: 100%;
+}
+
+/* Normal task cards should read like actionable rows, not dashboards. */
+.fire-card .card-header > div {
+  min-width: 0;
+}
+
+.fire-card:not(.is-burned) .card-header {
+  display: block;
+}
+
+.fire-card:not(.is-burned) .card-quick-meta {
+  margin-top: 10px;
+}
+
+.fire-card .card-details {
+  margin-top: 9px;
+}
+
+.fire-card .card-details > summary {
+  min-height: 36px;
+  padding-block: 7px;
+}
+
+.fire-card .card-details-body {
+  padding-bottom: 7px;
+}
+
+.fire-card .card-footer {
+  margin-top: 11px;
+  padding-top: 10px;
+}
+
+/* Empty filtered state is a context reset, not another place to add tasks. */
+.useful-empty .primary-button {
+  max-width: 250px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .matrix-reset-button:hover {
+    border-color: var(--wc-hairline-strong);
+    background: rgba(92, 60, 46, 0.075);
+  }
+}
+
+@media (max-width: 350px) {
+  .matrix-filter-shell {
+    padding: 8px;
+  }
+
+  .matrix-filter-shell .matrix-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .matrix-filter-shell .matrix-cell {
+    min-height: 60px;
+    padding-inline: 9px;
+  }
+
+  .matrix-filter-shell .matrix-cell > span {
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .matrix-filter-shell {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.025);
+  }
+
+  .matrix-filter-shell .matrix-cell {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(255, 238, 224, 0.04);
+  }
+
+  .matrix-filter-shell .matrix-cell > span {
+    color: rgba(255, 239, 227, 0.68);
+  }
+
+  .matrix-filter-shell .matrix-cell > strong {
+    color: #fff2e8;
+  }
+
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] {
+    border-color: rgba(255, 129, 65, 0.26);
+    background: rgba(255, 111, 48, 0.1);
+  }
+
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] > span,
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] > strong {
+    color: #ffb184;
+  }
+
+  .matrix-reset-button {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.045);
+    color: rgba(255, 239, 227, 0.68);
+  }
+}
+
+@media (forced-colors: active) {
+  .matrix-filter-shell,
+  .matrix-filter-shell .matrix-cell,
+  .matrix-reset-button {
+    border-color: CanvasText;
+  }
+
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] > span,
+  .matrix-filter-shell .matrix-cell[aria-pressed='true'] > strong {
+    color: HighlightText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix-reset-button,
+  .matrix-filter-shell .matrix-cell {
+    transition: none !important;
+  }
+}
