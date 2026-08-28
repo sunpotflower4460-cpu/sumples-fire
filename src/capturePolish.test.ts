@@ -21,7 +21,9 @@ describe('progressive task capture contracts', () => {
   });
 
   it('keeps priority and difficulty available behind one native disclosure', () => {
-    expect(formSource).toContain('<details className="task-tuning-fields"');
+    expect(formSource).toContain('<details');
+    expect(formSource).toContain('className="task-tuning-fields"');
+    expect(formSource).toContain('open={isTuningOpen}');
     expect(formSource).toContain('<strong>優先度と重さ</strong>');
     expect(formSource).toContain('必要なら調整');
     expect(formSource).toContain('fieldset className="choice-section choice-fieldset"');
