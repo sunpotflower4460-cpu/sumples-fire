@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  getDailyCravingCopy,
   getEffectiveFireStreak,
   loadFireStreak,
   recordBurnForStreak,
@@ -88,5 +89,14 @@ describe('fireStreak', () => {
     };
 
     expect(recordBurnForStreak(today, new Date(2026, 7, 28, 18, 0))).toEqual(today);
+  });
+
+  it('rotates daily copy by local calendar date and repeats on the copy cycle', () => {
+    const dayOne = new Date(2026, 0, 1, 23, 30);
+    const dayTwo = new Date(2026, 0, 2, 0, 5);
+    const nextCycle = new Date(2026, 0, 15, 12, 0);
+
+    expect(getDailyCravingCopy(dayOne)).not.toBe(getDailyCravingCopy(dayTwo));
+    expect(getDailyCravingCopy(dayOne)).toBe(getDailyCravingCopy(nextCycle));
   });
 });
