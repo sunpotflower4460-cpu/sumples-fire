@@ -36,26 +36,12 @@ export function useFireSeeds() {
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
   const calendarDayKeyRef = useRef(getLocalDayKey());
-  const hasCompletedInitialSeedLoadRef = useRef(false);
   const [calendarRevision, setCalendarRevision] = useState(0);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
   const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
   const [undoBurnSnapshot, setUndoBurnSnapshot] = useState<FireBurnUndoSnapshot | null>(null);
-
-  useEffect(() => {
-    if (!hasCompletedInitialSeedLoadRef.current) {
-      hasCompletedInitialSeedLoadRef.current = true;
-      return;
-    }
-
-    const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
-    const saved = saveStoredSeeds(storageDriverRef.current, persistedSeeds);
-    if (!saved) {
-      setNotice('この端末では保存できませんでした');
-    }
-  }, [seeds]);
 
   useEffect(() => {
     // Actionable Fire feedback must stay stable for as long as its Undo action
@@ -141,7 +127,6 @@ export function useFireSeeds() {
   };
 
   const addSeed = (input: NewFireSeedInput) => {
-    clearUndoBurn();
     const timestamp = nowIso();
     const quadrant = getQuadrant(input.urgency, input.importance);
     const priority = derivePriority(input.urgency, input.importance);
@@ -174,6 +159,7 @@ export function useFireSeeds() {
       throw new Error('seed-persistence-failed');
     }
 
+    clearUndoBurn();
     setSeeds(nextSeeds);
     setNotice('薪を追加しました');
     return id;
@@ -192,21 +178,36 @@ export function useFireSeeds() {
     clearUndoBurn();
     const undoSnapshot = createFireBurnUndoSnapshot(target, streakData);
     const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
+    const burningSeeds = seeds.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed));
     setBurningSpectacle(spectacle);
 
     if (isFireSoundEnabled()) {
       void playSpectacleSequence(spectacle.soundProfile);
     }
 
-    const newStreakData = recordBurnForStreak(streakData);
-    setStreakData(newStreakData);
-    saveFireStreak(newStreakData);
-
-    setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
+    // Burning is deliberately transient. The durable seed list and streak are
+    // committed only after the ritual completes and the final list is writable.
+    setSeeds(burningSeeds);
 
     const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
     completionTimerRef.current = window.setTimeout(() => {
-      setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
+      const completedSeeds = sortFireTasks(
+        burningSeeds.map((seed) => (seed.id === id ? burnSeed(seed) : seed)),
+      );
+
+      if (!saveStoredSeeds(storageDriverRef.current, completedSeeds)) {
+        setSeeds(seeds);
+        setBurningSpectacle(null);
+        activeBurnIdRef.current = null;
+        completionTimerRef.current = null;
+        setNotice('保存できなかったため、Fireを完了できませんでした。タスクは残しています');
+        return;
+      }
+
+      const newStreakData = recordBurnForStreak(streakData);
+      setSeeds(completedSeeds);
+      setStreakData(newStreakData);
+      saveFireStreak(newStreakData);
       setBurningSpectacle(null);
       activeBurnIdRef.current = null;
       completionTimerRef.current = null;
@@ -223,30 +224,47 @@ export function useFireSeeds() {
   };
 
   const undoLastBurn = () => {
-    if (!undoBurnSnapshot) return;
+    if (!undoBurnSnapshot) return false;
 
     const id = undoBurnSnapshot.seed.id;
     const target = seeds.find((seed) => seed.id === id);
     if (!target?.burned) {
       clearUndoBurn();
-      return;
+      return false;
     }
 
     const restoredSeed = restoreFireSeedFromUndo(undoBurnSnapshot, nowIso());
-    setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? restoredSeed : seed))));
+    const restoredSeeds = sortFireTasks(
+      seeds.map((seed) => (seed.id === id ? restoredSeed : seed)),
+    );
+
+    if (!saveStoredSeeds(storageDriverRef.current, restoredSeeds)) {
+      setNotice('保存できなかったため、Fireを元に戻せませんでした');
+      return false;
+    }
+
+    setSeeds(restoredSeeds);
     setStreakData(undoBurnSnapshot.streakBefore);
     saveFireStreak(undoBurnSnapshot.streakBefore);
     clearUndoBurn();
     setNotice('Fireを取り消しました');
+    return true;
   };
 
   const deleteSeed = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
-    if (!target || target.isBurning) return;
+    if (!target || target.isBurning) return false;
+
+    const remainingSeeds = seeds.filter((seed) => seed.id !== id);
+    if (!saveStoredSeeds(storageDriverRef.current, remainingSeeds)) {
+      setNotice('保存できなかったため、削除できませんでした。タスクは残しています');
+      return false;
+    }
 
     clearUndoBurn();
-    setSeeds((current) => current.filter((seed) => seed.id !== id));
+    setSeeds(remainingSeeds);
     setNotice('削除しました');
+    return true;
   };
 
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
