@@ -100,7 +100,13 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
         <span>{seed.burned ? `燃やした日 ${createdAt}` : `追加 ${createdAt}`}</span>
         <div className="card-actions">
           {!seed.burned ? (
-            <button type="button" className="fire-button" onClick={() => onFire(seed.id)} disabled={seed.isBurning}>
+            <button
+              type="button"
+              className="fire-button"
+              onClick={() => onFire(seed.id)}
+              disabled={seed.isBurning}
+              aria-label={`「${seed.title}」を完了してFire`}
+            >
               {seed.isBurning ? '燃焼中' : '完了してFire'}
             </button>
           ) : null}
