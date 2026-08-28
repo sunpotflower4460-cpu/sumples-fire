@@ -3,7 +3,6 @@ import { BurningRitual } from './components/BurningRitual';
 import { AshLegacy } from './components/AshLegacy';
 import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
-import { FireConfirmModal } from './components/FireConfirmModal';
 import { FireDeleteModal } from './components/FireDeleteModal';
 import { FireForm } from './components/FireForm';
 import { FireSettingsPanel } from './components/FireSettingsPanel';
@@ -83,7 +82,6 @@ export default function App() {
   const [draftTitle, setDraftTitle] = useState('');
   const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
-  const [pendingBurnSeed, setPendingBurnSeed] = useState<FireSeed | null>(null);
   const [pendingDeleteSeed, setPendingDeleteSeed] = useState<FireSeed | null>(null);
   const appShellRef = useRef<HTMLElement | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
@@ -104,6 +102,8 @@ export default function App() {
     notice,
     stats,
     streakData,
+    undoBurnCandidate,
+    undoLastBurn,
   } = useFireSeeds();
 
   const openRecord = () => {
@@ -143,23 +143,6 @@ export default function App() {
     setQuadrantFilter(null);
     setNewSeedId(id);
     window.setTimeout(() => setNewSeedId(null), 600);
-  };
-
-  const requestBurn = (id: string) => {
-    const target = allSeeds.find((seed) => seed.id === id);
-    if (!target || target.burned || target.isBurning) return;
-    setPendingBurnSeed(target);
-  };
-
-  const handleConfirmBurn = () => {
-    if (!pendingBurnSeed) return;
-    const id = pendingBurnSeed.id;
-    setPendingBurnSeed(null);
-    burnTask(id);
-  };
-
-  const handleCancelBurn = () => {
-    setPendingBurnSeed(null);
   };
 
   const requestDelete = (id: string) => {
@@ -234,7 +217,7 @@ export default function App() {
   }, [activeTab]);
 
   useEffect(() => {
-    const hasBlockingLayer = isRecordOpen || pendingBurnSeed !== null || pendingDeleteSeed !== null || burningTask !== null;
+    const hasBlockingLayer = isRecordOpen || pendingDeleteSeed !== null || burningTask !== null;
     if (!hasBlockingLayer) return;
 
     const original = document.body.style.overflow;
@@ -242,7 +225,7 @@ export default function App() {
     return () => {
       document.body.style.overflow = original;
     };
-  }, [isRecordOpen, pendingBurnSeed, pendingDeleteSeed, burningTask]);
+  }, [isRecordOpen, pendingDeleteSeed, burningTask]);
 
   useEffect(() => {
     const shell = appShellRef.current;
@@ -299,7 +282,23 @@ export default function App() {
         </div>
       </header>
 
-      {notice ? <div className="toast" role="status" aria-live="polite">{notice}</div> : null}
+      {undoBurnCandidate ? (
+        <div className="toast toast-action">
+          <span className="toast-action-message" role="status" aria-live="polite">
+            {notice || `「${undoBurnCandidate.title}」をFireしました`}
+          </span>
+          <button
+            type="button"
+            className="toast-undo-button"
+            onClick={undoLastBurn}
+            aria-label={`「${undoBurnCandidate.title}」のFireを元に戻す`}
+          >
+            元に戻す
+          </button>
+        </div>
+      ) : notice ? (
+        <div className="toast" role="status" aria-live="polite">{notice}</div>
+      ) : null}
 
       <section className="app-screen" aria-labelledby="app-screen-title">
         {activeTab === 'today' ? (
@@ -338,7 +337,7 @@ export default function App() {
                     ref={focusFireButtonRef}
                     className="fire-button"
                     type="button"
-                    onClick={() => requestBurn(focusSeed.id)}
+                    onClick={() => burnTask(focusSeed.id)}
                     disabled={focusSeed.isBurning}
                     aria-label={`「${focusSeed.title}」を完了してFire`}
                   >
@@ -410,7 +409,7 @@ export default function App() {
                 </div>
                 <div className="cards-stack">
                   {visibleTasks.length > 0 ? (
-                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
+                    visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
                   ) : (
                     <div className="empty-state useful-empty">
                       <div className="empty-state-icon" aria-hidden="true" />
@@ -503,10 +502,6 @@ export default function App() {
             <FireForm defaultTitle={draftTitle} onAddSeed={handleAddSeed} onClearDefaultTitle={() => setDraftTitle('')} />
           </section>
         </div>
-      ) : null}
-
-      {pendingBurnSeed ? (
-        <FireConfirmModal seed={pendingBurnSeed} onConfirm={handleConfirmBurn} onCancel={handleCancelBurn} />
       ) : null}
 
       {pendingDeleteSeed ? (
