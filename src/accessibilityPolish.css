@@ -1,0 +1,183 @@
+/*
+ * Fire Task — accessibility polish pass 9
+ * Decorative glow may stay subtle; meaningful labels, timestamps, state and
+ * controls must remain readable and operable in both color schemes.
+ */
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Semantic secondary text should use the final design token, never a stale
+   translucent color inherited from an earlier theme layer. */
+.stat-card > span,
+.rank-stat-card small,
+.rank-progress-value,
+.fire-card:not(.is-burned) .card-footer,
+.task-queue-count,
+.progress-summary-meta,
+.card-details > summary,
+.card-detail-list dt {
+  color: var(--wc-muted);
+}
+
+.rank-stat-card > span {
+  color: #9b4527;
+}
+
+/* The archive is intentionally charcoal in both themes. Make that surface
+   opaque enough that text contrast does not vary with the page underneath. */
+.ash-record-card {
+  background: #252d2e;
+  border-color: rgba(245, 232, 211, 0.1);
+}
+
+.ash-record-card:hover {
+  border-color: rgba(255, 154, 61, 0.28);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+.ash-record-card.is-heavy,
+.ash-record-card.is-boss {
+  background: #21292a;
+  border-color: rgba(245, 232, 211, 0.13);
+}
+
+.ash-record-title,
+.ash-record-card.is-heavy .ash-record-title,
+.ash-record-card.is-boss .ash-record-title {
+  color: #f5e8d3;
+}
+
+.ash-record-points,
+.ash-record-card.is-boss .ash-record-points {
+  color: #f0c84d;
+}
+
+.ash-record-difficulty {
+  border-color: rgba(245, 232, 211, 0.13);
+  background: rgba(245, 232, 211, 0.055);
+  color: rgba(245, 232, 211, 0.76);
+}
+
+.ash-record-date {
+  color: rgba(245, 232, 211, 0.7);
+}
+
+.ash-legacy-count {
+  color: rgba(245, 232, 211, 0.7);
+}
+
+.ash-records-heading > span {
+  color: rgba(245, 232, 211, 0.66);
+}
+
+.ash-record-delete {
+  color: rgba(244, 179, 179, 0.68);
+}
+
+.ash-record-delete:hover {
+  color: #ffd0d0;
+  background: rgba(159, 42, 42, 0.22);
+}
+
+/* 44px gives mobile controls a comfortable target even where WCAG's minimum
+   target size would technically allow less. */
+.card-delete-button,
+.ash-record-delete,
+.sheet-close,
+.sound-pill {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.card-delete-button,
+.ash-record-delete,
+.sheet-close {
+  width: 44px;
+  height: 44px;
+}
+
+/* Empty matrix quadrants are still useful information, but the text remains
+   readable while disabled. */
+.matrix-cell:disabled {
+  opacity: 0.82;
+}
+
+.matrix-cell:disabled > span,
+.matrix-cell:disabled strong,
+.matrix-cell:disabled p {
+  opacity: 0.84;
+}
+
+/* Users requesting more contrast should get stronger hierarchy rather than
+   extra decoration. */
+@media (prefers-contrast: more) {
+  :root {
+    --wc-muted: #5d4b42;
+    --wc-hairline: rgba(48, 28, 20, 0.2);
+    --wc-hairline-strong: rgba(48, 28, 20, 0.3);
+  }
+
+  .panel,
+  .fire-card,
+  .stat-card,
+  .matrix-cell,
+  .progress-disclosure,
+  .settings-list {
+    border-width: 1.5px;
+  }
+
+  .ash-record-date,
+  .ash-record-difficulty,
+  .ash-legacy-count,
+  .ash-records-heading > span {
+    color: #f5e8d3;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .rank-stat-card > span {
+    color: #ffad78;
+  }
+
+  .matrix-cell:disabled {
+    opacity: 0.78;
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --wc-muted: #d2c1b6;
+      --wc-hairline: rgba(255, 238, 224, 0.2);
+      --wc-hairline-strong: rgba(255, 238, 224, 0.3);
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .primary-button,
+  .fire-button,
+  .floating-action,
+  .tab-button.is-active,
+  .filter-button.is-active,
+  .ash-records-toggle {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+
+  .brand-mark,
+  .all-clear-mark,
+  .empty-state-icon {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .rank-progress-fill {
+    background: Highlight;
+  }
+}
