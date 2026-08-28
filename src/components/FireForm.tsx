@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import type { FireCategory, FireDifficulty, FireLevel, NewFireSeedInput } from '../types/fireSeed';
+import type { FireCategory, FireDifficulty, FireLevel, FirePriority, FireStage } from '../types/fireSeed';
 import {
   categoryLabels,
   difficultyAshPoints,
@@ -8,12 +8,22 @@ import {
   quadrantLabels,
   quadrantShortDescriptions,
 } from '../types/fireSeed';
-import { getQuadrant } from '../lib/fireSeedModel';
+import { derivePriority, getQuadrant } from '../lib/fireSeedModel';
 
 type FireFormProps = {
   defaultTitle?: string;
   onClearDefaultTitle?: () => void;
-  onAddSeed: (input: NewFireSeedInput) => void;
+  onAddSeed: (input: {
+    title: string;
+    body: string;
+    nextAction: string;
+    category: FireCategory;
+    priority: FirePriority;
+    stage: FireStage;
+    difficulty: FireDifficulty;
+    urgency: FireLevel;
+    importance: FireLevel;
+  }) => void;
 };
 
 const titleMaxLength = 60;
@@ -44,6 +54,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const quadrant = getQuadrant(urgency, importance);
+  const priority = derivePriority(urgency, importance);
   const canSubmit = title.trim().length > 0;
   const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
   const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
@@ -64,7 +75,17 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
       return;
     }
 
-    onAddSeed({ title, body, nextAction, category, difficulty, urgency, importance });
+    onAddSeed({
+      title,
+      body,
+      nextAction,
+      category,
+      priority,
+      stage: 'spark',
+      difficulty,
+      urgency,
+      importance,
+    });
     setTitle('');
     setBody('');
     setNextAction('');
