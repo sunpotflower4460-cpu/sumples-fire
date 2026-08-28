@@ -1,0 +1,245 @@
+/*
+ * Fire Task — experience polish pass 14
+ * Final-user language, intentional empty archive states, and a balanced
+ * navigation dock. The main action remains visually distinct from navigation.
+ */
+
+/* Product copy should explain the product, not the layout rationale. */
+.settings-screen-intro {
+  display: none;
+}
+
+/* ── Ash archive: an empty archive is a beginning, not a zero dashboard ── */
+.ash-legacy-empty {
+  min-height: min(52vh, 420px);
+  align-content: center;
+}
+
+.ash-empty-state {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 30px 24px;
+  border: 1px solid rgba(245, 232, 211, 0.1);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 128, 52, 0.09), transparent 15rem),
+    linear-gradient(160deg, #202829, #151a1b 72%);
+  box-shadow: 0 18px 42px rgba(25, 20, 18, 0.18);
+  text-align: center;
+}
+
+.ash-empty-state::after {
+  position: absolute;
+  right: -58px;
+  bottom: -84px;
+  width: 190px;
+  height: 190px;
+  content: '';
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 119, 48, 0.08), transparent 68%);
+  pointer-events: none;
+}
+
+.ash-empty-state .eyebrow {
+  margin: 2px 0 0;
+  color: rgba(240, 200, 77, 0.74);
+}
+
+.ash-empty-state h3 {
+  position: relative;
+  z-index: 1;
+  max-width: 16ch;
+  margin: 0;
+  color: #f7ead7;
+  font-size: clamp(1.35rem, 6vw, 1.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.ash-empty-state > p:not(.eyebrow) {
+  position: relative;
+  z-index: 1;
+  max-width: 31ch;
+  margin: 2px 0 0;
+  color: rgba(247, 234, 215, 0.72);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.ash-empty-state > small {
+  position: relative;
+  z-index: 1;
+  max-width: 34ch;
+  color: rgba(247, 234, 215, 0.48);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.ash-empty-mark {
+  position: relative;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  margin-bottom: 3px;
+  border: 1px solid rgba(247, 234, 215, 0.1);
+  border-radius: 19px;
+  background: rgba(247, 234, 215, 0.035);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.ash-empty-mark::before,
+.ash-empty-mark::after,
+.ash-empty-mark span {
+  position: absolute;
+  left: 50%;
+  width: 29px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #111617, #313d3e 48%, #151b1c);
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.34);
+}
+
+.ash-empty-mark::before,
+.ash-empty-mark::after {
+  top: 28px;
+  content: '';
+}
+
+.ash-empty-mark::before {
+  transform: translateX(-50%) rotate(27deg);
+}
+
+.ash-empty-mark::after {
+  transform: translateX(-50%) rotate(-27deg);
+}
+
+.ash-empty-mark span {
+  top: 17px;
+  width: 7px;
+  height: 7px;
+  transform: translateX(-50%);
+  background: #c95627;
+  box-shadow: 0 0 13px rgba(255, 113, 47, 0.42);
+}
+
+/* ── Bottom dock: navigation stays symmetrical; creation stays an action ── */
+.bottom-tabs {
+  gap: 4px;
+  padding: 7px;
+  padding-right: 7px;
+}
+
+.tab-button {
+  min-width: 0;
+  min-height: 54px;
+  border-radius: 18px;
+  opacity: 0.76;
+}
+
+.tab-button.is-active {
+  background: rgba(232, 90, 36, 0.085);
+  color: #9c3d20;
+  box-shadow: inset 0 0 0 1px rgba(232, 90, 36, 0.08);
+  transform: none;
+  opacity: 1;
+}
+
+.tab-button.is-active::before {
+  display: none;
+}
+
+.tab-button.is-active span {
+  background: transparent;
+}
+
+.floating-action {
+  right: max(20px, calc((100vw - 520px) / 2 + 20px));
+  bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px));
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .floating-action:hover,
+  .tab-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-tabs {
+    right: 8px;
+    left: 8px;
+  }
+
+  .tab-button {
+    min-height: 52px;
+    font-size: 0.74rem;
+  }
+
+  .floating-action {
+    right: 18px;
+  }
+
+  .ash-empty-state {
+    padding-inline: 19px;
+  }
+}
+
+@media (min-width: 760px) {
+  .bottom-tabs {
+    bottom: 34px;
+  }
+
+  .floating-action {
+    right: calc((100vw - 520px) / 2 + 34px);
+    bottom: 112px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .tab-button.is-active {
+    border-color: rgba(255, 173, 120, 0.08);
+    background: rgba(255, 111, 48, 0.1);
+    color: #ffad78;
+  }
+
+  .ash-empty-state {
+    border-color: rgba(255, 238, 224, 0.09);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-button,
+  .floating-action,
+  .ash-empty-mark span {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .ash-empty-state,
+  .ash-empty-mark {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
+
+  .ash-empty-state h3,
+  .ash-empty-state > p:not(.eyebrow),
+  .ash-empty-state > small,
+  .ash-empty-state .eyebrow {
+    color: CanvasText;
+  }
+}
