@@ -55,8 +55,8 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
         onClick={handleToggleSound}
         aria-label={soundEnabled ? 'Fireサウンドをオフにする' : 'Fireサウンドをオンにする'}
       >
-        <span className="sound-pill-icon" aria-hidden="true"><SoundGlyph muted={!soundEnabled} /></span>
-        <span>{soundEnabled ? 'オン' : 'オフ'}</span>
+        <i className="sound-pill-icon" aria-hidden="true"><SoundGlyph muted={!soundEnabled} /></i>
+        {soundEnabled ? 'オン' : 'オフ'}
       </button>
       <div className="storage-note">
         <b>端末内保存</b>
