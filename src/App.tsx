@@ -81,7 +81,6 @@ function TabIcon({ tab }: { tab: AppTab }) {
 export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('today');
   const [isRecordOpen, setIsRecordOpen] = useState(false);
-  const [draftTitle, setDraftTitle] = useState('');
   const [quadrantFilter, setQuadrantFilter] = useState<FireMatrixQuadrant | null>(null);
   const [queueVisibleCount, setQueueVisibleCount] = useState(QUEUE_PAGE_SIZE);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
@@ -587,7 +586,7 @@ export default function App() {
                 <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる" />
               </div>
             </div>
-            <FireForm defaultTitle={draftTitle} onAddSeed={handleAddSeed} onClearDefaultTitle={() => setDraftTitle('')} />
+            <FireForm onAddSeed={handleAddSeed} />
           </section>
         </div>
       ) : null}
