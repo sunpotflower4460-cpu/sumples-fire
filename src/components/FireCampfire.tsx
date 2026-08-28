@@ -26,7 +26,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
     ? '業火'
     : streakState === 'momentum'
       ? '勢い'
-      : streakState === 'warming'
+      : streakState === 'warm'
         ? '加熱中'
         : '';
 
