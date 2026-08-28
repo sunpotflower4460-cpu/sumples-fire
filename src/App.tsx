@@ -145,6 +145,13 @@ export default function App() {
     window.setTimeout(() => setNewSeedId(null), 600);
   };
 
+  const handleUndoBurn = () => {
+    undoLastBurn();
+    window.setTimeout(() => {
+      (focusFireButtonRef.current ?? floatingActionRef.current)?.focus({ preventScroll: true });
+    }, 0);
+  };
+
   const requestDelete = (id: string) => {
     const target = allSeeds.find((seed) => seed.id === id);
     if (!target || target.isBurning) return;
@@ -290,7 +297,7 @@ export default function App() {
           <button
             type="button"
             className="toast-undo-button"
-            onClick={undoLastBurn}
+            onClick={handleUndoBurn}
             aria-label={`「${undoBurnCandidate.title}」のFireを元に戻す`}
           >
             元に戻す
