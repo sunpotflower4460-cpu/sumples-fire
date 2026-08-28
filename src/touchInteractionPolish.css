@@ -1,0 +1,59 @@
+/*
+ * Fire Task — touch interaction polish pass 57
+ * Keep the app calm under real mobile gestures: controls respond immediately,
+ * the capture sheet owns its scroll, and touch-only devices do not inherit
+ * hover movement that was designed for a mouse pointer.
+ */
+
+/* `manipulation` keeps normal pan and pinch zoom available while removing
+   double-tap activation ambiguity on controls that already have explicit taps. */
+button,
+summary,
+a[href],
+.choice-button {
+  touch-action: manipulation;
+}
+
+/* The sheet scrolls independently from the locked page. Contain edge
+   overscroll so a hard flick at the top/bottom does not chain into app chrome. */
+.record-sheet {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* The handle/header is the only swipe-dismiss surface. Reserve vertical motion
+   there for the intentional dismiss recognizer while preserving pinch zoom. */
+.sheet-drag-zone {
+  touch-action: pan-x pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Mouse hover lift feels like a stuck state on tap-only browsers. Keep the
+     color response from existing layers, but remove spatial movement. */
+  .primary-button:hover:not(:disabled),
+  .fire-button:hover:not(:disabled),
+  .floating-action:hover,
+  .tab-button:hover,
+  .matrix-cell:hover,
+  .fire-card:hover:not(.is-burning),
+  .choice-button:hover,
+  .task-queue-more:hover,
+  .ash-records-toggle:hover,
+  .ash-record-card:hover,
+  .ash-record-delete:hover,
+  .settings-disclosure > summary:hover,
+  .settings-links a:hover {
+    transform: none;
+  }
+
+  /* Avoid selection flashes when repeatedly operating app-like controls while
+     leaving input/textarea content selectable and the page pinch-zoomable. */
+  button,
+  summary,
+  .choice-button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
