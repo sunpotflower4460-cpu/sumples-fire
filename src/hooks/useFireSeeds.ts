@@ -10,7 +10,7 @@ import { loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fire
 import { playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
-import type { FireFilter, FireSeed, NewFireSeedInput } from '../types/fireSeed';
+import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
 export const FIRE_UNDO_WINDOW_MS = 6000;
@@ -33,7 +33,6 @@ export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
   const undoTimerRef = useRef<number | null>(null);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
-  const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
   const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
@@ -116,8 +115,6 @@ export function useFireSeeds() {
 
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
 
-    // Keep persistence/state completion aligned with the visual sequence,
-    // including the shorter reduced-motion path.
     const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
@@ -167,20 +164,6 @@ export function useFireSeeds() {
     setNotice('削除しました');
   };
 
-  const filteredSeeds = useMemo(() => {
-    const sorted = sortFireTasks(seeds);
-    switch (filter) {
-      case 'active':
-        return sorted.filter((seed) => !seed.burned);
-      case 'burned':
-        return sorted.filter((seed) => seed.burned);
-      case 'today':
-        return sorted.filter((seed) => !seed.burned && seed.quadrant === 'doNow');
-      default:
-        return sorted;
-    }
-  }, [filter, seeds]);
-
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
   const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
   const undoBurnCandidate = undoBurnSnapshot
@@ -193,8 +176,6 @@ export function useFireSeeds() {
 
   return {
     allSeeds: sortFireTasks(seeds),
-    filteredSeeds,
-    filter,
     focusSeed,
     notice,
     stats,
@@ -205,6 +186,5 @@ export function useFireSeeds() {
     burnTask,
     undoLastBurn,
     deleteSeed,
-    setFilter,
   };
 }
