@@ -28,6 +28,13 @@ describe('Fire undo accessibility', () => {
     expect(hookSource).toContain('setUndoBurnSnapshot(undoSnapshot);');
   });
 
+  it('keeps the persistent Undo snackbar above bottom chrome and safe areas', () => {
+    expect(cssSource).toContain('top: auto;');
+    expect(cssSource).toContain('bottom: max(154px, calc(env(safe-area-inset-bottom) + 154px));');
+    expect(cssSource).toContain('@media (min-width: 760px)');
+    expect(cssSource).toContain('bottom: 180px;');
+  });
+
   it('invalidates stale undo when a different mutation happens', () => {
     expect(hookSource).toContain('const addSeed = (input: NewFireSeedInput) => {\n    clearUndoBurn();');
     expect(hookSource).toMatch(/const burnTask = \(id: string\) => \{[\s\S]*?clearUndoBurn\(\);[\s\S]*?createFireBurnUndoSnapshot/);
