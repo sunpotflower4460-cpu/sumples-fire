@@ -12,6 +12,16 @@ export type FireMatrixQuadrant = 'doNow' | 'schedule' | 'quickBurn' | 'backlog';
 
 export type FireFilter = 'all' | 'active' | 'burned' | 'today';
 
+export type NewFireSeedInput = {
+  title: string;
+  body: string;
+  nextAction: string;
+  category: FireCategory;
+  difficulty: FireDifficulty;
+  urgency: FireLevel;
+  importance: FireLevel;
+};
+
 export type FireSeed = {
   id: string;
   title: string;

@@ -1,5 +1,5 @@
 import { difficultyAshPoints } from '../types/fireSeed';
-import type { FireDifficulty, FireLevel, FireMatrixQuadrant, FireSeed } from '../types/fireSeed';
+import type { FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireSeed } from '../types/fireSeed';
 
 export const nowIso = () => new Date().toISOString();
 
@@ -8,6 +8,12 @@ export const getQuadrant = (urgency: FireLevel, importance: FireLevel): FireMatr
   if (urgency === 'low' && importance === 'high') return 'schedule';
   if (urgency === 'high' && importance === 'low') return 'quickBurn';
   return 'backlog';
+};
+
+export const derivePriority = (urgency: FireLevel, importance: FireLevel): FirePriority => {
+  if (urgency === 'high') return 'high';
+  if (importance === 'high') return 'medium';
+  return 'low';
 };
 
 const quadrantScore: Record<FireMatrixQuadrant, number> = {
@@ -177,7 +183,7 @@ export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp 
     body: seed.body?.trim() ?? '',
     nextAction: seed.nextAction?.trim() ?? '',
     category: seed.category ?? 'task',
-    priority: seed.priority ?? (urgency === 'high' ? 'high' : 'medium'),
+    priority: seed.priority ?? derivePriority(urgency, importance),
     stage,
     difficulty,
     urgency,

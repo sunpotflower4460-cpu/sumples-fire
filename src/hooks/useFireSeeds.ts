@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
+import { burnSeed, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
@@ -8,20 +8,8 @@ import { loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fire
 import { playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
-import type { FireCategory, FireDifficulty, FireFilter, FireLevel, FirePriority, FireSeed, FireStage } from '../types/fireSeed';
+import type { FireFilter, FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
-
-type NewFireSeedInput = {
-  title: string;
-  body: string;
-  nextAction: string;
-  category: FireCategory;
-  priority: FirePriority;
-  stage: FireStage;
-  difficulty: FireDifficulty;
-  urgency: FireLevel;
-  importance: FireLevel;
-};
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -62,6 +50,7 @@ export function useFireSeeds() {
   const addSeed = (input: NewFireSeedInput) => {
     const timestamp = nowIso();
     const quadrant = getQuadrant(input.urgency, input.importance);
+    const priority = derivePriority(input.urgency, input.importance);
     const id = createId();
     const nextSeed: FireSeed = {
       id,
@@ -69,8 +58,8 @@ export function useFireSeeds() {
       body: input.body.trim(),
       nextAction: input.nextAction.trim(),
       category: input.category,
-      priority: input.priority,
-      stage: input.stage,
+      priority,
+      stage: 'spark',
       difficulty: input.difficulty,
       urgency: input.urgency,
       importance: input.importance,
