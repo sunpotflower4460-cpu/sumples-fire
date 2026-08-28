@@ -1,0 +1,26 @@
+/*
+ * Fire Task — action entry polish pass 17
+ * Each Today state exposes one task-creation entry. The active focus card
+ * therefore reserves its action row entirely for completion.
+ */
+
+.focus-seed .focus-actions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.focus-seed .focus-actions .fire-button {
+  min-height: 58px;
+}
+
+.brand-hero .primary-button,
+.all-clear-card .primary-button {
+  min-height: 52px;
+}
+
+@media (max-width: 360px) {
+  .focus-seed .focus-actions .fire-button,
+  .brand-hero .primary-button,
+  .all-clear-card .primary-button {
+    width: 100%;
+  }
+}
