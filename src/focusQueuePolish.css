@@ -1,0 +1,86 @@
+/*
+ * Fire Task — focus/queue hierarchy polish pass 13
+ * The hero owns the current task. The queue owns only what comes after it.
+ */
+
+.task-queue-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.task-queue-panel .task-queue-heading {
+  margin: 0;
+}
+
+.task-queue-panel .matrix-filter-shell {
+  margin: 0;
+  padding: 8px;
+  border-color: rgba(66, 39, 28, 0.075);
+  border-radius: 18px;
+  background: rgba(92, 60, 46, 0.025);
+  box-shadow: none;
+}
+
+.task-queue-panel .matrix-filter-heading {
+  min-height: 31px;
+  padding-inline: 4px;
+}
+
+.task-queue-panel .matrix-filter-shell .matrix-cell {
+  min-height: 58px;
+  background: rgba(255, 253, 249, 0.76);
+}
+
+.task-queue-panel .cards-stack {
+  padding-top: 1px;
+}
+
+.queue-empty-state {
+  min-height: 142px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.queue-empty-state .empty-state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  box-shadow: none;
+}
+
+.queue-empty-state .empty-state-icon::before,
+.queue-empty-state .empty-state-icon::after {
+  top: 23px;
+  width: 29px;
+  height: 8px;
+}
+
+/* Once the actionable queue is finished, reward/progress surfaces can breathe. */
+.task-queue-panel + .campfire-panel,
+.task-queue-panel + .fire-campfire {
+  margin-top: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .task-queue-panel .matrix-filter-shell {
+    border-color: rgba(255, 238, 224, 0.065);
+    background: rgba(255, 238, 224, 0.02);
+  }
+
+  .task-queue-panel .matrix-filter-shell .matrix-cell {
+    background: rgba(255, 238, 224, 0.035);
+  }
+
+  .queue-empty-state {
+    background: transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  .task-queue-panel .matrix-filter-shell {
+    border-color: CanvasText;
+  }
+}
