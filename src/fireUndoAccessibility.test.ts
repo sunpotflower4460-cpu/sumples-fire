@@ -22,7 +22,7 @@ describe('Fire undo accessibility', () => {
   });
 
   it('invalidates stale undo when a different mutation happens', () => {
-    expect(hookSource).toMatch(/const addSeed = \(input: NewFireSeedInput\) => \{\n    clearUndoBurn\(\);/);
+    expect(hookSource).toContain('const addSeed = (input: NewFireSeedInput) => {\n    clearUndoBurn();');
     expect(hookSource).toMatch(/const burnTask = \(id: string\) => \{[\s\S]*?clearUndoBurn\(\);[\s\S]*?createFireBurnUndoSnapshot/);
     expect(hookSource).toMatch(/const deleteSeed = \(id: string\) => \{[\s\S]*?clearUndoBurn\(\);/);
   });
