@@ -4,6 +4,10 @@
  * mobile interaction model rather than a collection of independent screens.
  */
 
+.matrix-cell {
+  position: relative;
+}
+
 /* Empty matrix cells remain legible as information, but stop pretending to be actions. */
 .matrix-cell:disabled {
   cursor: default;
