@@ -12,6 +12,19 @@
   max-width: 30ch;
 }
 
+.draft-restored-status {
+  width: fit-content;
+  margin: -2px 0 0;
+  padding: 5px 8px;
+  border: 1px solid rgba(155, 69, 39, 0.12);
+  border-radius: 999px;
+  background: rgba(155, 69, 39, 0.045);
+  color: #8f452d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
 .form-primary-meta .char-count {
   color: var(--wc-muted);
   font-variant-numeric: tabular-nums;
@@ -130,6 +143,28 @@
   padding-top: 2px;
 }
 
+.advanced-fields-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.advanced-fields-summary > small {
+  overflow: hidden;
+  max-width: 45%;
+  color: var(--wc-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.advanced-fields-summary > small.has-content {
+  color: #94472e;
+  font-weight: 850;
+}
+
 /* The enabled button already communicates readiness; keep the dock compact. */
 .form-sticky-submit {
   gap: 0;
@@ -151,6 +186,10 @@
     line-height: 1.2;
     text-align: right;
   }
+
+  .advanced-fields-summary > small {
+    max-width: 42%;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -165,8 +204,19 @@
   }
 
   .task-tuning-summary-copy small,
-  .task-tuning-default-note {
+  .task-tuning-default-note,
+  .advanced-fields-summary > small {
     color: rgba(255, 239, 227, 0.58);
+  }
+
+  .draft-restored-status {
+    border-color: rgba(255, 173, 120, 0.14);
+    background: rgba(255, 173, 120, 0.055);
+    color: #ffb98b;
+  }
+
+  .advanced-fields-summary > small.has-content {
+    color: #ffb98b;
   }
 
   .form-primary-meta .char-count.is-near-limit {
@@ -198,7 +248,8 @@
 @media (forced-colors: active) {
   .task-tuning-fields,
   .task-tuning-body,
-  .task-tuning-default-note {
+  .task-tuning-default-note,
+  .draft-restored-status {
     border-color: CanvasText;
     background: Canvas;
   }
@@ -207,6 +258,9 @@
   .task-tuning-summary-copy strong,
   .task-tuning-summary-copy small,
   .task-tuning-default-note,
+  .advanced-fields-summary > small,
+  .advanced-fields-summary > small.has-content,
+  .draft-restored-status,
   .form-primary-meta .char-count,
   .form-primary-meta .char-count.is-near-limit {
     color: CanvasText;
