@@ -29,6 +29,12 @@ describe('Fire ritual feedback contracts', () => {
     expect(variantsSource).not.toContain('duration: 1.4');
   });
 
+  it('honors reduced-motion preferences across Framer Motion and spectacle effects', () => {
+    expect(mainSource).toContain('MotionConfig reducedMotion="user"');
+    expect(ritualSource).toContain('isSpecial && !shouldReduceMotion');
+    expect(ritualSource).toContain('duration: shouldReduceMotion ? 0 : 0.28');
+  });
+
   it('loads ritual feedback polish before the final accessibility layer', () => {
     expect(mainSource.indexOf("import './ritualFeedbackPolish.css';"))
       .toBeLessThan(mainSource.indexOf("import './accessibilityPolish.css';"));
