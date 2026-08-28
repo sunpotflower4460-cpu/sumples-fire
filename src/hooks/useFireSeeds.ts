@@ -32,6 +32,8 @@ const prefersReducedMotion = () => (
 export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
   const undoTimerRef = useRef<number | null>(null);
+  const completionTimerRef = useRef<number | null>(null);
+  const activeBurnIdRef = useRef<string | null>(null);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
@@ -55,6 +57,9 @@ export function useFireSeeds() {
   useEffect(() => () => {
     if (undoTimerRef.current !== null) {
       window.clearTimeout(undoTimerRef.current);
+    }
+    if (completionTimerRef.current !== null) {
+      window.clearTimeout(completionTimerRef.current);
     }
   }, []);
 
@@ -97,8 +102,14 @@ export function useFireSeeds() {
   };
 
   const burnTask = (id: string) => {
+    if (activeBurnIdRef.current !== null) return;
+
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.burned || target.isBurning) return;
+
+    // Lock synchronously before any React state update so rapid taps cannot
+    // enter this completion flow twice before the disabled UI re-renders.
+    activeBurnIdRef.current = id;
 
     clearUndoBurn();
     const undoSnapshot = createFireBurnUndoSnapshot(target, streakData);
@@ -116,9 +127,11 @@ export function useFireSeeds() {
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
 
     const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
-    window.setTimeout(() => {
+    completionTimerRef.current = window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
       setBurningSpectacle(null);
+      activeBurnIdRef.current = null;
+      completionTimerRef.current = null;
       setUndoBurnSnapshot(undoSnapshot);
       undoTimerRef.current = window.setTimeout(() => {
         setUndoBurnSnapshot(null);
