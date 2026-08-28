@@ -26,10 +26,11 @@ describe('destructive action clarity', () => {
     expect(deleteImplementation).not.toContain('saveFireStreak');
   });
 
-  it('restores focus differently for cancel and confirmed deletion', () => {
+  it('restores exact focus on cancel and context-aware focus on confirmed deletion', () => {
     expect(modalSource).toContain('shouldRestorePreviousFocusRef.current = false');
     expect(modalSource).toContain('previousFocusRef.current?.isConnected');
-    expect(modalSource).toContain('window.setTimeout(focusAfterDelete, 0)');
+    expect(modalSource).toContain('const deleteOrigin = deleteOriginRef.current;');
+    expect(modalSource).toContain('window.setTimeout(() => focusAfterDelete(deleteOrigin), 0);');
     expect(modalSource).toContain('.focus-seed .fire-button');
     expect(modalSource).toContain('.all-clear-card .primary-button');
     expect(modalSource).toContain('.floating-action');
