@@ -15,18 +15,24 @@ const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
   minute: '2-digit',
 });
 
-const stageProgress = {
-  spark: 34,
-  kindling: 68,
-  flame: 100,
-};
-
 const burnMessages = {
   small: '小さく燃えた。いい一歩。',
   normal: 'よく燃えた。前に進んだ。',
   heavy: '重いタスクを燃やした。強い。',
   boss: 'ラスボス撃破。これは大きい。',
 };
+
+function DeleteGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 7h14" />
+      <path d="M9 7V4.8h6V7" />
+      <path d="M7.5 7l.7 12h7.6l.7-12" />
+      <path d="M10 10.5v5" />
+      <path d="M14 10.5v5" />
+    </svg>
+  );
+}
 
 export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
@@ -41,25 +47,36 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
         <span className={`priority priority-${seed.priority}`}>{seed.burned ? `+${seed.ashPoints} 炭` : priorityLabels[seed.priority]}</span>
       </div>
 
-      <div className="matrix-badge" aria-label={`分類: 緊急${levelLabels[seed.urgency]} / 重要${levelLabels[seed.importance]}`}>
-        <span>{quadrantLabels[seed.quadrant]}</span>
-        <small>緊急{levelLabels[seed.urgency]} / 重要{levelLabels[seed.importance]}</small>
-      </div>
-
-      <div className="stage-row">
-        <span>{seed.burned ? `${difficultyLabels[seed.difficulty]}タスクをFire済み` : `${stageLabels[seed.stage]} / ${difficultyLabels[seed.difficulty]} +${seed.ashPoints} 炭`}</span>
-        <div className="stage-track" aria-hidden="true">
-          <div className={`stage-fill stage-${seed.stage}`} style={{ width: `${stageProgress[seed.stage]}%` }} />
-        </div>
-      </div>
-
-      {seed.body ? <p className="card-body">{seed.body}</p> : null}
-
       {seed.nextAction && !seed.burned ? (
         <div className="next-action" aria-label="まずこれだけ">
           <span>まずこれだけ</span>
           <p>{seed.nextAction}</p>
         </div>
+      ) : null}
+
+      {!seed.burned ? (
+        <div className="card-quick-meta" aria-label="タスク概要">
+          <span>{quadrantLabels[seed.quadrant]}</span>
+          <span>{difficultyLabels[seed.difficulty]}</span>
+          <span>+{seed.ashPoints}炭</span>
+        </div>
+      ) : null}
+
+      {(seed.body || !seed.burned) ? (
+        <details className="card-details">
+          <summary>{seed.body ? 'メモと詳細' : '詳細'}</summary>
+          <div className="card-details-body">
+            {seed.body ? <p className="card-body">{seed.body}</p> : null}
+            {!seed.burned ? (
+              <dl className="card-detail-list">
+                <div><dt>緊急度</dt><dd>{levelLabels[seed.urgency]}</dd></div>
+                <div><dt>重要度</dt><dd>{levelLabels[seed.importance]}</dd></div>
+                <div><dt>状態</dt><dd>{stageLabels[seed.stage]}</dd></div>
+                <div><dt>優先度</dt><dd>{priorityLabels[seed.priority]}</dd></div>
+              </dl>
+            ) : null}
+          </div>
+        </details>
       ) : null}
 
       {seed.burned ? (
@@ -87,8 +104,14 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
               {seed.isBurning ? '燃焼中' : '完了してFire'}
             </button>
           ) : null}
-          <button type="button" className="danger-button subtle-danger" onClick={() => onDelete(seed.id)} disabled={seed.isBurning}>
-            削除
+          <button
+            type="button"
+            className="danger-button subtle-danger card-delete-button"
+            onClick={() => onDelete(seed.id)}
+            disabled={seed.isBurning}
+            aria-label={`「${seed.title}」を削除`}
+          >
+            <DeleteGlyph />
           </button>
         </div>
       </div>
