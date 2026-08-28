@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { burnSeed, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
+import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
@@ -29,6 +30,12 @@ const createId = () => {
 
   return `seed-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
+
+const prefersReducedMotion = () => (
+  typeof window !== 'undefined'
+  && typeof window.matchMedia === 'function'
+  && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+);
 
 export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
@@ -97,7 +104,10 @@ export function useFireSeeds() {
     saveFireStreak(newStreakData);
 
     setSeeds((current) => current.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed)));
-    // Timeout matches the full Framer Motion burn sequence (4200 ms).
+
+    // Keep persistence/state completion aligned with the visual sequence,
+    // including the shorter reduced-motion path.
+    const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
       setBurningSpectacle(null);
@@ -108,7 +118,7 @@ export function useFireSeeds() {
           ? `大仕事完了！ +${target.ashPoints}炭になりました`
           : base;
       setNotice(decorated);
-    }, 4200);
+    }, completionDelay);
   };
 
   const deleteSeed = (id: string) => {
