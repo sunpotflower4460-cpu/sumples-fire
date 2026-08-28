@@ -1,0 +1,179 @@
+/*
+ * Fire Task — capture polish pass 15
+ * Keep the default path genuinely fast: name, optional first step, add.
+ * Classification and reward tuning stay available without dominating capture.
+ */
+
+.form-primary-meta {
+  justify-content: flex-end;
+  min-height: 16px;
+}
+
+.form-primary-field .form-helper {
+  max-width: 30ch;
+}
+
+/* ── Priority/difficulty disclosure ─────────────────────────────── */
+.task-tuning-fields {
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 18px;
+  background: rgba(92, 60, 46, 0.028);
+}
+
+.task-tuning-fields > summary {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--wc-ink);
+}
+
+.task-tuning-fields > summary::-webkit-details-marker {
+  display: none;
+}
+
+.task-tuning-summary-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.task-tuning-summary-copy strong {
+  font-size: 0.88rem;
+  font-weight: 850;
+  letter-spacing: -0.015em;
+}
+
+.task-tuning-summary-copy small {
+  overflow: hidden;
+  color: var(--wc-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-tuning-summary-action {
+  position: relative;
+  flex: none;
+  padding-right: 18px;
+  color: #9b4527;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.task-tuning-summary-action::after {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  content: '';
+  border-right: 1.7px solid currentColor;
+  border-bottom: 1.7px solid currentColor;
+  transform: translateY(-65%) rotate(45deg);
+  transform-origin: center;
+  transition: transform 160ms var(--wc-spring);
+}
+
+.task-tuning-fields[open] .task-tuning-summary-action::after {
+  transform: translateY(-20%) rotate(225deg);
+}
+
+.task-tuning-fields[open] > summary {
+  background: rgba(92, 60, 46, 0.025);
+}
+
+.task-tuning-body {
+  display: grid;
+  gap: 15px;
+  padding: 12px;
+  border-top: 1px solid var(--wc-hairline);
+}
+
+.task-tuning-fields .fast-matrix-picker {
+  gap: 13px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.task-tuning-fields .difficulty-fieldset {
+  padding-top: 2px;
+}
+
+/* The enabled button already communicates readiness; keep the dock compact. */
+.form-sticky-submit {
+  gap: 0;
+  padding-top: 10px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.form-sticky-submit .primary-button {
+  min-height: 50px;
+}
+
+@media (max-width: 380px) {
+  .task-tuning-fields > summary {
+    min-height: 56px;
+  }
+
+  .task-tuning-summary-action {
+    max-width: 10ch;
+    line-height: 1.2;
+    text-align: right;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .task-tuning-fields {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.028);
+  }
+
+  .task-tuning-fields > summary,
+  .task-tuning-summary-copy strong {
+    color: #fff1e7;
+  }
+
+  .task-tuning-summary-copy small {
+    color: rgba(255, 239, 227, 0.58);
+  }
+
+  .task-tuning-summary-action {
+    color: #ffad78;
+  }
+
+  .task-tuning-fields[open] > summary,
+  .task-tuning-body {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(255, 238, 224, 0.018);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-tuning-summary-action::after {
+    transition: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .task-tuning-fields,
+  .task-tuning-body {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+
+  .task-tuning-summary-action,
+  .task-tuning-summary-copy strong,
+  .task-tuning-summary-copy small {
+    color: CanvasText;
+  }
+}

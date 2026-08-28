@@ -87,7 +87,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
     <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate>
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
-        <p id={titleHelperId} className="form-helper">名前だけでも追加できます。短いほど、あとで動きやすくなります。</p>
+        <p id={titleHelperId} className="form-helper">名前だけで追加できます。</p>
         <input
           id="seed-title"
           ref={titleInputRef}
@@ -98,14 +98,14 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
           }}
           placeholder="例：先延ばししていた返信をする"
           maxLength={titleMaxLength}
+          enterKeyHint="done"
           autoFocus
           required
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={titleDescribedBy}
         />
-        <div className="field-meta">
+        <div className="field-meta form-primary-meta">
           <span className="char-count" aria-label="文字数">{titleCounter}</span>
-          {!title.trim() && !error ? <span className="field-hint">まずは1行だけで大丈夫です</span> : null}
         </div>
       </div>
 
@@ -120,75 +120,79 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         />
       </div>
 
-      <section className="fast-matrix-picker" aria-label="タスクの整理">
-        <div className="form-section-intro">
-          <span className="form-section-index" aria-hidden="true">01</span>
-          <div>
-            <strong>いつ・どれくらい大事？</strong>
-            <p>2つ選ぶだけで、燃やす順番を自動で整えます。</p>
-          </div>
+      <details className="task-tuning-fields">
+        <summary>
+          <span className="task-tuning-summary-copy">
+            <strong>優先度と重さ</strong>
+            <small>{quadrantLabels[quadrant]} ・ {difficultyLabels[difficulty]}</small>
+          </span>
+          <span className="task-tuning-summary-action">必要なら調整</span>
+        </summary>
+
+        <div className="task-tuning-body">
+          <section className="fast-matrix-picker" aria-label="タスクの優先度">
+            <fieldset className="choice-section choice-fieldset">
+              <legend>緊急度</legend>
+              <div className="choice-grid two-choice">
+                {levelOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={urgency === option.value ? 'choice-button is-selected' : 'choice-button'}
+                    onClick={() => setUrgency(option.value)}
+                    aria-pressed={urgency === option.value}
+                  >
+                    <b>{levelLabels[option.value]}</b>
+                    <small>{option.hint}</small>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className="choice-section choice-fieldset">
+              <legend>重要度</legend>
+              <div className="choice-grid two-choice">
+                {levelOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={importance === option.value ? 'choice-button is-selected' : 'choice-button'}
+                    onClick={() => setImportance(option.value)}
+                    aria-pressed={importance === option.value}
+                  >
+                    <b>{levelLabels[option.value]}</b>
+                    <small>{option.value === 'high' ? '大事・放置したくない' : '軽め・今は小さい'}</small>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite" aria-atomic="true">
+              <span>自動分類</span>
+              <strong>{quadrantLabels[quadrant]}</strong>
+              <p>{quadrantShortDescriptions[quadrant]}</p>
+            </div>
+          </section>
+
+          <fieldset className="choice-section choice-fieldset difficulty-fieldset">
+            <legend>タスクの重さ <span className="optional-label">だいたいでOK</span></legend>
+            <div className="choice-grid difficulty-choice-grid">
+              {difficultyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={difficulty === option.value ? 'choice-button is-selected' : 'choice-button'}
+                  onClick={() => setDifficulty(option.value)}
+                  aria-pressed={difficulty === option.value}
+                >
+                  <b>{difficultyLabels[option.value]}</b>
+                  <small>{option.hint} / +{difficultyAshPoints[option.value]}炭</small>
+                </button>
+              ))}
+            </div>
+          </fieldset>
         </div>
-
-        <fieldset className="choice-section choice-fieldset">
-          <legend>緊急度</legend>
-          <div className="choice-grid two-choice">
-            {levelOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={urgency === option.value ? 'choice-button is-selected' : 'choice-button'}
-                onClick={() => setUrgency(option.value)}
-                aria-pressed={urgency === option.value}
-              >
-                <b>{levelLabels[option.value]}</b>
-                <small>{option.hint}</small>
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="choice-section choice-fieldset">
-          <legend>重要度</legend>
-          <div className="choice-grid two-choice">
-            {levelOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={importance === option.value ? 'choice-button is-selected' : 'choice-button'}
-                onClick={() => setImportance(option.value)}
-                aria-pressed={importance === option.value}
-              >
-                <b>{levelLabels[option.value]}</b>
-                <small>{option.value === 'high' ? '大事・放置したくない' : '軽め・今は小さい'}</small>
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite" aria-atomic="true">
-          <span>自動分類</span>
-          <strong>{quadrantLabels[quadrant]}</strong>
-          <p>{quadrantShortDescriptions[quadrant]}</p>
-        </div>
-      </section>
-
-      <fieldset className="choice-section choice-fieldset difficulty-fieldset">
-        <legend>タスクの重さ <span className="optional-label">だいたいでOK</span></legend>
-        <div className="choice-grid difficulty-choice-grid">
-          {difficultyOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={difficulty === option.value ? 'choice-button is-selected' : 'choice-button'}
-              onClick={() => setDifficulty(option.value)}
-              aria-pressed={difficulty === option.value}
-            >
-              <b>{difficultyLabels[option.value]}</b>
-              <small>{option.hint} / +{difficultyAshPoints[option.value]}炭</small>
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      </details>
 
       <details className="advanced-fields">
         <summary>メモ・カテゴリ</summary>
@@ -225,7 +229,6 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         <button className="primary-button" type="submit" disabled={!canSubmit}>
           タスクを薪にする
         </button>
-        {!canSubmit ? <p className="submit-hint">タスク名を入れると追加できます</p> : <p className="submit-hint is-ready">この内容で追加できます</p>}
       </div>
     </form>
   );
