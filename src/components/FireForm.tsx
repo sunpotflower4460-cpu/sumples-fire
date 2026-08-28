@@ -41,10 +41,12 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const [urgency, setUrgency] = useState<FireLevel>('high');
   const [importance, setImportance] = useState<FireLevel>('high');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const submitLockRef = useRef(false);
 
   const quadrant = getQuadrant(urgency, importance);
-  const canSubmit = title.trim().length > 0;
+  const canSubmit = title.trim().length > 0 && !isSubmitting;
   const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
   const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
 
@@ -58,33 +60,47 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (submitLockRef.current) return;
+
     if (!title.trim()) {
       setError('まずはタスク名だけ入力してください');
       window.setTimeout(() => titleInputRef.current?.focus(), 0);
       return;
     }
 
-    onAddSeed({
-      title,
-      body,
-      nextAction,
-      category,
-      difficulty,
-      urgency,
-      importance,
-    });
-    setTitle('');
-    setBody('');
-    setNextAction('');
-    setCategory('task');
-    setDifficulty('normal');
-    setUrgency('high');
-    setImportance('high');
-    setError('');
+    // Lock synchronously before React can re-render the disabled button. This
+    // covers double taps and repeated Enter key events on fast devices.
+    submitLockRef.current = true;
+    setIsSubmitting(true);
+
+    try {
+      onAddSeed({
+        title,
+        body,
+        nextAction,
+        category,
+        difficulty,
+        urgency,
+        importance,
+      });
+      setTitle('');
+      setBody('');
+      setNextAction('');
+      setCategory('task');
+      setDifficulty('normal');
+      setUrgency('high');
+      setImportance('high');
+      setError('');
+    } catch {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
+      setError('追加できませんでした。もう一度お試しください');
+      window.setTimeout(() => titleInputRef.current?.focus(), 0);
+    }
   };
 
   return (
-    <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate>
+    <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting || undefined}>
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
         <p id={titleHelperId} className="form-helper">名前だけで追加できます。</p>
@@ -227,7 +243,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
 
       <div className="submit-row form-sticky-submit">
         <button className="primary-button" type="submit" disabled={!canSubmit}>
-          タスクを薪にする
+          {isSubmitting ? '追加中…' : 'タスクを薪にする'}
         </button>
       </div>
     </form>
