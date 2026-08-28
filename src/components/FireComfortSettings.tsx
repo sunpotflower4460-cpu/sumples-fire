@@ -45,7 +45,7 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
   };
 
   return (
-    <article className="comfort-settings-card">
+    <div className="comfort-settings-card">
       <div className="comfort-setting-copy">
         <span id={soundLabelId}>Fireサウンド</span>
         <p id={soundDescriptionId}>Fireするときの効果音です。</p>
@@ -66,6 +66,6 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
         <b>端末内保存</b>
         <small>{totalTasks}件のタスクを保存しています</small>
       </div>
-    </article>
+    </div>
   );
 }
