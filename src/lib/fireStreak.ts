@@ -13,6 +13,12 @@ export type FireStreakState = 'cold' | 'warm' | 'momentum' | 'blazing';
 const getLocalDateString = (date = new Date()): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
+const getPreviousLocalDateString = (date = new Date()): string => {
+  const previous = new Date(date);
+  previous.setDate(previous.getDate() - 1);
+  return getLocalDateString(previous);
+};
+
 const defaultStreak = (): FireStreakData => ({
   currentStreak: 0,
   lastBurnDate: null,
@@ -36,13 +42,26 @@ const normalizeStreak = (value: unknown): FireStreakData => {
   };
 };
 
+export const getEffectiveFireStreak = (streakData: FireStreakData, date = new Date()): FireStreakData => {
+  if (streakData.currentStreak === 0 || !streakData.lastBurnDate) return streakData;
+
+  const today = getLocalDateString(date);
+  const yesterday = getPreviousLocalDateString(date);
+  if (streakData.lastBurnDate === today || streakData.lastBurnDate === yesterday) return streakData;
+
+  return {
+    ...streakData,
+    currentStreak: 0,
+  };
+};
+
 export const loadFireStreak = (): FireStreakData => {
   const driver = getWebStorageDriver();
   if (!driver) return defaultStreak();
   try {
     const raw = driver.getItem(STREAK_STORAGE_KEY);
     if (!raw) return defaultStreak();
-    return normalizeStreak(JSON.parse(raw));
+    return getEffectiveFireStreak(normalizeStreak(JSON.parse(raw)));
   } catch {
     return defaultStreak();
   }
@@ -58,17 +77,18 @@ export const saveFireStreak = (data: FireStreakData): void => {
   }
 };
 
-export const recordBurnForStreak = (streakData: FireStreakData): FireStreakData => {
-  const today = getLocalDateString();
-  const yesterday = getLocalDateString(new Date(Date.now() - 86_400_000));
+export const recordBurnForStreak = (streakData: FireStreakData, date = new Date()): FireStreakData => {
+  const effectiveStreak = getEffectiveFireStreak(streakData, date);
+  const today = getLocalDateString(date);
+  const yesterday = getPreviousLocalDateString(date);
 
-  if (streakData.lastBurnDate === today) {
-    return streakData;
+  if (effectiveStreak.lastBurnDate === today) {
+    return effectiveStreak;
   }
 
-  const isConsecutive = streakData.lastBurnDate === yesterday;
-  const newStreak = isConsecutive ? streakData.currentStreak + 1 : 1;
-  const newLongest = Math.max(streakData.longestStreak, newStreak);
+  const isConsecutive = effectiveStreak.lastBurnDate === yesterday;
+  const newStreak = isConsecutive ? effectiveStreak.currentStreak + 1 : 1;
+  const newLongest = Math.max(effectiveStreak.longestStreak, newStreak);
 
   return {
     currentStreak: newStreak,
