@@ -36,13 +36,17 @@ function DeleteGlyph() {
 
 export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
+  const titleId = `fire-card-${seed.id}-title`;
 
   return (
-    <article className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}>
+    <article
+      className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}
+      aria-labelledby={titleId}
+    >
       <div className="card-header">
         <div>
           <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
-          <h3>{seed.title}</h3>
+          <h3 id={titleId}>{seed.title}</h3>
         </div>
         {seed.burned ? <span className="priority">+{seed.ashPoints} 炭</span> : null}
       </div>
@@ -64,7 +68,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
 
       {seed.body ? (
         <details className="card-details">
-          <summary>メモを見る</summary>
+          <summary aria-label={`「${seed.title}」のメモを見る`}>メモを見る</summary>
           <div className="card-details-body">
             <p className="card-body">{seed.body}</p>
           </div>
