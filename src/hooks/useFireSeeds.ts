@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { burnSeed, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
+import { createFireBurnUndoSnapshot, restoreFireSeedFromUndo } from '../lib/fireBurnUndo';
+import type { FireBurnUndoSnapshot } from '../lib/fireBurnUndo';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
@@ -10,6 +12,8 @@ import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireFilter, FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
+
+export const FIRE_UNDO_WINDOW_MS = 6000;
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -27,11 +31,13 @@ const prefersReducedMotion = () => (
 
 export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
+  const undoTimerRef = useRef<number | null>(null);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [filter, setFilter] = useState<FireFilter>('active');
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
   const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
+  const [undoBurnSnapshot, setUndoBurnSnapshot] = useState<FireBurnUndoSnapshot | null>(null);
 
   useEffect(() => {
     const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
@@ -46,6 +52,20 @@ export function useFireSeeds() {
     const timer = window.setTimeout(() => setNotice(''), 3200);
     return () => window.clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => () => {
+    if (undoTimerRef.current !== null) {
+      window.clearTimeout(undoTimerRef.current);
+    }
+  }, []);
+
+  const clearUndoBurn = () => {
+    if (undoTimerRef.current !== null) {
+      window.clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+    setUndoBurnSnapshot(null);
+  };
 
   const addSeed = (input: NewFireSeedInput) => {
     const timestamp = nowIso();
@@ -81,6 +101,8 @@ export function useFireSeeds() {
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.burned || target.isBurning) return;
 
+    clearUndoBurn();
+    const undoSnapshot = createFireBurnUndoSnapshot(target, streakData);
     const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
     setBurningSpectacle(spectacle);
 
@@ -100,6 +122,12 @@ export function useFireSeeds() {
     window.setTimeout(() => {
       setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? burnSeed(seed) : seed))));
       setBurningSpectacle(null);
+      setUndoBurnSnapshot(undoSnapshot);
+      undoTimerRef.current = window.setTimeout(() => {
+        setUndoBurnSnapshot(null);
+        undoTimerRef.current = null;
+      }, FIRE_UNDO_WINDOW_MS);
+
       const base = `Fire完了！ +${target.ashPoints}炭になりました`;
       const decorated = target.difficulty === 'boss'
         ? `ラスボス撃破！ +${target.ashPoints}炭になりました`
@@ -110,10 +138,37 @@ export function useFireSeeds() {
     }, completionDelay);
   };
 
+  const undoLastBurn = () => {
+    if (!undoBurnSnapshot) return;
+
+    const id = undoBurnSnapshot.seed.id;
+    let restored = false;
+    setSeeds((current) => {
+      const target = current.find((seed) => seed.id === id);
+      if (!target?.burned) return current;
+      restored = true;
+      const restoredSeed = restoreFireSeedFromUndo(undoBurnSnapshot, nowIso());
+      return sortFireTasks(current.map((seed) => (seed.id === id ? restoredSeed : seed)));
+    });
+
+    if (!restored) {
+      clearUndoBurn();
+      return;
+    }
+
+    setStreakData(undoBurnSnapshot.streakBefore);
+    saveFireStreak(undoBurnSnapshot.streakBefore);
+    clearUndoBurn();
+    setNotice('Fireを取り消しました');
+  };
+
   const deleteSeed = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.isBurning) return;
 
+    if (undoBurnSnapshot?.seed.id === id) {
+      clearUndoBurn();
+    }
     setSeeds((current) => current.filter((seed) => seed.id !== id));
     setNotice('削除しました');
   };
@@ -134,6 +189,13 @@ export function useFireSeeds() {
 
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
   const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
+  const undoBurnCandidate = undoBurnSnapshot
+    ? {
+        id: undoBurnSnapshot.seed.id,
+        title: undoBurnSnapshot.seed.title,
+        ashPoints: undoBurnSnapshot.seed.ashPoints,
+      }
+    : null;
 
   return {
     allSeeds: sortFireTasks(seeds),
@@ -144,8 +206,10 @@ export function useFireSeeds() {
     stats,
     streakData,
     burningSpectacle,
+    undoBurnCandidate,
     addSeed,
     burnTask,
+    undoLastBurn,
     deleteSeed,
     setFilter,
   };
