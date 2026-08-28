@@ -54,6 +54,13 @@
   max-width: 32ch;
 }
 
+/* Mobile keyboards shrink the visual viewport; keep sheet and focused fields inside it. */
+.record-sheet {
+  max-height: min(92dvh, 820px);
+  scroll-padding-top: 84px;
+  scroll-padding-bottom: max(96px, calc(env(safe-area-inset-bottom) + 84px));
+}
+
 /* During the Fire ritual the app shell is inert; visually avoid accidental selection residue. */
 .mobile-app-shell[inert] {
   user-select: none;
@@ -81,6 +88,17 @@
   .matrix-cell[aria-pressed='true']:not(:disabled)::after {
     top: 10px;
     right: 10px;
+  }
+}
+
+@media (max-height: 620px) {
+  .record-sheet {
+    max-height: 96dvh;
+    scroll-padding-top: 72px;
+  }
+
+  .sheet-handle {
+    margin-bottom: 8px;
   }
 }
 
