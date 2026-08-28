@@ -521,11 +521,11 @@ export default function App() {
             ) : null}
 
             {hasQueueTasks ? (
-              <section className="panel app-panel compact-panel task-queue-panel">
+              <section className="panel app-panel compact-panel task-queue-panel" aria-labelledby="up-next-heading">
                 <div className="task-queue-heading">
                   <div className="section-heading">
                     <p className="eyebrow">UP NEXT</p>
-                    <h2>その次のタスク</h2>
+                    <h2 id="up-next-heading">その次のタスク</h2>
                   </div>
                   <span className="task-queue-count">
                     {filteredQueueTasks.length > QUEUE_PAGE_SIZE
@@ -633,20 +633,20 @@ export default function App() {
         ) : null}
 
         {activeTab === 'ash' ? (
-          <section className="panel app-panel">
+          <section className="panel app-panel" aria-labelledby="ash-screen-heading">
             <div className="section-heading ash-screen-heading">
               <p className="eyebrow">ASH ARCHIVE</p>
-              <h2>炭の記録</h2>
+              <h2 id="ash-screen-heading">炭の記録</h2>
             </div>
             <AshLegacy seeds={burnedTasks} onDelete={requestDelete} />
           </section>
         ) : null}
 
         {activeTab === 'info' ? (
-          <section className="panel app-panel settings-panel">
+          <section className="panel app-panel settings-panel" aria-labelledby="settings-screen-heading">
             <div className="section-heading">
               <p className="eyebrow">SETTINGS</p>
-              <h2>設定</h2>
+              <h2 id="settings-screen-heading">体験とアプリ設定</h2>
             </div>
             <FireSettingsPanel totalTasks={stats.total} />
           </section>
