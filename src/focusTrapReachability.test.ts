@@ -24,9 +24,9 @@ describe('focus trap reachability', () => {
     expect(trapSource).toContain('const elements = getReachableFocusTargets(container)');
   });
 
-  it('covers the real form shape where closed disclosures precede a disabled submit', () => {
+  it('covers the real form shape where closed disclosures precede a reachable submit', () => {
     expect(formSource).toContain('className="task-tuning-fields"');
     expect(formSource).toContain('className="advanced-fields"');
-    expect(formSource).toContain('type="submit" disabled={!canSubmit}');
+    expect(formSource).toContain('type="submit" disabled={isSubmitting}');
   });
 });

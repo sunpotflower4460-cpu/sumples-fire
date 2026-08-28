@@ -19,6 +19,7 @@ const titleMaxLength = 60;
 const titleCounterThreshold = 45;
 const titleHelperId = 'seed-title-helper';
 const titleErrorId = 'seed-title-error';
+const submitErrorId = 'seed-submit-error';
 
 const levelOptions: { value: FireLevel; label: string; hint: string }[] = [
   { value: 'high', label: '高', hint: '今日・今週中に燃やす' },
@@ -49,16 +50,17 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const [hasAdjustedTuning, setHasAdjustedTuning] = useState(initialDraft.hasAdjustedTuning);
   const [isTuningOpen, setIsTuningOpen] = useState(restoredTuningDisclosure);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(restoredAdvancedDisclosure);
-  const [error, setError] = useState('');
+  const [titleError, setTitleError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null);
   const submitLockRef = useRef(false);
 
   const quadrant = getQuadrant(urgency, importance);
-  const canSubmit = title.trim().length > 0 && !isSubmitting;
   const titleRemaining = titleMaxLength - title.length;
   const showTitleCounter = title.length >= titleCounterThreshold;
-  const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
+  const titleDescribedBy = titleError ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
   const tuningSummary = `${quadrantLabels[quadrant]} ・ ${difficultyLabels[difficulty]}`;
   const hasAdvancedContent = body.trim().length > 0 || category !== 'task';
   const advancedSummary = body.trim().length > 0
@@ -86,9 +88,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     event.preventDefault();
 
     if (submitLockRef.current) return;
+    setSubmitError('');
 
     if (!title.trim()) {
-      setError('まずはタスク名だけ入力してください');
+      setTitleError('タスク名を入力してください');
       window.setTimeout(() => titleInputRef.current?.focus(), 0);
       return;
     }
@@ -117,12 +120,13 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       setUrgency('high');
       setImportance('high');
       setHasAdjustedTuning(false);
-      setError('');
+      setTitleError('');
+      setSubmitError('');
     } catch {
       submitLockRef.current = false;
       setIsSubmitting(false);
-      setError('追加できませんでした。もう一度お試しください');
-      window.setTimeout(() => titleInputRef.current?.focus(), 0);
+      setSubmitError('追加できませんでした。内容は残っています。もう一度お試しください');
+      window.setTimeout(() => submitButtonRef.current?.focus(), 0);
     }
   };
 
@@ -138,16 +142,17 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           value={title}
           onChange={(event) => {
             setTitle(event.target.value);
-            setError('');
+            setTitleError('');
           }}
           placeholder="例：先延ばししていた返信をする"
           maxLength={titleMaxLength}
           enterKeyHint="done"
           autoFocus
           required
-          aria-invalid={error ? 'true' : undefined}
+          aria-invalid={titleError ? 'true' : undefined}
           aria-describedby={titleDescribedBy}
         />
+        {titleError ? <p id={titleErrorId} className="form-error" role="alert">{titleError}</p> : null}
         {showTitleCounter ? (
           <div className="field-meta form-primary-meta">
             <span
@@ -298,10 +303,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         </div>
       </details>
 
-      {error ? <p id={titleErrorId} className="form-error" role="alert">{error}</p> : null}
+      {submitError ? <p id={submitErrorId} className="form-error form-submit-error" role="alert">{submitError}</p> : null}
 
       <div className="submit-row form-sticky-submit">
-        <button className="primary-button" type="submit" disabled={!canSubmit}>
+        <button ref={submitButtonRef} className="primary-button" type="submit" disabled={isSubmitting} aria-describedby={submitError ? submitErrorId : undefined}>
           {isSubmitting ? '追加中…' : 'タスクを薪にする'}
         </button>
       </div>
