@@ -8,9 +8,17 @@ type FireDeleteModalProps = {
   onCancel: () => void;
 };
 
+const focusAfterDelete = () => {
+  const fallback = document.querySelector<HTMLElement>(
+    '.focus-seed .fire-button, .all-clear-card .primary-button, .floating-action, .tab-button[aria-current="page"]',
+  );
+  fallback?.focus({ preventScroll: true });
+};
+
 export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalProps) {
   const dialogRef = useFocusTrap<HTMLDivElement>(true);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const shouldRestorePreviousFocusRef = useRef(true);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const isAshRecord = seed.burned;
 
@@ -27,9 +35,20 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.setTimeout(() => previousFocusRef.current?.focus(), 0);
+      if (!shouldRestorePreviousFocusRef.current) return;
+      window.setTimeout(() => {
+        if (previousFocusRef.current?.isConnected) {
+          previousFocusRef.current.focus({ preventScroll: true });
+        }
+      }, 0);
     };
   }, [onCancel]);
+
+  const handleConfirm = () => {
+    shouldRestorePreviousFocusRef.current = false;
+    onConfirm();
+    window.setTimeout(focusAfterDelete, 0);
+  };
 
   return (
     <div className="fire-delete-backdrop" role="presentation" onClick={onCancel}>
@@ -64,7 +83,7 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
           <button ref={cancelRef} className="fire-delete-cancel" type="button" onClick={onCancel}>
             {isAshRecord ? '記録を残す' : '残しておく'}
           </button>
-          <button className="fire-delete-confirm" type="button" onClick={onConfirm}>
+          <button className="fire-delete-confirm" type="button" onClick={handleConfirm}>
             {isAshRecord ? '炭ごと削除' : '削除する'}
           </button>
         </div>
