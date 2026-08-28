@@ -1,5 +1,5 @@
 import type { FireSeed } from '../types/fireSeed';
-import { categoryLabels, difficultyLabels, levelLabels, priorityLabels, quadrantLabels, stageLabels } from '../types/fireSeed';
+import { categoryLabels, difficultyLabels, quadrantLabels } from '../types/fireSeed';
 
 type FireCardProps = {
   seed: FireSeed;
@@ -44,7 +44,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
           <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
           <h3>{seed.title}</h3>
         </div>
-        <span className={`priority priority-${seed.priority}`}>{seed.burned ? `+${seed.ashPoints} 炭` : priorityLabels[seed.priority]}</span>
+        {seed.burned ? <span className="priority">+{seed.ashPoints} 炭</span> : null}
       </div>
 
       {seed.nextAction && !seed.burned ? (
@@ -62,19 +62,11 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
         </div>
       ) : null}
 
-      {(seed.body || !seed.burned) ? (
+      {seed.body ? (
         <details className="card-details">
-          <summary>{seed.body ? 'メモと詳細' : '詳細'}</summary>
+          <summary>メモを見る</summary>
           <div className="card-details-body">
-            {seed.body ? <p className="card-body">{seed.body}</p> : null}
-            {!seed.burned ? (
-              <dl className="card-detail-list">
-                <div><dt>緊急度</dt><dd>{levelLabels[seed.urgency]}</dd></div>
-                <div><dt>重要度</dt><dd>{levelLabels[seed.importance]}</dd></div>
-                <div><dt>状態</dt><dd>{stageLabels[seed.stage]}</dd></div>
-                <div><dt>優先度</dt><dd>{priorityLabels[seed.priority]}</dd></div>
-              </dl>
-            ) : null}
+            <p className="card-body">{seed.body}</p>
           </div>
         </details>
       ) : null}

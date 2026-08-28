@@ -5,7 +5,6 @@ import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
 import { FireConfirmModal } from './components/FireConfirmModal';
 import { FireDeleteModal } from './components/FireDeleteModal';
-import { FireFilters, type TodayFireFilter } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
 import { FireSettingsPanel } from './components/FireSettingsPanel';
 import { FireStats } from './components/FireStats';
@@ -13,7 +12,7 @@ import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import { getStreakState } from './lib/fireStreak';
 import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fireSeed';
-import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
+import { difficultyLabels, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
 
@@ -101,11 +100,8 @@ export default function App() {
     burnTask,
     burningSpectacle,
     deleteSeed,
-    filter,
-    filteredSeeds,
     focusSeed,
     notice,
-    setFilter,
     stats,
     streakData,
   } = useFireSeeds();
@@ -184,7 +180,6 @@ export default function App() {
   };
 
   const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
-    setFilter('active');
     setQuadrantFilter((current) => (current === key ? null : key));
     window.setTimeout(() => {
       document.querySelector('.cards-stack')?.scrollIntoView({
@@ -210,18 +205,13 @@ export default function App() {
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
   const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
-  const hasPendingTasks = allSeeds.some((seed) => !seed.burned);
+  const pendingTasks = useMemo(() => allSeeds.filter((seed) => !seed.burned), [allSeeds]);
+  const hasPendingTasks = pendingTasks.length > 0;
   const streakState = getStreakState(streakData.currentStreak);
-  const todayFilter: TodayFireFilter = filter === 'today' ? 'today' : 'active';
-  const visibleTasks = useMemo(() => {
-    const base = filteredSeeds.filter((seed) => !seed.burned);
-    return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
-  }, [filteredSeeds, quadrantFilter]);
-  const counts = useMemo(() => {
-    const active = allSeeds.filter((seed) => !seed.burned).length;
-    const today = allSeeds.filter((seed) => !seed.burned && seed.quadrant === 'doNow').length;
-    return { active, today };
-  }, [allSeeds]);
+  const visibleTasks = useMemo(
+    () => (quadrantFilter ? pendingTasks.filter((seed) => seed.quadrant === quadrantFilter) : pendingTasks),
+    [pendingTasks, quadrantFilter],
+  );
 
   const matrixItems = [
     { key: 'doNow', count: stats.doNow },
@@ -289,12 +279,6 @@ export default function App() {
   }, [burningTask]);
 
   useEffect(() => {
-    if (activeTab !== 'today') return;
-    if (filter === 'active' || filter === 'today') return;
-    setFilter('active');
-  }, [activeTab, filter, setFilter]);
-
-  useEffect(() => {
     if (!isRecordOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
@@ -348,22 +332,18 @@ export default function App() {
                   <span>{quadrantLabels[focusSeed.quadrant]}</span>
                   <span>{difficultyLabels[focusSeed.difficulty]}</span>
                   <span>+{focusSeed.ashPoints}炭</span>
-                  <span>{priorityLabels[focusSeed.priority]}</span>
                 </div>
                 <div className="focus-actions">
-                  <div className="fire-button-wrapper">
-                    <button
-                      ref={focusFireButtonRef}
-                      className="fire-button"
-                      type="button"
-                      onClick={() => requestBurn(focusSeed.id)}
-                      disabled={focusSeed.isBurning}
-                      aria-label={`「${focusSeed.title}」を完了してFire`}
-                    >
-                      {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
-                    </button>
-                    <span className="rank-chip" aria-label={`現在の称号: ${stats.rank}`}>{stats.rank}</span>
-                  </div>
+                  <button
+                    ref={focusFireButtonRef}
+                    className="fire-button"
+                    type="button"
+                    onClick={() => requestBurn(focusSeed.id)}
+                    disabled={focusSeed.isBurning}
+                    aria-label={`「${focusSeed.title}」を完了してFire`}
+                  >
+                    {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
+                  </button>
                   <button className="ghost-button" type="button" onClick={openRecord}>タスクを追加</button>
                 </div>
               </section>
@@ -388,22 +368,34 @@ export default function App() {
             ) : null}
 
             {hasPendingTasks ? (
-              <section className="matrix-summary" aria-label="緊急度重要度マトリクス">
-                {matrixItems.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
-                    aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
-                    aria-pressed={quadrantFilter === item.key}
-                    disabled={item.count === 0 && quadrantFilter !== item.key}
-                    onClick={() => handleMatrixCellClick(item.key)}
-                  >
-                    <span>{quadrantLabels[item.key]}</span>
-                    <strong>{item.count}</strong>
-                    <p>{quadrantDescriptions[item.key]}</p>
-                  </button>
-                ))}
+              <section className="matrix-filter-shell" aria-label="4象限でタスクを絞り込む">
+                <div className="matrix-filter-heading">
+                  <div>
+                    <span>4象限</span>
+                    <small>{quadrantFilter ? `${quadrantLabels[quadrantFilter]}を表示中` : '必要な時だけ絞り込む'}</small>
+                  </div>
+                  {quadrantFilter ? (
+                    <button type="button" className="matrix-reset-button" onClick={() => setQuadrantFilter(null)}>
+                      すべて
+                    </button>
+                  ) : null}
+                </div>
+                <div className="matrix-summary">
+                  {matrixItems.map((item) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
+                      aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
+                      aria-pressed={quadrantFilter === item.key}
+                      disabled={item.count === 0 && quadrantFilter !== item.key}
+                      onClick={() => handleMatrixCellClick(item.key)}
+                    >
+                      <span>{quadrantLabels[item.key]}</span>
+                      <strong>{item.count}</strong>
+                    </button>
+                  ))}
+                </div>
               </section>
             ) : null}
 
@@ -416,24 +408,17 @@ export default function App() {
                   </div>
                   <span className="task-queue-count">{visibleTasks.length}件</span>
                 </div>
-                <FireFilters filter={todayFilter} counts={counts} onChangeFilter={(nextFilter) => { setFilter(nextFilter); setQuadrantFilter(null); }} />
-                {quadrantFilter ? (
-                  <div className="quadrant-filter-bar">
-                    <span>{quadrantLabels[quadrantFilter]}のみ表示中</span>
-                    <button type="button" className="ghost-button" onClick={() => setQuadrantFilter(null)}>クリア</button>
-                  </div>
-                ) : null}
                 <div className="cards-stack">
                   {visibleTasks.length > 0 ? (
                     visibleTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={requestBurn} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
                   ) : (
                     <div className="empty-state useful-empty">
-                      <div className="empty-state-icon" aria-hidden="true">🪵</div>
+                      <div className="empty-state-icon" aria-hidden="true" />
                       <div className="useful-empty-header">
-                        <p>この条件のタスクはありません</p>
-                        <span>絞り込みを解除すると、未燃焼タスクをすべて表示できます。</span>
+                        <p>この象限のタスクはありません</p>
+                        <span>4象限の絞り込みを解除すると、未燃焼タスクをすべて表示できます。</span>
                       </div>
-                      <button className="primary-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>
+                      <button className="primary-button" type="button" onClick={() => setQuadrantFilter(null)}>
                         未燃焼をすべて表示
                       </button>
                     </div>
@@ -485,7 +470,7 @@ export default function App() {
         ) : null}
       </section>
 
-      <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く">＋</button>
+      <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く" />
 
       <nav className="bottom-tabs" aria-label="アプリの画面切り替え">
         {tabs.map((tab) => (
@@ -512,7 +497,7 @@ export default function App() {
                   <p className="eyebrow">薪をくべる</p>
                   <h2 id="record-title">燃やしたいタスクを書く</h2>
                 </div>
-                <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる">×</button>
+                <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる" />
               </div>
             </div>
             <FireForm defaultTitle={draftTitle} onAddSeed={handleAddSeed} onClearDefaultTitle={() => setDraftTitle('')} />

@@ -12,6 +12,24 @@ function DisclosureGlyph() {
   );
 }
 
+function LinkGlyph() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+
 export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
   return (
     <div className="settings-hub">
@@ -76,14 +94,14 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
             <strong>プライバシーポリシー</strong>
             <small>データの取り扱いを確認</small>
           </span>
-          <span aria-hidden="true">›</span>
+          <span className="settings-link-glyph" aria-hidden="true"><LinkGlyph /></span>
         </a>
         <a href="/support.html">
           <span>
             <strong>サポート情報</strong>
             <small>困った時の案内を見る</small>
           </span>
-          <span aria-hidden="true">›</span>
+          <span className="settings-link-glyph" aria-hidden="true"><LinkGlyph /></span>
         </a>
       </nav>
     </div>
