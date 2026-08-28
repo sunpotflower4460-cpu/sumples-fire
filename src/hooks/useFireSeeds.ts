@@ -36,6 +36,7 @@ export function useFireSeeds() {
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
   const calendarDayKeyRef = useRef(getLocalDayKey());
+  const hasCompletedInitialSeedLoadRef = useRef(false);
   const [calendarRevision, setCalendarRevision] = useState(0);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [notice, setNotice] = useState('');
@@ -44,6 +45,11 @@ export function useFireSeeds() {
   const [undoBurnSnapshot, setUndoBurnSnapshot] = useState<FireBurnUndoSnapshot | null>(null);
 
   useEffect(() => {
+    if (!hasCompletedInitialSeedLoadRef.current) {
+      hasCompletedInitialSeedLoadRef.current = true;
+      return;
+    }
+
     const persistedSeeds = seeds.map((seed) => ({ ...seed, isBurning: false }));
     const saved = saveStoredSeeds(storageDriverRef.current, persistedSeeds);
     if (!saved) {
@@ -159,8 +165,16 @@ export function useFireSeeds() {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
+    const nextSeeds = sortFireTasks([nextSeed, ...seeds]);
 
-    setSeeds((current) => sortFireTasks([nextSeed, ...current]));
+    // Creation is only successful once the exact next state is durable. The
+    // FireForm already catches this error and keeps the user's draft visible,
+    // so a blocked storage environment can never look like a successful add.
+    if (!saveStoredSeeds(storageDriverRef.current, nextSeeds)) {
+      throw new Error('seed-persistence-failed');
+    }
+
+    setSeeds(nextSeeds);
     setNotice('薪を追加しました');
     return id;
   };
