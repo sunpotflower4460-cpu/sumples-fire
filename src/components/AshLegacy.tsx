@@ -17,6 +17,10 @@ const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
 const MAX_MOSAIC_TILES = 80;
 const RECENT_RECORD_COUNT = 12;
 
+const getBurnTimestamp = (seed: FireSeed) => (
+  new Date(seed.burnedAt ?? seed.updatedAt ?? seed.createdAt).getTime()
+);
+
 function DeleteGlyph() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -32,11 +36,15 @@ function DeleteGlyph() {
 export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
   const [showAllRecords, setShowAllRecords] = useState(false);
   const totalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
-  const mosaicTiles = seeds.slice(-MAX_MOSAIC_TILES);
-  const newestId = seeds[seeds.length - 1]?.id;
-  const reversedSeeds = useMemo(() => [...seeds].reverse(), [seeds]);
-  const visibleRecords = showAllRecords ? reversedSeeds : reversedSeeds.slice(0, RECENT_RECORD_COUNT);
-  const olderRecordCount = Math.max(0, reversedSeeds.length - RECENT_RECORD_COUNT);
+  const chronologicalSeeds = useMemo(
+    () => [...seeds].sort((left, right) => getBurnTimestamp(left) - getBurnTimestamp(right)),
+    [seeds],
+  );
+  const newestFirstSeeds = useMemo(() => [...chronologicalSeeds].reverse(), [chronologicalSeeds]);
+  const mosaicTiles = chronologicalSeeds.slice(-MAX_MOSAIC_TILES);
+  const newestId = chronologicalSeeds[chronologicalSeeds.length - 1]?.id;
+  const visibleRecords = showAllRecords ? newestFirstSeeds : newestFirstSeeds.slice(0, RECENT_RECORD_COUNT);
+  const olderRecordCount = Math.max(0, newestFirstSeeds.length - RECENT_RECORD_COUNT);
 
   return (
     <div className="ash-legacy-panel">
