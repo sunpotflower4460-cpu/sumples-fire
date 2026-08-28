@@ -16,7 +16,7 @@ const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
 });
 
 const MAX_MOSAIC_TILES = 80;
-const RECENT_RECORD_COUNT = 12;
+const RECORD_PAGE_SIZE = 12;
 
 function DeleteGlyph() {
   return (
@@ -31,14 +31,23 @@ function DeleteGlyph() {
 }
 
 export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
-  const [showAllRecords, setShowAllRecords] = useState(false);
+  const [visibleRecordCount, setVisibleRecordCount] = useState(RECORD_PAGE_SIZE);
   const totalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
   const chronologicalSeeds = useMemo(() => sortAshRecordsOldestFirst(seeds), [seeds]);
   const newestFirstSeeds = useMemo(() => [...chronologicalSeeds].reverse(), [chronologicalSeeds]);
   const mosaicTiles = chronologicalSeeds.slice(-MAX_MOSAIC_TILES);
   const newestId = chronologicalSeeds[chronologicalSeeds.length - 1]?.id;
-  const visibleRecords = showAllRecords ? newestFirstSeeds : newestFirstSeeds.slice(0, RECENT_RECORD_COUNT);
-  const olderRecordCount = Math.max(0, newestFirstSeeds.length - RECENT_RECORD_COUNT);
+  const visibleRecords = newestFirstSeeds.slice(0, visibleRecordCount);
+  const remainingRecordCount = Math.max(0, newestFirstSeeds.length - visibleRecords.length);
+  const hasExpandedRecords = visibleRecordCount > RECORD_PAGE_SIZE;
+
+  const handleRecordPage = () => {
+    if (remainingRecordCount > 0) {
+      setVisibleRecordCount((current) => Math.min(current + RECORD_PAGE_SIZE, newestFirstSeeds.length));
+      return;
+    }
+    setVisibleRecordCount(RECORD_PAGE_SIZE);
+  };
 
   if (seeds.length === 0) {
     return (
@@ -84,9 +93,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
             <p className="eyebrow">BURN HISTORY</p>
             <h3 id="ash-records-heading">燃やした記録</h3>
           </div>
-          <span aria-hidden="true">
-            {showAllRecords ? `${visibleRecords.length}件` : `最新${Math.min(RECENT_RECORD_COUNT, visibleRecords.length)}件`}
-          </span>
+          <span aria-hidden="true">{visibleRecords.length} / {newestFirstSeeds.length}件</span>
         </div>
 
         <div id="ash-records-list" className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
@@ -101,7 +108,9 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
                   <div className="ash-record-meta">
                     <span className="ash-record-points">+{seed.ashPoints}炭</span>
                     <span className="ash-record-difficulty">{difficultyLabels[seed.difficulty]}</span>
-                    {burnedDate ? <span className="ash-record-date">{burnedDate}</span> : null}
+                    {seed.burnedAt && burnedDate ? (
+                      <time className="ash-record-date" dateTime={seed.burnedAt}>{burnedDate}</time>
+                    ) : null}
                   </div>
                 </div>
                 <button
@@ -117,17 +126,17 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
           })}
         </div>
 
-        {olderRecordCount > 0 ? (
+        {newestFirstSeeds.length > RECORD_PAGE_SIZE ? (
           <button
             type="button"
             className="ash-records-toggle"
-            aria-expanded={showAllRecords}
+            aria-expanded={hasExpandedRecords}
             aria-controls="ash-records-list"
-            onClick={() => setShowAllRecords((current) => !current)}
+            onClick={handleRecordPage}
           >
-            {showAllRecords
-              ? `最近の${RECENT_RECORD_COUNT}件に戻す`
-              : `過去の記録をさらに見る（${olderRecordCount}件）`}
+            {remainingRecordCount > 0
+              ? `次の${Math.min(RECORD_PAGE_SIZE, remainingRecordCount)}件を見る（残り${remainingRecordCount}件）`
+              : `最新${RECORD_PAGE_SIZE}件に戻す`}
           </button>
         ) : null}
       </section>
