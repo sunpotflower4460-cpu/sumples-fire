@@ -17,9 +17,10 @@ describe('app flow UX contracts', () => {
     expect(appSource).toContain('burningTask !== null');
   });
 
-  it('keeps all-clear and next-fire states mutually exclusive', () => {
+  it('keeps all-clear and actionable queue states mutually exclusive', () => {
     expect(appSource).toContain('hasTasks && !hasPendingTasks');
-    expect(appSource).toContain("{hasPendingTasks ? (\n              <section className=\"panel app-panel compact-panel\">");
+    expect(appSource).toContain('{hasQueueTasks ? (');
+    expect(appSource).toContain('className="panel app-panel compact-panel task-queue-panel"');
   });
 
   it('lets the matrix filter toggle off and removes hidden recommendation noise', () => {
