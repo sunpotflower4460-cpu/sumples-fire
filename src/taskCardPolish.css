@@ -1,0 +1,179 @@
+/* Fire Task — task card density pass */
+
+.fire-card .card-header {
+  align-items: flex-start;
+}
+
+.fire-card .card-header .eyebrow {
+  margin-bottom: 5px;
+}
+
+.card-quick-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.card-quick-meta span {
+  padding: 5px 8px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 999px;
+  background: rgba(92, 60, 46, 0.04);
+  color: #6f5a50;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.card-details {
+  margin-top: 12px;
+  border-top: 1px solid var(--wc-hairline);
+}
+
+.card-details > summary {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 1px 7px;
+  color: var(--wc-muted);
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.card-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.card-details > summary::after {
+  content: '＋';
+  color: #9a7767;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.card-details[open] > summary::after {
+  content: '−';
+}
+
+.card-details-body {
+  display: grid;
+  gap: 12px;
+  padding: 5px 0 11px;
+}
+
+.card-details .card-body {
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: 13px;
+  background: rgba(92, 60, 46, 0.04);
+  color: #5f4c43;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.card-detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+
+.card-detail-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 11px;
+  background: rgba(92, 60, 46, 0.035);
+}
+
+.card-detail-list dt,
+.card-detail-list dd {
+  margin: 0;
+}
+
+.card-detail-list dt {
+  color: var(--wc-muted);
+  font-size: 0.69rem;
+  font-weight: 700;
+}
+
+.card-detail-list dd {
+  color: var(--wc-ink);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.card-delete-button {
+  display: grid;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  place-items: center;
+  padding: 0;
+  border-radius: 13px;
+}
+
+.card-delete-button svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fire-card .card-footer {
+  align-items: center;
+}
+
+.fire-card .card-actions {
+  flex-wrap: nowrap;
+}
+
+.fire-card .card-actions .fire-button {
+  min-height: 42px;
+  padding-inline: 15px;
+}
+
+@media (max-width: 420px) {
+  .fire-card .card-footer {
+    align-items: flex-end;
+  }
+}
+
+@media (max-width: 360px) {
+  .card-detail-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card-details > summary,
+  .card-detail-list dt {
+    color: rgba(255, 239, 227, 0.58);
+  }
+
+  .card-quick-meta span,
+  .card-detail-list > div,
+  .card-details .card-body {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(255, 238, 224, 0.045);
+  }
+
+  .card-quick-meta span,
+  .card-details .card-body {
+    color: rgba(255, 239, 227, 0.72);
+  }
+
+  .card-detail-list dd {
+    color: #fff2e8;
+  }
+}
