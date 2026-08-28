@@ -113,10 +113,7 @@ export function useFireSeeds() {
 
   const deleteSeed = (id: string) => {
     const target = seeds.find((seed) => seed.id === id);
-    if (!target) return;
-
-    const confirmed = window.confirm(`このタスクを削除しますか？\n\n「${target.title}」\n\n削除すると元に戻せません。`);
-    if (!confirmed) return;
+    if (!target || target.isBurning) return;
 
     setSeeds((current) => current.filter((seed) => seed.id !== id));
     setNotice('削除しました');
