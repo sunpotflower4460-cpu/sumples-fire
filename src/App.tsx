@@ -199,8 +199,8 @@ export default function App() {
   };
 
   const handleAddSeed = (input: NewFireSeedInput) => {
-    lastCompletedBurnOriginRef.current = null;
     const id = addSeed(input);
+    lastCompletedBurnOriginRef.current = null;
     closeRecordAfterSubmit();
     navigateToTab('today', true);
     setQuadrantFilter(null);
@@ -238,7 +238,8 @@ export default function App() {
   const handleUndoBurn = () => {
     const completedOrigin = lastCompletedBurnOriginRef.current;
     const restoredTaskId = undoBurnCandidate?.id;
-    undoLastBurn();
+    const didUndo = undoLastBurn();
+    if (!didUndo) return;
     lastCompletedBurnOriginRef.current = null;
 
     if (completedOrigin?.kind === 'queue' && restoredTaskId) {
@@ -280,9 +281,11 @@ export default function App() {
   const handleConfirmDelete = () => {
     if (!pendingDeleteSeed) return;
     const id = pendingDeleteSeed.id;
+    const didDelete = deleteSeed(id);
     setPendingDeleteSeed(null);
-    lastCompletedBurnOriginRef.current = null;
-    deleteSeed(id);
+    if (didDelete) {
+      lastCompletedBurnOriginRef.current = null;
+    }
   };
 
   const handleCancelDelete = () => {
