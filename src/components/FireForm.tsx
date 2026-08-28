@@ -40,6 +40,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const [difficulty, setDifficulty] = useState<FireDifficulty>('normal');
   const [urgency, setUrgency] = useState<FireLevel>('high');
   const [importance, setImportance] = useState<FireLevel>('high');
+  const [hasAdjustedTuning, setHasAdjustedTuning] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -49,6 +50,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
   const canSubmit = title.trim().length > 0 && !isSubmitting;
   const titleCounter = useMemo(() => `${title.length} / ${titleMaxLength}`, [title.length]);
   const titleDescribedBy = error ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
+  const tuningSummary = `${quadrantLabels[quadrant]} ・ ${difficultyLabels[difficulty]}`;
 
   useEffect(() => {
     if (!defaultTitle) return;
@@ -90,6 +92,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
       setDifficulty('normal');
       setUrgency('high');
       setImportance('high');
+      setHasAdjustedTuning(false);
       setError('');
     } catch {
       submitLockRef.current = false;
@@ -140,12 +143,16 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         <summary>
           <span className="task-tuning-summary-copy">
             <strong>優先度と重さ</strong>
-            <small>{quadrantLabels[quadrant]} ・ {difficultyLabels[difficulty]}</small>
+            <small>{hasAdjustedTuning ? '設定' : '初期値'}: {tuningSummary}</small>
           </span>
           <span className="task-tuning-summary-action">必要なら調整</span>
         </summary>
 
         <div className="task-tuning-body">
+          <p className="task-tuning-default-note">
+            初期値は「緊急 高・重要 高・普通」です。タイトルから自動判定しているわけではありません。
+          </p>
+
           <section className="fast-matrix-picker" aria-label="タスクの優先度">
             <fieldset className="choice-section choice-fieldset">
               <legend>緊急度</legend>
@@ -155,7 +162,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
                     key={option.value}
                     type="button"
                     className={urgency === option.value ? 'choice-button is-selected' : 'choice-button'}
-                    onClick={() => setUrgency(option.value)}
+                    onClick={() => {
+                      setUrgency(option.value);
+                      setHasAdjustedTuning(true);
+                    }}
                     aria-pressed={urgency === option.value}
                   >
                     <b>{levelLabels[option.value]}</b>
@@ -173,7 +183,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
                     key={option.value}
                     type="button"
                     className={importance === option.value ? 'choice-button is-selected' : 'choice-button'}
-                    onClick={() => setImportance(option.value)}
+                    onClick={() => {
+                      setImportance(option.value);
+                      setHasAdjustedTuning(true);
+                    }}
                     aria-pressed={importance === option.value}
                   >
                     <b>{levelLabels[option.value]}</b>
@@ -184,7 +197,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
             </fieldset>
 
             <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite" aria-atomic="true">
-              <span>自動分類</span>
+              <span>4象限の結果</span>
               <strong>{quadrantLabels[quadrant]}</strong>
               <p>{quadrantShortDescriptions[quadrant]}</p>
             </div>
@@ -198,7 +211,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
                   key={option.value}
                   type="button"
                   className={difficulty === option.value ? 'choice-button is-selected' : 'choice-button'}
-                  onClick={() => setDifficulty(option.value)}
+                  onClick={() => {
+                    setDifficulty(option.value);
+                    setHasAdjustedTuning(true);
+                  }}
                   aria-pressed={difficulty === option.value}
                 >
                   <b>{difficultyLabels[option.value]}</b>
