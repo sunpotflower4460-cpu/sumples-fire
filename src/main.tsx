@@ -21,6 +21,7 @@ import './nativeFinishPolish.css';
 import './ritualFlowPolish.css';
 import './flowContinuityPolish.css';
 import './archiveScalePolish.css';
+import './settingsHierarchyPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(

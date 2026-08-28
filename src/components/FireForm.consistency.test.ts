@@ -12,9 +12,11 @@ describe('FireForm creation consistency', () => {
     expect(source).not.toContain('setStage');
   });
 
-  it('derives priority and always creates an unburned spark state', () => {
-    expect(source).toContain('derivePriority(urgency, importance)');
-    expect(source).toContain("stage: 'spark'");
+  it('uses the shared creation contract instead of rebuilding derived metadata in the form', () => {
+    expect(source).toContain('NewFireSeedInput');
+    expect(source).not.toContain('derivePriority(urgency, importance)');
+    expect(source).not.toContain("stage: 'spark'");
+    expect(source).not.toContain('priority,');
     expect(source).toContain('<summary>メモ・カテゴリ</summary>');
   });
 });

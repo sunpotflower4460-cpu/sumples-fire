@@ -3,31 +3,19 @@ import { BurningRitual } from './components/BurningRitual';
 import { AshLegacy } from './components/AshLegacy';
 import { FireCard } from './components/FireCard';
 import { FireCampfire } from './components/FireCampfire';
-import { FireComfortSettings } from './components/FireComfortSettings';
 import { FireConfirmModal } from './components/FireConfirmModal';
 import { FireDeleteModal } from './components/FireDeleteModal';
 import { FireFilters, type TodayFireFilter } from './components/FireFilters';
 import { FireForm } from './components/FireForm';
+import { FireSettingsPanel } from './components/FireSettingsPanel';
 import { FireStats } from './components/FireStats';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import { getStreakState } from './lib/fireStreak';
-import type { FireCategory, FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireSeed, FireStage } from './types/fireSeed';
+import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fireSeed';
 import { difficultyLabels, priorityLabels, quadrantDescriptions, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
-
-type NewFireSeedInput = {
-  title: string;
-  body: string;
-  nextAction: string;
-  category: FireCategory;
-  priority: FirePriority;
-  stage: FireStage;
-  difficulty: FireDifficulty;
-  urgency: FireLevel;
-  importance: FireLevel;
-};
 
 const tabs: { id: AppTab; label: string }[] = [
   { id: 'today', label: '今日' },
@@ -488,36 +476,11 @@ export default function App() {
         {activeTab === 'info' ? (
           <section className="panel app-panel settings-panel">
             <div className="section-heading">
-              <p className="eyebrow">SETTINGS & GUIDE</p>
-              <h2>設定と使い方</h2>
+              <p className="eyebrow">SETTINGS</p>
+              <h2>設定</h2>
+              <p className="settings-screen-intro">毎回触るものを手前に、説明は必要な時だけ開けるように整理しています。</p>
             </div>
-            <div className="settings-list">
-              <FireComfortSettings totalTasks={stats.total} />
-              <article>
-                <span>1. タスクを書く</span>
-                <p>やりたくないこと、先延ばししていることを短く書きます。</p>
-              </article>
-              <article>
-                <span>2. 緊急度と重要度を決める</span>
-                <p>高低を選ぶだけで、Fire Taskが4象限に自動分類して並べます。</p>
-              </article>
-              <article>
-                <span>3. Fireする</span>
-                <p>終わったらFireボタンを押します。タスクは炭になり、炭ポイントが増えます。</p>
-              </article>
-              <article>
-                <span>保存について</span>
-                <p>タスクはこの端末内に保存されます。アカウント登録は不要です。アプリを閉じて開き直してもタスクは残ります。</p>
-              </article>
-              <article>
-                <span>プライバシーについて</span>
-                <p>入力したタスクはこの端末内だけで扱われ、運営者のサーバーへ送信する機能はありません。くわしくはプライバシーポリシーをご確認ください。</p>
-              </article>
-              <article>
-                <span>公開情報</span>
-                <p><a href="/privacy.html">プライバシーポリシー</a> / <a href="/support.html">サポート情報</a></p>
-              </article>
-            </div>
+            <FireSettingsPanel totalTasks={stats.total} />
           </section>
         ) : null}
       </section>
