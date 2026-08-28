@@ -1,0 +1,92 @@
+/*
+ * Fire Task — reversible action polish pass 12
+ * Completion is fast and optimistic; destructive deletion remains confirmed.
+ */
+
+.toast.toast-action {
+  display: flex;
+  width: min(calc(100% - 32px), 430px);
+  max-width: 430px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 18px;
+}
+
+.toast-action-message {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff7f0;
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toast-undo-button {
+  min-width: 88px;
+  min-height: 44px;
+  flex: none;
+  padding: 8px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffd6bf;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.toast-undo-button:focus-visible {
+  outline-color: #ffd0b5;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .toast-undo-button:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff7f0;
+  }
+}
+
+@media (max-width: 360px) {
+  .toast.toast-action {
+    gap: 8px;
+    padding-left: 12px;
+  }
+
+  .toast-action-message {
+    font-size: 0.76rem;
+  }
+
+  .toast-undo-button {
+    min-width: 80px;
+    padding-inline: 10px;
+  }
+}
+
+@media (forced-colors: active) {
+  .toast.toast-action {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .toast-action-message,
+  .toast-undo-button {
+    color: CanvasText;
+  }
+
+  .toast-undo-button {
+    border-color: CanvasText;
+    background: ButtonFace;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast.toast-action {
+    animation: none !important;
+  }
+}
