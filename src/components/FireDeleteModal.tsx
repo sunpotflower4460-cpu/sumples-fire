@@ -118,7 +118,7 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="fire-delete-title"
-        aria-describedby="fire-delete-description"
+        aria-describedby="fire-delete-seed fire-delete-description"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="fire-delete-icon" aria-hidden="true">
@@ -133,12 +133,12 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
         <h2 id="fire-delete-title" className="fire-delete-heading">
           {isAshRecord ? 'この炭の記録を削除しますか？' : 'このタスクを削除しますか？'}
         </h2>
+        <p id="fire-delete-seed" className="fire-delete-seed">{seed.title}</p>
         <p id="fire-delete-description" className="fire-delete-copy">
           {isAshRecord
             ? `削除すると${seed.ashPoints}炭が合計から減り、称号の進捗にも反映されます。連続Fireの記録は変わりません。`
             : '削除すると元に戻せません。迷う場合は、そのまま残しておけます。'}
         </p>
-        <p className="fire-delete-seed">{seed.title}</p>
         <div className="fire-delete-actions">
           <button ref={cancelRef} className="fire-delete-cancel" type="button" onClick={onCancel}>
             {isAshRecord ? '記録を残す' : '残しておく'}
