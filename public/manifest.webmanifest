@@ -4,8 +4,8 @@
   "description": "やりたくないタスクを、終わったらFireして炭ポイントに変えるタスクアプリ",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fff7ea",
-  "theme_color": "#f26f2f",
+  "background_color": "#f7f2eb",
+  "theme_color": "#241711",
   "orientation": "portrait",
   "icons": [
     {
