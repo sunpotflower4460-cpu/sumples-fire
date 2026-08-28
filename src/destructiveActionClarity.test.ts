@@ -15,6 +15,13 @@ describe('destructive action clarity', () => {
     expect(modalSource).toContain("isAshRecord ? '炭ごと削除' : '削除する'");
   });
 
+  it('announces the exact delete target before its consequences', () => {
+    expect(modalSource).toContain('aria-describedby="fire-delete-seed fire-delete-description"');
+    expect(modalSource).toContain('<p id="fire-delete-seed" className="fire-delete-seed">{seed.title}</p>');
+    expect(modalSource.indexOf('id="fire-delete-seed"'))
+      .toBeLessThan(modalSource.indexOf('id="fire-delete-description"'));
+  });
+
   it('keeps the streak consequence copy aligned with delete behavior', () => {
     const deleteStart = hookSource.indexOf('const deleteSeed =');
     const focusStart = hookSource.indexOf('const focusSeed =');
