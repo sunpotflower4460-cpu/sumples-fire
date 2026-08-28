@@ -34,6 +34,11 @@ const difficultyOptions: { value: FireDifficulty; hint: string }[] = [
 
 export function FireForm({ onAddSeed }: FireFormProps) {
   const [initialDraft] = useState(loadFireFormDraft);
+  const restoredTuningDisclosure = initialDraft.hasAdjustedTuning
+    || initialDraft.difficulty !== 'normal'
+    || initialDraft.urgency !== 'high'
+    || initialDraft.importance !== 'high';
+  const restoredAdvancedDisclosure = initialDraft.body.trim().length > 0 || initialDraft.category !== 'task';
   const [title, setTitle] = useState(initialDraft.title);
   const [body, setBody] = useState(initialDraft.body);
   const [nextAction, setNextAction] = useState(initialDraft.nextAction);
@@ -42,6 +47,8 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const [urgency, setUrgency] = useState<FireLevel>(initialDraft.urgency);
   const [importance, setImportance] = useState<FireLevel>(initialDraft.importance);
   const [hasAdjustedTuning, setHasAdjustedTuning] = useState(initialDraft.hasAdjustedTuning);
+  const [isTuningOpen, setIsTuningOpen] = useState(restoredTuningDisclosure);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(restoredAdvancedDisclosure);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -57,11 +64,6 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const advancedSummary = body.trim().length > 0
     ? category !== 'task' ? `メモあり ・ ${categoryLabels[category]}` : 'メモあり'
     : category !== 'task' ? categoryLabels[category] : '任意';
-  const restoredTuningDisclosure = initialDraft.hasAdjustedTuning
-    || initialDraft.difficulty !== 'normal'
-    || initialDraft.urgency !== 'high'
-    || initialDraft.importance !== 'high';
-  const restoredAdvancedDisclosure = initialDraft.body.trim().length > 0 || initialDraft.category !== 'task';
   const restoredDraft = initialDraft.title.trim().length > 0
     || initialDraft.nextAction.trim().length > 0
     || restoredTuningDisclosure
@@ -169,7 +171,11 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         />
       </div>
 
-      <details className="task-tuning-fields" defaultOpen={restoredTuningDisclosure}>
+      <details
+        className="task-tuning-fields"
+        open={isTuningOpen}
+        onToggle={(event) => setIsTuningOpen(event.currentTarget.open)}
+      >
         <summary>
           <span className="task-tuning-summary-copy">
             <strong>優先度と重さ</strong>
@@ -256,7 +262,11 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         </div>
       </details>
 
-      <details className="advanced-fields" defaultOpen={restoredAdvancedDisclosure}>
+      <details
+        className="advanced-fields"
+        open={isAdvancedOpen}
+        onToggle={(event) => setIsAdvancedOpen(event.currentTarget.open)}
+      >
         <summary className="advanced-fields-summary">
           <span>メモ・カテゴリ</span>
           <small className={hasAdvancedContent ? 'has-content' : undefined}>{advancedSummary}</small>
