@@ -43,7 +43,15 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
 
   const handleRecordPage = () => {
     if (remainingRecordCount > 0) {
+      const firstRevealedIndex = visibleRecords.length;
       setVisibleRecordCount((current) => Math.min(current + RECORD_PAGE_SIZE, newestFirstSeeds.length));
+      window.setTimeout(() => {
+        const firstRevealedRecord = document.querySelector<HTMLElement>(
+          `[data-ash-record-index="${firstRevealedIndex}"]`,
+        );
+        firstRevealedRecord?.focus({ preventScroll: true });
+        firstRevealedRecord?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      }, 0);
       return;
     }
     setVisibleRecordCount(RECORD_PAGE_SIZE);
@@ -97,12 +105,18 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
         </div>
 
         <div id="ash-records-list" className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
-          {visibleRecords.map((seed) => {
+          {visibleRecords.map((seed, index) => {
             const burnedDate = seed.burnedAt
               ? dateFormatter.format(new Date(seed.burnedAt))
               : null;
             return (
-              <div key={seed.id} className={`ash-record-card is-${seed.difficulty}`} role="listitem">
+              <div
+                key={seed.id}
+                className={`ash-record-card is-${seed.difficulty}`}
+                role="listitem"
+                tabIndex={-1}
+                data-ash-record-index={index}
+              >
                 <div className="ash-record-main">
                   <p className="ash-record-title">{seed.title}</p>
                   <div className="ash-record-meta">
