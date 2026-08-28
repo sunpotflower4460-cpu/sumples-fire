@@ -112,9 +112,16 @@ export default function App() {
   };
 
   const closeRecord = () => {
+    const previousFocus = previouslyFocusedElementRef.current;
     setIsRecordOpen(false);
     window.setTimeout(() => {
-      (previouslyFocusedElementRef.current ?? floatingActionRef.current)?.focus();
+      const restoreTarget = previousFocus?.isConnected
+        ? previousFocus
+        : focusFireButtonRef.current
+          ?? allClearActionRef.current
+          ?? floatingActionRef.current
+          ?? document.querySelector<HTMLElement>('.tab-button[aria-current="page"]');
+      restoreTarget?.focus({ preventScroll: true });
     }, 0);
   };
 
