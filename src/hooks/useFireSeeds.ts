@@ -27,10 +27,16 @@ const prefersReducedMotion = () => (
   && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 );
 
+const getLocalDayKey = (date = new Date()) => (
+  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+);
+
 export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
+  const calendarDayKeyRef = useRef(getLocalDayKey());
+  const [calendarRevision, setCalendarRevision] = useState(0);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
@@ -60,19 +66,21 @@ export function useFireSeeds() {
     const refreshCalendarState = () => {
       if (document.visibilityState === 'hidden') return;
 
+      const nextDayKey = getLocalDayKey();
+      if (nextDayKey !== calendarDayKeyRef.current) {
+        calendarDayKeyRef.current = nextDayKey;
+        setCalendarRevision((current) => current + 1);
+      }
+
       setStreakData((current) => {
         const effective = getEffectiveFireStreak(current);
         const changed = effective.currentStreak !== current.currentStreak
           || effective.lastBurnDate !== current.lastBurnDate
           || effective.longestStreak !== current.longestStreak;
 
-        if (changed) {
-          saveFireStreak(effective);
-        }
-
-        // Even when the streak remains valid, a fresh object deliberately
-        // re-renders day-dependent UI such as the daily campfire copy.
-        return { ...effective };
+        if (!changed) return current;
+        saveFireStreak(effective);
+        return effective;
       });
     };
 
@@ -228,7 +236,7 @@ export function useFireSeeds() {
   };
 
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
-  const stats = useMemo(() => getFireSeedStats(seeds), [seeds]);
+  const stats = useMemo(() => getFireSeedStats(seeds), [seeds, calendarRevision]);
   const undoBurnCandidate = undoBurnSnapshot
     ? {
         id: undoBurnSnapshot.seed.id,
