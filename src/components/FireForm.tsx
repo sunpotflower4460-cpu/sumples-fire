@@ -41,6 +41,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     || initialDraft.urgency !== 'high'
     || initialDraft.importance !== 'high';
   const restoredAdvancedDisclosure = initialDraft.body.trim().length > 0 || initialDraft.category !== 'task';
+  const restoredDraft = initialDraft.title.trim().length > 0
+    || initialDraft.nextAction.trim().length > 0
+    || restoredTuningDisclosure
+    || restoredAdvancedDisclosure;
   const [title, setTitle] = useState(initialDraft.title);
   const [body, setBody] = useState(initialDraft.body);
   const [nextAction, setNextAction] = useState(initialDraft.nextAction);
@@ -51,6 +55,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const [hasAdjustedTuning, setHasAdjustedTuning] = useState(initialDraft.hasAdjustedTuning);
   const [isTuningOpen, setIsTuningOpen] = useState(restoredTuningDisclosure);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(restoredAdvancedDisclosure);
+  const [showRestoredCue, setShowRestoredCue] = useState(restoredDraft);
   const [titleError, setTitleError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,15 +71,15 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const advancedSummary = body.trim().length > 0
     ? category !== 'task' ? `メモあり ・ ${categoryLabels[category]}` : 'メモあり'
     : category !== 'task' ? categoryLabels[category] : '任意';
-  const restoredDraft = initialDraft.title.trim().length > 0
-    || initialDraft.nextAction.trim().length > 0
-    || restoredTuningDisclosure
-    || restoredAdvancedDisclosure;
   const titleDescribedBy = [
     titleHelperId,
-    restoredDraft ? draftRestoredStatusId : '',
+    showRestoredCue ? draftRestoredStatusId : '',
     titleError ? titleErrorId : '',
   ].filter(Boolean).join(' ');
+
+  const markDraftAsEdited = () => {
+    if (showRestoredCue) setShowRestoredCue(false);
+  };
 
   useEffect(() => {
     saveFireFormDraft({
@@ -140,12 +145,13 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
         <p id={titleHelperId} className="form-helper">名前だけで追加できます。閉じても、このセッション中は書きかけを保持します。</p>
-        {restoredDraft ? <p id={draftRestoredStatusId} className="draft-restored-status">書きかけを復元しました</p> : null}
+        {showRestoredCue ? <p id={draftRestoredStatusId} className="draft-restored-status">書きかけを復元しました</p> : null}
         <input
           id="seed-title"
           ref={titleInputRef}
           value={title}
           onChange={(event) => {
+            markDraftAsEdited();
             setTitle(event.target.value);
             setTitleError('');
           }}
@@ -175,7 +181,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         <input
           id="seed-next-action"
           value={nextAction}
-          onChange={(event) => setNextAction(event.target.value)}
+          onChange={(event) => {
+            markDraftAsEdited();
+            setNextAction(event.target.value);
+          }}
           placeholder="例：2分だけ文面を書く"
           maxLength={90}
         />
@@ -215,6 +224,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
                       value={option.value}
                       checked={urgency === option.value}
                       onChange={() => {
+                        markDraftAsEdited();
                         setUrgency(option.value);
                         setHasAdjustedTuning(true);
                       }}
@@ -241,6 +251,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
                       value={option.value}
                       checked={importance === option.value}
                       onChange={() => {
+                        markDraftAsEdited();
                         setImportance(option.value);
                         setHasAdjustedTuning(true);
                       }}
@@ -274,6 +285,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
                     value={option.value}
                     checked={difficulty === option.value}
                     onChange={() => {
+                      markDraftAsEdited();
                       setDifficulty(option.value);
                       setHasAdjustedTuning(true);
                     }}
@@ -302,7 +314,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           <textarea
             id="seed-body"
             value={body}
-            onChange={(event) => setBody(event.target.value)}
+            onChange={(event) => {
+              markDraftAsEdited();
+              setBody(event.target.value);
+            }}
             placeholder="終わったらFireするためのメモ"
             rows={3}
             maxLength={260}
@@ -314,7 +329,10 @@ export function FireForm({ onAddSeed }: FireFormProps) {
           <select
             id="seed-category"
             value={category}
-            onChange={(event) => setCategory(event.target.value as FireCategory)}
+            onChange={(event) => {
+              markDraftAsEdited();
+              setCategory(event.target.value as FireCategory);
+            }}
           >
             {Object.entries(categoryLabels).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
