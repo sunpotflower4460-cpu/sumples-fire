@@ -1,0 +1,159 @@
+/*
+ * Fire Task — text-scale resilience pass 33
+ * Let important copy grow vertically instead of clipping or forcing horizontal
+ * overflow when users zoom, increase text size, or enter long Japanese text.
+ */
+
+.focus-seed .section-heading h2,
+.fire-card h3,
+.focus-next-action p,
+.next-action p,
+.card-body,
+.all-clear-card h2,
+.all-clear-card p,
+.settings-list p,
+.ash-record-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.primary-button,
+.fire-button,
+.ghost-button,
+.danger-button,
+.task-queue-more,
+.matrix-reset-button,
+.toast-undo-button {
+  height: auto;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.task-queue-heading,
+.matrix-filter-heading,
+.card-footer,
+.sheet-header,
+.progress-disclosure > summary {
+  flex-wrap: wrap;
+}
+
+.task-queue-heading > *,
+.matrix-filter-heading > *,
+.card-footer > *,
+.sheet-header > *,
+.progress-disclosure > summary > * {
+  min-width: 0;
+}
+
+.task-queue-count {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.card-footer > span {
+  flex: 1 1 14ch;
+  overflow-wrap: anywhere;
+}
+
+.card-actions {
+  flex: 0 1 auto;
+}
+
+.progress-summary-meta {
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.toast.toast-action {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toast-action-message {
+  flex: 1 1 18ch;
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+.settings-list a {
+  height: auto;
+  min-height: 44px;
+  padding-block: 8px;
+  white-space: normal;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.bottom-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tab-button {
+  min-width: 0;
+  height: auto;
+  padding: 5px 3px;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+@media (max-width: 420px) {
+  .task-queue-heading,
+  .matrix-filter-heading {
+    align-items: flex-start;
+  }
+
+  .progress-summary-meta {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .toast.toast-action {
+    align-items: stretch;
+  }
+
+  .toast-action-message {
+    flex-basis: 100%;
+  }
+
+  .toast-undo-button,
+  .toast-dismiss-button {
+    align-self: center;
+  }
+}
+
+@media (max-width: 340px) {
+  .card-footer {
+    align-items: stretch;
+  }
+
+  .card-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .card-actions .fire-button {
+    flex: 1 1 auto;
+  }
+
+  .bottom-tabs {
+    gap: 3px;
+    padding-left: 5px;
+  }
+
+  .tab-button {
+    font-size: 0.74rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .toast-action-message,
+  .task-queue-count,
+  .card-footer > span {
+    forced-color-adjust: auto;
+  }
+}
