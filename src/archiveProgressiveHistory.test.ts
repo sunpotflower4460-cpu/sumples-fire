@@ -13,8 +13,10 @@ describe('progressive ash history', () => {
     expect(source).not.toContain('showAllRecords ? newestFirstSeeds');
   });
 
-  it('shows visible progress and a bounded next-page action', () => {
+  it('shows visible progress and exposes the same summary to assistive technology', () => {
     expect(source).toContain('{visibleRecords.length} / {newestFirstSeeds.length}件');
+    expect(source).toContain('aria-hidden="true">{visibleRecords.length} / {newestFirstSeeds.length}件');
+    expect(source).toContain('className="sr-only">表示中{visibleRecords.length}件、全{newestFirstSeeds.length}件');
     expect(source).toContain('Math.min(RECORD_PAGE_SIZE, remainingRecordCount)');
     expect(source).toContain('最新${RECORD_PAGE_SIZE}件に戻す');
     expect(source).toContain('aria-controls="ash-records-list"');
