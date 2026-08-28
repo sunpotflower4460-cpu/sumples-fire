@@ -45,7 +45,7 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
     <article className="comfort-settings-card">
       <div className="comfort-setting-copy">
         <span>Fireサウンド</span>
-        <p>燃焼演出の音を切り替えます。設定はこの端末に保存されます。</p>
+        <p>Fireするときの効果音です。</p>
       </div>
       <button
         className={soundEnabled ? 'sound-pill is-on' : 'sound-pill'}
