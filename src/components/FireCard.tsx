@@ -95,6 +95,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
             <button
               type="button"
               className="fire-button"
+              data-fire-task-id={seed.id}
               onClick={() => onFire(seed.id)}
               disabled={seed.isBurning}
               aria-label={`「${seed.title}」を完了してFire`}
