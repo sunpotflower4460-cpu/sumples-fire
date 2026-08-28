@@ -10,8 +10,6 @@ export type FireLevel = 'low' | 'high';
 
 export type FireMatrixQuadrant = 'doNow' | 'schedule' | 'quickBurn' | 'backlog';
 
-export type FireFilter = 'all' | 'active' | 'burned' | 'today';
-
 export type NewFireSeedInput = {
   title: string;
   body: string;
