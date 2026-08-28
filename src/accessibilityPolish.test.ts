@@ -18,9 +18,11 @@ describe('accessibility polish contracts', () => {
     expect(css).toContain('color: #f0c84d;');
   });
 
-  it('keeps compact destructive and close controls at least 44px', () => {
+  it('keeps compact destructive, close, reset, and disclosure controls at least 44px', () => {
     expect(css).toContain('min-width: 44px;');
     expect(css).toContain('min-height: 44px;');
+    expect(css).toContain('.matrix-reset-button');
+    expect(css).toContain('.fire-card .card-details > summary');
   });
 
   it('supports higher contrast and forced-colors environments', () => {
