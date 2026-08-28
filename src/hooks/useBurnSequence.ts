@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAnimate, useReducedMotion } from 'framer-motion';
 import {
   BURN_TIMING,
@@ -88,6 +88,12 @@ export function useFireParticles(count: number) {
   const [particles, setParticles] = useState<FireParticle[]>([]);
   const idRef = useRef(0);
   const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+    }
+  }, []);
 
   const burst = useCallback(() => {
     const safeCount = Math.min(count, 120);
