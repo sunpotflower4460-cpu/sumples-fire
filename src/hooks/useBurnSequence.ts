@@ -1,6 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import { useAnimate, useReducedMotion } from 'framer-motion';
-import { BURN_TIMING, CARBONIZE_EASE, REDUCED_MOTION_FACTOR } from '../lib/fireAnimationConstants';
+import {
+  BURN_TIMING,
+  CARBONIZE_EASE,
+  PARTICLE_BURST_CLEAR_MS,
+  PARTICLE_BURST_MAX_DELAY_MS,
+  REDUCED_MOTION_FACTOR,
+} from '../lib/fireAnimationConstants';
 
 export type BurnPhase = 'ignite' | 'burning' | 'carbonizing' | 'complete';
 
@@ -72,10 +78,11 @@ export type FireParticle = {
 };
 
 /**
- * useFireParticles — generates JS-driven particle bursts for special effects.
+ * useFireParticles — generates the completion particle burst.
  *
- * Particle count is capped at 80 for performance (120 on legendaries).
- * Call `burst()` to emit a new set of particles; they auto-clear after 2 s.
+ * The hook keeps a defensive cap of 120 particles; current spectacle configs
+ * top out at 80. Delays are clustered into the opening milliseconds so every
+ * particle can be seen before the complete phase ends.
  */
 export function useFireParticles(count: number) {
   const [particles, setParticles] = useState<FireParticle[]>([]);
@@ -84,11 +91,11 @@ export function useFireParticles(count: number) {
 
   const burst = useCallback(() => {
     const safeCount = Math.min(count, 120);
-    const next: FireParticle[] = Array.from({ length: safeCount }, (_, i) => ({
+    const next: FireParticle[] = Array.from({ length: safeCount }, () => ({
       id: (idRef.current += 1),
       x: 5 + Math.random() * 90,
       angle: -70 + Math.random() * 140,
-      delay: i * 15,
+      delay: Math.random() * PARTICLE_BURST_MAX_DELAY_MS,
       size: 2 + Math.random() * 5,
     }));
     setParticles(next);
@@ -97,7 +104,7 @@ export function useFireParticles(count: number) {
     timerRef.current = window.setTimeout(() => {
       setParticles([]);
       timerRef.current = null;
-    }, 2200);
+    }, PARTICLE_BURST_CLEAR_MS);
   }, [count]);
 
   return { particles, burst };
