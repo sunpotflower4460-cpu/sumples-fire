@@ -20,6 +20,7 @@ const titleCounterThreshold = 45;
 const titleHelperId = 'seed-title-helper';
 const titleErrorId = 'seed-title-error';
 const submitErrorId = 'seed-submit-error';
+const draftRestoredStatusId = 'seed-draft-restored-status';
 
 const levelOptions: { value: FireLevel; label: string; hint: string }[] = [
   { value: 'high', label: '高', hint: '今日・今週中に燃やす' },
@@ -60,7 +61,6 @@ export function FireForm({ onAddSeed }: FireFormProps) {
   const quadrant = getQuadrant(urgency, importance);
   const titleRemaining = titleMaxLength - title.length;
   const showTitleCounter = title.length >= titleCounterThreshold;
-  const titleDescribedBy = titleError ? `${titleHelperId} ${titleErrorId}` : titleHelperId;
   const tuningSummary = `${quadrantLabels[quadrant]} ・ ${difficultyLabels[difficulty]}`;
   const hasAdvancedContent = body.trim().length > 0 || category !== 'task';
   const advancedSummary = body.trim().length > 0
@@ -70,6 +70,11 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     || initialDraft.nextAction.trim().length > 0
     || restoredTuningDisclosure
     || restoredAdvancedDisclosure;
+  const titleDescribedBy = [
+    titleHelperId,
+    restoredDraft ? draftRestoredStatusId : '',
+    titleError ? titleErrorId : '',
+  ].filter(Boolean).join(' ');
 
   useEffect(() => {
     saveFireFormDraft({
@@ -135,7 +140,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
         <p id={titleHelperId} className="form-helper">名前だけで追加できます。閉じても、このセッション中は書きかけを保持します。</p>
-        {restoredDraft ? <p className="draft-restored-status" role="status">書きかけを復元しました</p> : null}
+        {restoredDraft ? <p id={draftRestoredStatusId} className="draft-restored-status">書きかけを復元しました</p> : null}
         <input
           id="seed-title"
           ref={titleInputRef}
