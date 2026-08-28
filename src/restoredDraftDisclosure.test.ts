@@ -30,10 +30,18 @@ describe('restored draft disclosure UX', () => {
   it('describes restoration through the autofocus target instead of a competing live region', () => {
     expect(formSource).toContain('const restoredDraft = initialDraft.title.trim().length > 0');
     expect(formSource).toContain("const draftRestoredStatusId = 'seed-draft-restored-status'");
-    expect(formSource).toContain('restoredDraft ? draftRestoredStatusId : \'\'');
+    expect(formSource).toContain('showRestoredCue ? draftRestoredStatusId : \'\'');
     expect(formSource).toContain('id={draftRestoredStatusId} className="draft-restored-status"');
     expect(formSource).toContain('aria-describedby={titleDescribedBy}');
     expect(formSource).not.toContain('className="draft-restored-status" role="status"');
+  });
+
+  it('retires the restoration cue after the user starts editing the recovered draft', () => {
+    expect(formSource).toContain('const [showRestoredCue, setShowRestoredCue] = useState(restoredDraft)');
+    expect(formSource).toContain('const markDraftAsEdited = () =>');
+    expect(formSource).toContain('if (showRestoredCue) setShowRestoredCue(false)');
+    expect(formSource).toContain('{showRestoredCue ? <p id={draftRestoredStatusId}');
+    expect(formSource.match(/markDraftAsEdited\(\);/g)?.length).toBeGreaterThanOrEqual(7);
   });
 
   it('keeps restoration cues quiet in light, dark, and forced-color modes', () => {
