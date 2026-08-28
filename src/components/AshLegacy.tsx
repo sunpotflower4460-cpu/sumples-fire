@@ -102,6 +102,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
             <h3 id="ash-records-heading">燃やした記録</h3>
           </div>
           <span aria-hidden="true">{visibleRecords.length} / {newestFirstSeeds.length}件</span>
+          <span className="sr-only">表示中{visibleRecords.length}件、全{newestFirstSeeds.length}件</span>
         </div>
 
         <div id="ash-records-list" className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
