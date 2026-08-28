@@ -142,20 +142,14 @@ export function useFireSeeds() {
     if (!undoBurnSnapshot) return;
 
     const id = undoBurnSnapshot.seed.id;
-    let restored = false;
-    setSeeds((current) => {
-      const target = current.find((seed) => seed.id === id);
-      if (!target?.burned) return current;
-      restored = true;
-      const restoredSeed = restoreFireSeedFromUndo(undoBurnSnapshot, nowIso());
-      return sortFireTasks(current.map((seed) => (seed.id === id ? restoredSeed : seed)));
-    });
-
-    if (!restored) {
+    const target = seeds.find((seed) => seed.id === id);
+    if (!target?.burned) {
       clearUndoBurn();
       return;
     }
 
+    const restoredSeed = restoreFireSeedFromUndo(undoBurnSnapshot, nowIso());
+    setSeeds((current) => sortFireTasks(current.map((seed) => (seed.id === id ? restoredSeed : seed))));
     setStreakData(undoBurnSnapshot.streakBefore);
     saveFireStreak(undoBurnSnapshot.streakBefore);
     clearUndoBurn();
