@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import type { FireSeed } from '../types/fireSeed';
 
@@ -8,7 +8,57 @@ type FireDeleteModalProps = {
   onCancel: () => void;
 };
 
-const focusAfterDelete = () => {
+type DeleteOrigin =
+  | { kind: 'ash'; index: number }
+  | { kind: 'queue'; index: number }
+  | { kind: 'generic' };
+
+const indexOfElement = (selector: string, element: HTMLElement) => (
+  Array.from(document.querySelectorAll<HTMLElement>(selector)).indexOf(element)
+);
+
+const captureDeleteOrigin = (element: HTMLElement | null): DeleteOrigin => {
+  if (!element) return { kind: 'generic' };
+
+  if (element.matches('#ash-records-list .ash-record-delete')) {
+    const index = indexOfElement('#ash-records-list .ash-record-delete', element);
+    return index >= 0 ? { kind: 'ash', index } : { kind: 'generic' };
+  }
+
+  if (element.matches('#up-next-list .card-delete-button')) {
+    const index = indexOfElement('#up-next-list .card-delete-button', element);
+    return index >= 0 ? { kind: 'queue', index } : { kind: 'generic' };
+  }
+
+  return { kind: 'generic' };
+};
+
+const focusIndexedControl = (selector: string, index: number) => {
+  const controls = Array.from(document.querySelectorAll<HTMLElement>(selector));
+  const target = controls[Math.min(index, Math.max(0, controls.length - 1))];
+  if (!target) return false;
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  return true;
+};
+
+const focusAfterDelete = (origin: DeleteOrigin) => {
+  if (origin.kind === 'ash') {
+    if (focusIndexedControl('#ash-records-list .ash-record-delete', origin.index)) return;
+
+    const emptyHeading = document.querySelector<HTMLElement>('#ash-empty-title');
+    if (emptyHeading) {
+      emptyHeading.tabIndex = -1;
+      emptyHeading.focus({ preventScroll: true });
+      emptyHeading.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      return;
+    }
+  }
+
+  if (origin.kind === 'queue') {
+    if (focusIndexedControl('#up-next-list .card-delete-button', origin.index)) return;
+  }
+
   const fallback = document.querySelector<HTMLElement>(
     '.focus-seed .fire-button, .all-clear-card .primary-button, .floating-action, .tab-button[aria-current="page"]',
   );
@@ -18,12 +68,21 @@ const focusAfterDelete = () => {
 export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalProps) {
   const dialogRef = useFocusTrap<HTMLDivElement>(true);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const deleteOriginRef = useRef<DeleteOrigin>({ kind: 'generic' });
+  const hasCapturedOriginRef = useRef(false);
   const shouldRestorePreviousFocusRef = useRef(true);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const isAshRecord = seed.burned;
 
+  useLayoutEffect(() => {
+    if (hasCapturedOriginRef.current) return;
+    const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previousFocusRef.current = activeElement;
+    deleteOriginRef.current = captureDeleteOrigin(activeElement);
+    hasCapturedOriginRef.current = true;
+  }, []);
+
   useEffect(() => {
-    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     window.setTimeout(() => cancelRef.current?.focus(), 0);
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -46,8 +105,9 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
 
   const handleConfirm = () => {
     shouldRestorePreviousFocusRef.current = false;
+    const deleteOrigin = deleteOriginRef.current;
     onConfirm();
-    window.setTimeout(focusAfterDelete, 0);
+    window.setTimeout(() => focusAfterDelete(deleteOrigin), 0);
   };
 
   return (
