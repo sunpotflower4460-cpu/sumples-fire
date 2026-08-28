@@ -22,6 +22,12 @@ describe('progressive ash history', () => {
     expect(source).toContain('aria-controls="ash-records-list"');
   });
 
+  it('exposes the large visual ash total as explicit text instead of naming a generic container', () => {
+    expect(source).toContain('<span aria-hidden="true">{totalAsh}</span>');
+    expect(source).toContain('<span className="sr-only">合計{totalAsh}炭</span>');
+    expect(source).not.toContain('aria-label={`合計${totalAsh}炭`}');
+  });
+
   it('uses semantic time markup for burn timestamps', () => {
     expect(source).toContain('<time className="ash-record-date" dateTime={seed.burnedAt}>{burnedDate}</time>');
   });
