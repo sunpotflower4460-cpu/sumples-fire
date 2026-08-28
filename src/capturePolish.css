@@ -6,11 +6,20 @@
 
 .form-primary-meta {
   justify-content: flex-end;
-  min-height: 16px;
 }
 
 .form-primary-field .form-helper {
   max-width: 30ch;
+}
+
+.form-primary-meta .char-count {
+  color: var(--wc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.form-primary-meta .char-count.is-near-limit {
+  color: #a43a2b;
+  font-weight: 850;
 }
 
 /* ── Priority/difficulty disclosure ─────────────────────────────── */
@@ -160,6 +169,10 @@
     color: rgba(255, 239, 227, 0.58);
   }
 
+  .form-primary-meta .char-count.is-near-limit {
+    color: #ffb09b;
+  }
+
   .task-tuning-default-note {
     border-color: rgba(255, 238, 224, 0.07);
     background: rgba(255, 238, 224, 0.02);
@@ -193,7 +206,9 @@
   .task-tuning-summary-action,
   .task-tuning-summary-copy strong,
   .task-tuning-summary-copy small,
-  .task-tuning-default-note {
+  .task-tuning-default-note,
+  .form-primary-meta .char-count,
+  .form-primary-meta .char-count.is-near-limit {
     color: CanvasText;
   }
 }
