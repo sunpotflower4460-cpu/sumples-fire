@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { spectacles } from '../lib/fireBurnSpectacle';
+import { PARTICLE_BURST_DURATION_S } from '../lib/fireAnimationConstants';
 import {
   difficultyVariants,
   phaseLabelVariants,
@@ -67,12 +68,18 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       ].join(' ').trim()}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
       role="status"
-      aria-live="assertive"
-      aria-label="タスクを燃やしています"
+      aria-live="polite"
+      aria-atomic="true"
       style={flameStyle}
     >
+      <span className="ritual-live-copy">
+        {phase === 'complete'
+          ? `「${seed.title}」をFireしました。${seed.ashPoints}炭を獲得しました。`
+          : `「${seed.title}」を燃やしています。`}
+      </span>
+
       {/* ── SVG filter: turbulence displacement applied to the title wrapper ── */}
       <svg
         width="0"
@@ -120,23 +127,21 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         <i /><i /><i /><i /><i />
       </div>
 
-      {/* ── Spectacle burst ring (special effects only) ── */}
-      {isSpecial ? (
+      {/* ── Spectacle burst ring — reserved for the reward beat. ── */}
+      {isSpecial && !shouldReduceMotion && phase === 'complete' ? (
         <AnimatePresence>
-          {(phase === 'burning' || phase === 'complete') ? (
-            <motion.div
-              key="spectacle-burst"
-              className="ritual-spectacle-burst"
-              aria-hidden="true"
-              style={{ '--burst-scale': variantConfig.burstScale } as React.CSSProperties}
-              variants={spectacleBurstVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <i /><i /><i /><i /><i /><i /><i /><i />
-            </motion.div>
-          ) : null}
+          <motion.div
+            key="spectacle-burst"
+            className="ritual-spectacle-burst"
+            aria-hidden="true"
+            style={{ '--burst-scale': variantConfig.burstScale } as React.CSSProperties}
+            variants={spectacleBurstVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <i /><i /><i /><i /><i /><i /><i /><i />
+          </motion.div>
         </AnimatePresence>
       ) : null}
 
@@ -173,11 +178,9 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
                   scale: [1, 1.15, 0.55],
                 }}
                 transition={{
-                  duration: 0.95 + p.size * 0.05,
+                  duration: PARTICLE_BURST_DURATION_S,
                   delay: p.delay / 1000,
                   ease: 'easeOut',
-                  // fast initial burst (0–40%) then slower fade-out (40–100%)
-                  times: [0, 0.4, 1],
                 }}
                 aria-hidden="true"
               />
@@ -186,8 +189,8 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         </div>
       ) : null}
 
-      {/* ── Central stage ── */}
-      <div className="ritual-stage">
+      {/* ── Central stage is visual-only; the concise live copy above owns announcements. ── */}
+      <div className="ritual-stage" aria-hidden="true">
         {isSpecial ? (
           <div className="ritual-spectacle-label">
             <span className="spectacle-rarity-badge">
@@ -281,4 +284,3 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
   if (typeof document === 'undefined') return null;
   return createPortal(overlay, document.body);
 }
-
