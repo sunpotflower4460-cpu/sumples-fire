@@ -14,6 +14,9 @@ import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fir
 import { difficultyLabels, quadrantLabels } from './types/fireSeed';
 
 type AppTab = 'today' | 'ash' | 'info';
+type BurnOrigin =
+  | { kind: 'focus' }
+  | { kind: 'queue'; index: number };
 
 const tabs: { id: AppTab; label: string }[] = [
   { id: 'today', label: '今日' },
@@ -92,6 +95,7 @@ export default function App() {
   const allClearActionRef = useRef<HTMLButtonElement | null>(null);
   const scrollPositionsRef = useRef<Record<AppTab, number>>({ today: 0, ash: 0, info: 0 });
   const hadBurningTaskRef = useRef(false);
+  const burnOriginRef = useRef<BurnOrigin | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const swipeTouchStartY = useRef<number | null>(null);
   const {
@@ -253,6 +257,21 @@ export default function App() {
     { key: 'backlog', count: queueTasks.filter((seed) => seed.quadrant === 'backlog').length },
   ] as const), [queueTasks]);
 
+  const handleFireTask = (id: string) => {
+    if (burnOriginRef.current !== null) return;
+
+    if (id === focusSeed?.id) {
+      burnOriginRef.current = { kind: 'focus' };
+    } else {
+      const queueIndex = visibleQueueTasks.findIndex((seed) => seed.id === id);
+      burnOriginRef.current = queueIndex >= 0
+        ? { kind: 'queue', index: queueIndex }
+        : { kind: 'focus' };
+    }
+
+    burnTask(id);
+  };
+
   useLayoutEffect(() => {
     window.scrollTo({
       top: scrollPositionsRef.current[activeTab] ?? 0,
@@ -305,14 +324,37 @@ export default function App() {
     if (!hadBurningTaskRef.current) return;
     hadBurningTaskRef.current = false;
 
+    const burnOrigin = burnOriginRef.current;
+    burnOriginRef.current = null;
+
     const timer = window.setTimeout(() => {
+      if (burnOrigin?.kind === 'queue') {
+        const queueButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(
+          '#up-next-list .fire-button[data-fire-task-id]',
+        ));
+        const queueTarget = queueButtons[Math.min(burnOrigin.index, Math.max(0, queueButtons.length - 1))]
+          ?? document.querySelector<HTMLButtonElement>('.queue-empty-state .primary-button')
+          ?? document.querySelector<HTMLButtonElement>('.matrix-reset-button');
+
+        if (queueTarget) {
+          queueTarget.focus({ preventScroll: true });
+          queueTarget.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+          return;
+        }
+      }
+
       const activeElement = document.activeElement;
       const hasStableFocus = activeElement instanceof HTMLElement
         && activeElement !== document.body
         && document.contains(activeElement);
       if (hasStableFocus) return;
 
-      (focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current)?.focus({ preventScroll: true });
+      const primaryTarget = focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current;
+      primaryTarget?.focus({ preventScroll: true });
+      primaryTarget?.scrollIntoView({
+        block: 'nearest',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
     }, 0);
 
     return () => window.clearTimeout(timer);
@@ -401,7 +443,7 @@ export default function App() {
                     ref={focusFireButtonRef}
                     className="fire-button"
                     type="button"
-                    onClick={() => burnTask(focusSeed.id)}
+                    onClick={() => handleFireTask(focusSeed.id)}
                     disabled={focusSeed.isBurning}
                     aria-label={`「${focusSeed.title}」を完了してFire`}
                   >
@@ -467,7 +509,7 @@ export default function App() {
 
                 <div id="up-next-list" className="cards-stack">
                   {filteredQueueTasks.length > 0 ? (
-                    visibleQueueTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={burnTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
+                    visibleQueueTasks.map((seed) => <FireCard key={seed.id} seed={seed} onFire={handleFireTask} onDelete={requestDelete} isNew={seed.id === newSeedId} />)
                   ) : (
                     <div className="empty-state useful-empty queue-empty-state">
                       <div className="empty-state-icon" aria-hidden="true" />
