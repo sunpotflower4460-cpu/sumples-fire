@@ -148,8 +148,11 @@ const cravingCopies = [
   '未燃焼の中から、今できるものをひとつ。',
 ];
 
-export const getDailyCravingCopy = (): string => {
-  const yearStart = new Date(new Date().getFullYear(), 0, 1).getTime();
-  const dayOfYear = Math.floor((Date.now() - yearStart) / 86_400_000);
-  return cravingCopies[dayOfYear % cravingCopies.length];
+const getLocalDayOfYear = (date: Date): number => {
+  const currentDay = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const yearStart = Date.UTC(date.getFullYear(), 0, 1);
+  return Math.floor((currentDay - yearStart) / 86_400_000);
 };
+
+export const getDailyCravingCopy = (date = new Date()): string =>
+  cravingCopies[getLocalDayOfYear(date) % cravingCopies.length];
