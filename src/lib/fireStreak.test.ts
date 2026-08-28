@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { loadFireStreak, STREAK_STORAGE_KEY } from './fireStreak';
+import {
+  getEffectiveFireStreak,
+  loadFireStreak,
+  recordBurnForStreak,
+  STREAK_STORAGE_KEY,
+} from './fireStreak';
 
 const originalWindow = globalThis.window;
 
@@ -43,5 +48,45 @@ describe('fireStreak', () => {
       longestStreak: 0,
       lastBurnDate: null,
     });
+  });
+
+  it('expires a stale current streak while preserving the personal best', () => {
+    const stale = {
+      currentStreak: 7,
+      longestStreak: 12,
+      lastBurnDate: '2026-08-20',
+    };
+
+    expect(getEffectiveFireStreak(stale, new Date(2026, 7, 28, 9, 0))).toEqual({
+      currentStreak: 0,
+      longestStreak: 12,
+      lastBurnDate: '2026-08-20',
+    });
+  });
+
+  it('keeps yesterday active and extends it on today’s first Fire', () => {
+    const yesterday = {
+      currentStreak: 4,
+      longestStreak: 6,
+      lastBurnDate: '2026-08-27',
+    };
+    const now = new Date(2026, 7, 28, 9, 0);
+
+    expect(getEffectiveFireStreak(yesterday, now).currentStreak).toBe(4);
+    expect(recordBurnForStreak(yesterday, now)).toEqual({
+      currentStreak: 5,
+      longestStreak: 6,
+      lastBurnDate: '2026-08-28',
+    });
+  });
+
+  it('does not increment twice when multiple tasks are burned on the same day', () => {
+    const today = {
+      currentStreak: 5,
+      longestStreak: 6,
+      lastBurnDate: '2026-08-28',
+    };
+
+    expect(recordBurnForStreak(today, new Date(2026, 7, 28, 18, 0))).toEqual(today);
   });
 });

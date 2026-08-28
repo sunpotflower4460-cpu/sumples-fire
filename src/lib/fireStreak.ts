@@ -13,6 +13,12 @@ export type FireStreakState = 'cold' | 'warm' | 'momentum' | 'blazing';
 const getLocalDateString = (date = new Date()): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
+const getPreviousLocalDateString = (date = new Date()): string => {
+  const previous = new Date(date);
+  previous.setDate(previous.getDate() - 1);
+  return getLocalDateString(previous);
+};
+
 const defaultStreak = (): FireStreakData => ({
   currentStreak: 0,
   lastBurnDate: null,
@@ -36,13 +42,26 @@ const normalizeStreak = (value: unknown): FireStreakData => {
   };
 };
 
+export const getEffectiveFireStreak = (streakData: FireStreakData, date = new Date()): FireStreakData => {
+  if (streakData.currentStreak === 0 || !streakData.lastBurnDate) return streakData;
+
+  const today = getLocalDateString(date);
+  const yesterday = getPreviousLocalDateString(date);
+  if (streakData.lastBurnDate === today || streakData.lastBurnDate === yesterday) return streakData;
+
+  return {
+    ...streakData,
+    currentStreak: 0,
+  };
+};
+
 export const loadFireStreak = (): FireStreakData => {
   const driver = getWebStorageDriver();
   if (!driver) return defaultStreak();
   try {
     const raw = driver.getItem(STREAK_STORAGE_KEY);
     if (!raw) return defaultStreak();
-    return normalizeStreak(JSON.parse(raw));
+    return getEffectiveFireStreak(normalizeStreak(JSON.parse(raw)));
   } catch {
     return defaultStreak();
   }
@@ -58,17 +77,18 @@ export const saveFireStreak = (data: FireStreakData): void => {
   }
 };
 
-export const recordBurnForStreak = (streakData: FireStreakData): FireStreakData => {
-  const today = getLocalDateString();
-  const yesterday = getLocalDateString(new Date(Date.now() - 86_400_000));
+export const recordBurnForStreak = (streakData: FireStreakData, date = new Date()): FireStreakData => {
+  const effectiveStreak = getEffectiveFireStreak(streakData, date);
+  const today = getLocalDateString(date);
+  const yesterday = getPreviousLocalDateString(date);
 
-  if (streakData.lastBurnDate === today) {
-    return streakData;
+  if (effectiveStreak.lastBurnDate === today) {
+    return effectiveStreak;
   }
 
-  const isConsecutive = streakData.lastBurnDate === yesterday;
-  const newStreak = isConsecutive ? streakData.currentStreak + 1 : 1;
-  const newLongest = Math.max(streakData.longestStreak, newStreak);
+  const isConsecutive = effectiveStreak.lastBurnDate === yesterday;
+  const newStreak = isConsecutive ? effectiveStreak.currentStreak + 1 : 1;
+  const newLongest = Math.max(effectiveStreak.longestStreak, newStreak);
 
   return {
     currentStreak: newStreak,
@@ -112,20 +132,20 @@ export const getCampfireNextThreshold = (ashPoints: number): number | null => {
 };
 
 const cravingCopies = [
-  '今日の火はまだ小さい…',
-  '火が、呼んでいる。',
-  '薪が待っている。',
-  '炎は消えていない。',
-  '燃やす前に、立ち止まるな。',
-  'あの火を、また見たくないか？',
-  '今日の自分を、燃やして証明しろ。',
+  'ひとつだけ、終わらせよう。',
+  '今できる、小さな一歩から。',
+  '軽い薪からでも大丈夫。',
+  '急がなくていい。ひとつ選ぼう。',
+  '終わらせたいものから、静かに。',
+  '2分だけ着手でも十分。',
+  '今日の火は、自分のペースで。',
   '焚き火は静かに待っている。',
-  '炎の声に、耳を傾けろ。',
-  '昨日の灰の上に、今日の火を。',
+  'ひとつ片づけば、それで前進。',
+  '昨日の灰の上に、今日の小さな火を。',
   '一つだけ、燃やせばいい。',
-  '小さくていい。火を灯せ。',
-  '今日も、焚き火の番をしよう。',
-  '未燃焼のタスクが、くすぶっている。',
+  '小さくていい。火を灯そう。',
+  '余力がある分だけ、進めよう。',
+  '未燃焼の中から、今できるものをひとつ。',
 ];
 
 export const getDailyCravingCopy = (): string => {

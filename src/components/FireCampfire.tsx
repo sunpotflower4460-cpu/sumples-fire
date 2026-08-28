@@ -82,7 +82,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         ) : null}
 
         {hasPendingTasks ? (
-          <p className="campfire-craving-copy" aria-live="polite">{cravingCopy}</p>
+          <p className="campfire-craving-copy">{cravingCopy}</p>
         ) : (
           <p className="campfire-craving-copy">今日も、よく燃やした。</p>
         )}
