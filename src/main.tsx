@@ -33,6 +33,7 @@ import './actionEntryPolish.css';
 import './mobileViewportPolish.css';
 import './screenReaderPolish.css';
 import './textScaleResilience.css';
+import './dialogViewportPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
