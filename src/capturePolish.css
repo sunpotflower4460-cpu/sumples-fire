@@ -97,6 +97,18 @@
   border-top: 1px solid var(--wc-hairline);
 }
 
+.task-tuning-default-note {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(92, 60, 46, 0.07);
+  border-radius: 12px;
+  background: rgba(92, 60, 46, 0.028);
+  color: var(--wc-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
 .task-tuning-fields .fast-matrix-picker {
   gap: 13px;
   padding: 0;
@@ -143,8 +155,14 @@
     color: #fff1e7;
   }
 
-  .task-tuning-summary-copy small {
+  .task-tuning-summary-copy small,
+  .task-tuning-default-note {
     color: rgba(255, 239, 227, 0.58);
+  }
+
+  .task-tuning-default-note {
+    border-color: rgba(255, 238, 224, 0.07);
+    background: rgba(255, 238, 224, 0.02);
   }
 
   .task-tuning-summary-action {
@@ -166,14 +184,16 @@
 
 @media (forced-colors: active) {
   .task-tuning-fields,
-  .task-tuning-body {
+  .task-tuning-body,
+  .task-tuning-default-note {
     border-color: CanvasText;
     background: Canvas;
   }
 
   .task-tuning-summary-action,
   .task-tuning-summary-copy strong,
-  .task-tuning-summary-copy small {
+  .task-tuning-summary-copy small,
+  .task-tuning-default-note {
     color: CanvasText;
   }
 }
