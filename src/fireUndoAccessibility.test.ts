@@ -14,6 +14,13 @@ describe('Fire undo accessibility', () => {
     expect(appSource).toContain('className="toast-action-message" role="status" aria-live="polite"');
   });
 
+  it('keeps actionable completion copy stable while Undo remains available', () => {
+    expect(hookSource).toContain('if (!notice || undoBurnSnapshot) return;');
+    expect(hookSource).toContain('}, [notice, undoBurnSnapshot]);');
+    expect(hookSource).toContain('setUndoBurnSnapshot(undoSnapshot);');
+    expect(hookSource).toContain('setNotice(decorated);');
+  });
+
   it('does not expire undo on a fixed timer', () => {
     expect(hookSource).not.toContain('undoTimerRef');
     expect(hookSource).not.toContain('FIRE_UNDO_WINDOW_MS');

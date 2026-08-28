@@ -46,10 +46,13 @@ export function useFireSeeds() {
   }, [seeds]);
 
   useEffect(() => {
-    if (!notice) return;
+    // Actionable Fire feedback must stay stable for as long as its Undo action
+    // exists. Clearing the copy earlier would mutate the same live region and
+    // cause assistive technology to announce the completion twice.
+    if (!notice || undoBurnSnapshot) return;
     const timer = window.setTimeout(() => setNotice(''), 3200);
     return () => window.clearTimeout(timer);
-  }, [notice]);
+  }, [notice, undoBurnSnapshot]);
 
   useEffect(() => () => {
     if (completionTimerRef.current !== null) {
