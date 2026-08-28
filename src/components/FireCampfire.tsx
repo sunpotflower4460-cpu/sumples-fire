@@ -22,6 +22,13 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
   const streakState = getStreakState(streakData.currentStreak);
   const nextThreshold = getCampfireNextThreshold(ashPoints);
   const cravingCopy = getDailyCravingCopy();
+  const streakMomentumLabel = streakState === 'blazing'
+    ? '業火'
+    : streakState === 'momentum'
+      ? '勢い'
+      : streakState === 'warming'
+        ? '加熱中'
+        : '';
 
   const emberCount = [2, 4, 6, 8, 10, 14][stage];
 
@@ -69,13 +76,16 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         </div>
 
         {streakData.currentStreak > 0 ? (
-          <div className={`campfire-streak streak-state-${streakState}`} aria-label={`連続燃焼${streakData.currentStreak}日`}>
+          <div className={`campfire-streak streak-state-${streakState}`}>
+            <span className="sr-only">
+              連続燃焼{streakData.currentStreak}日{streakMomentumLabel ? `、${streakMomentumLabel}` : ''}
+            </span>
             <span className="streak-flame-icon" aria-hidden="true"><StreakFlameGlyph /></span>
-            <span className="streak-count">{streakData.currentStreak}</span>
-            <span className="streak-label">日連続</span>
+            <span className="streak-count" aria-hidden="true">{streakData.currentStreak}</span>
+            <span className="streak-label" aria-hidden="true">日連続</span>
             {streakState !== 'cold' ? (
-              <span className="streak-momentum-badge">
-                {streakState === 'blazing' ? '業火' : streakState === 'momentum' ? '勢い' : '加熱中'}
+              <span className="streak-momentum-badge" aria-hidden="true">
+                {streakMomentumLabel}
               </span>
             ) : null}
           </div>
