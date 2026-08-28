@@ -1,0 +1,119 @@
+/*
+ * Fire Task — continuity polish pass 6
+ * Makes navigation, filtering, and post-Fire focus states read as one coherent
+ * mobile interaction model rather than a collection of independent screens.
+ */
+
+.matrix-cell {
+  position: relative;
+}
+
+/* Empty matrix cells remain legible as information, but stop pretending to be actions. */
+.matrix-cell:disabled {
+  cursor: default;
+  opacity: 0.68;
+  box-shadow: none;
+}
+
+.matrix-cell:disabled > span,
+.matrix-cell:disabled strong,
+.matrix-cell:disabled p {
+  opacity: 0.72;
+}
+
+.matrix-cell:disabled:hover,
+.matrix-cell:disabled:active {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Selected matrix cells behave like a lightweight filter, not a second card style. */
+.matrix-cell[aria-pressed='true']:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.matrix-cell[aria-pressed='true']:not(:disabled)::after {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  width: 7px;
+  height: 7px;
+  content: '';
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.48;
+}
+
+/* Filter-zero state has one recovery action. The persistent FAB remains the add path. */
+.useful-empty .primary-button {
+  width: 100%;
+  max-width: 280px;
+}
+
+.useful-empty-header span {
+  max-width: 32ch;
+}
+
+/* Mobile keyboards shrink the visual viewport; keep sheet and focused fields inside it. */
+.record-sheet {
+  max-height: min(92dvh, 820px);
+  scroll-padding-top: 84px;
+  scroll-padding-bottom: max(96px, calc(env(safe-area-inset-bottom) + 84px));
+}
+
+/* During the Fire ritual the app shell is inert; visually avoid accidental selection residue. */
+.mobile-app-shell[inert] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Keep focus recovery visible without creating a permanent glow around primary actions. */
+.focus-seed .fire-button:focus-visible,
+.all-clear-card .primary-button:focus-visible {
+  outline-offset: 4px;
+}
+
+/* Re-tapping the current bottom destination is intentionally available as scroll-to-top. */
+.tab-button[aria-current='page'] {
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tab-button[aria-current='page']:hover {
+    background: rgba(45, 34, 29, 0.98);
+  }
+}
+
+@media (max-width: 360px) {
+  .matrix-cell[aria-pressed='true']:not(:disabled)::after {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-height: 620px) {
+  .record-sheet {
+    max-height: 96dvh;
+    scroll-padding-top: 72px;
+  }
+
+  .sheet-handle {
+    margin-bottom: 8px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .matrix-cell:disabled {
+    opacity: 0.62;
+  }
+
+  .matrix-cell[aria-pressed='true']:not(:disabled)::after {
+    opacity: 0.56;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix-cell[aria-pressed='true']:not(:disabled) {
+    transform: none;
+  }
+}

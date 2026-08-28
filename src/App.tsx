@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { BurningRitual } from './components/BurningRitual';
 import { AshLegacy } from './components/AshLegacy';
 import { FireCard } from './components/FireCard';
@@ -34,6 +34,12 @@ const tabs: { id: AppTab; label: string }[] = [
   { id: 'ash', label: '炭' },
   { id: 'info', label: '設定' },
 ];
+
+const prefersReducedMotion = () => (
+  typeof window !== 'undefined'
+    ? window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+    : false
+);
 
 function FlameGlyph() {
   return (
@@ -92,8 +98,13 @@ export default function App() {
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
   const [pendingBurnSeed, setPendingBurnSeed] = useState<FireSeed | null>(null);
   const [pendingDeleteSeed, setPendingDeleteSeed] = useState<FireSeed | null>(null);
+  const appShellRef = useRef<HTMLElement | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const floatingActionRef = useRef<HTMLButtonElement | null>(null);
+  const focusFireButtonRef = useRef<HTMLButtonElement | null>(null);
+  const allClearActionRef = useRef<HTMLButtonElement | null>(null);
+  const scrollPositionsRef = useRef<Record<AppTab, number>>({ today: 0, ash: 0, info: 0 });
+  const hadBurningTaskRef = useRef(false);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const swipeTouchStartY = useRef<number | null>(null);
   const {
@@ -123,18 +134,31 @@ export default function App() {
     }, 0);
   };
 
+  const navigateToTab = (nextTab: AppTab, resetPosition = false) => {
+    if (nextTab === activeTab) {
+      if (resetPosition || window.scrollY > 0) {
+        scrollPositionsRef.current[nextTab] = 0;
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: resetPosition || prefersReducedMotion() ? 'auto' : 'smooth',
+        });
+      }
+      return;
+    }
+
+    scrollPositionsRef.current[activeTab] = window.scrollY;
+    if (resetPosition) scrollPositionsRef.current[nextTab] = 0;
+    setActiveTab(nextTab);
+  };
+
   const handleAddSeed = (input: NewFireSeedInput) => {
     const id = addSeed(input);
     closeRecord();
-    setActiveTab('today');
+    navigateToTab('today', true);
     setQuadrantFilter(null);
     setNewSeedId(id);
     window.setTimeout(() => setNewSeedId(null), 600);
-  };
-
-  const openRecordWithTitle = (title: string) => {
-    setDraftTitle(title);
-    openRecord();
   };
 
   const requestBurn = (id: string) => {
@@ -172,11 +196,13 @@ export default function App() {
   };
 
   const handleMatrixCellClick = (key: FireMatrixQuadrant) => {
-    setActiveTab('today');
     setFilter('active');
-    setQuadrantFilter(key);
+    setQuadrantFilter((current) => (current === key ? null : key));
     window.setTimeout(() => {
-      document.querySelector('.cards-stack')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('.cards-stack')?.scrollIntoView({
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        block: 'start',
+      });
     }, 50);
   };
 
@@ -199,7 +225,6 @@ export default function App() {
   const hasPendingTasks = allSeeds.some((seed) => !seed.burned);
   const streakState = getStreakState(streakData.currentStreak);
   const todayFilter: TodayFireFilter = filter === 'today' ? 'today' : 'active';
-  const shouldShowViewAllButton = hasPendingTasks && (todayFilter === 'today' || quadrantFilter !== null);
   const visibleTasks = useMemo(() => {
     const base = filteredSeeds.filter((seed) => !seed.burned);
     return quadrantFilter ? base.filter((seed) => seed.quadrant === quadrantFilter) : base;
@@ -217,21 +242,63 @@ export default function App() {
     { key: 'backlog', count: stats.backlog },
   ] as const;
 
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: scrollPositionsRef.current[activeTab] ?? 0,
+      left: 0,
+      behavior: 'auto',
+    });
+  }, [activeTab]);
+
   useEffect(() => {
     const tab = tabs.find((item) => item.id === activeTab);
     document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
   }, [activeTab]);
 
   useEffect(() => {
-    const hasBlockingDialog = isRecordOpen || pendingBurnSeed !== null || pendingDeleteSeed !== null;
-    if (!hasBlockingDialog) return;
+    const hasBlockingLayer = isRecordOpen || pendingBurnSeed !== null || pendingDeleteSeed !== null || burningTask !== null;
+    if (!hasBlockingLayer) return;
 
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = original;
     };
-  }, [isRecordOpen, pendingBurnSeed, pendingDeleteSeed]);
+  }, [isRecordOpen, pendingBurnSeed, pendingDeleteSeed, burningTask]);
+
+  useEffect(() => {
+    const shell = appShellRef.current;
+    if (!shell) return;
+
+    if (burningTask) {
+      shell.setAttribute('inert', '');
+    } else {
+      shell.removeAttribute('inert');
+    }
+
+    return () => shell.removeAttribute('inert');
+  }, [burningTask]);
+
+  useEffect(() => {
+    if (burningTask) {
+      hadBurningTaskRef.current = true;
+      return;
+    }
+    if (!hadBurningTaskRef.current) return;
+    hadBurningTaskRef.current = false;
+
+    const timer = window.setTimeout(() => {
+      const activeElement = document.activeElement;
+      const hasStableFocus = activeElement instanceof HTMLElement
+        && activeElement !== document.body
+        && document.contains(activeElement);
+      if (hasStableFocus) return;
+
+      (focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current)?.focus({ preventScroll: true });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [burningTask]);
 
   useEffect(() => {
     if (activeTab !== 'today') return;
@@ -252,17 +319,17 @@ export default function App() {
   }, [isRecordOpen]);
 
   return (
-    <main className={`mobile-app-shell fire-mode streak-${streakState}`}>
+    <main ref={appShellRef} className={`mobile-app-shell fire-mode streak-${streakState}`}>
       <header className="app-topbar">
         <div>
           <p className="app-kicker">Fire Task</p>
-          <h1>{activeTab === 'today' ? '今日燃やす' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
+          <h1 id="app-screen-title">{activeTab === 'today' ? '今日燃やす' : tabs.find((tab) => tab.id === activeTab)?.label}</h1>
         </div>
       </header>
 
       {notice ? <div className="toast" role="status" aria-live="polite">{notice}</div> : null}
 
-      <section className="app-screen">
+      <section className="app-screen" aria-labelledby="app-screen-title">
         {activeTab === 'today' ? (
           <div className="screen-stack">
             {!hasTasks ? (
@@ -297,7 +364,14 @@ export default function App() {
                 </div>
                 <div className="focus-actions">
                   <div className="fire-button-wrapper">
-                    <button className="fire-button" type="button" onClick={() => requestBurn(focusSeed.id)} disabled={focusSeed.isBurning}>
+                    <button
+                      ref={focusFireButtonRef}
+                      className="fire-button"
+                      type="button"
+                      onClick={() => requestBurn(focusSeed.id)}
+                      disabled={focusSeed.isBurning}
+                      aria-label={`「${focusSeed.title}」を完了してFire`}
+                    >
                       {focusSeed.isBurning ? '燃焼中...' : '完了したら Fire'}
                     </button>
                     <span className="rank-chip" aria-label={`現在の称号: ${stats.rank}`}>{stats.rank}</span>
@@ -313,7 +387,7 @@ export default function App() {
                 <p className="eyebrow">ALL CLEAR</p>
                 <h2>今日の薪は、きれいに燃え尽きました。</h2>
                 <p>必要なら次のひとつだけを追加しましょう。何も足さず、火を眺めて終わるのも正解です。</p>
-                <button className="primary-button" type="button" onClick={openRecord}>次の薪をくべる</button>
+                <button ref={allClearActionRef} className="primary-button" type="button" onClick={openRecord}>次の薪をくべる</button>
               </section>
             ) : null}
 
@@ -334,6 +408,7 @@ export default function App() {
                     className={`matrix-cell matrix-${item.key} ${item.count > 0 ? 'has-items' : 'is-empty'}`}
                     aria-label={`${quadrantLabels[item.key]}: ${item.count}件`}
                     aria-pressed={quadrantFilter === item.key}
+                    disabled={item.count === 0 && quadrantFilter !== item.key}
                     onClick={() => handleMatrixCellClick(item.key)}
                   >
                     <span>{quadrantLabels[item.key]}</span>
@@ -344,7 +419,7 @@ export default function App() {
               </section>
             ) : null}
 
-            {hasTasks ? (
+            {hasPendingTasks ? (
               <section className="panel app-panel compact-panel">
                 <div className="task-queue-heading">
                   <div className="section-heading">
@@ -367,27 +442,12 @@ export default function App() {
                     <div className="empty-state useful-empty">
                       <div className="empty-state-icon" aria-hidden="true">🪵</div>
                       <div className="useful-empty-header">
-                        <p>{hasPendingTasks ? '条件に合う未燃焼タスクがありません' : 'すべて燃やしました'}</p>
-                        <span>{hasPendingTasks ? 'フィルターを切り替えるか、新しい薪を1つ追加してみましょう' : '次に燃やすものができたら、ひとつだけ追加しましょう'}</span>
+                        <p>この条件のタスクはありません</p>
+                        <span>絞り込みを解除すると、未燃焼タスクをすべて表示できます。</span>
                       </div>
-                      {shouldShowViewAllButton ? (
-                        <button className="ghost-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>未燃焼をすべて表示</button>
-                      ) : null}
-                      {hasPendingTasks ? (
-                        <>
-                          <span>おすすめ:</span>
-                          <ul>
-                            {['先延ばししていた返信をする', '机の上を3分だけ片付ける', '面倒な書類を1つ確認する'].map((idea) => (
-                              <li key={idea}>
-                                <button type="button" className="idea-button" onClick={() => openRecordWithTitle(idea)}>
-                                  {idea}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      ) : null}
-                      <button className="primary-button" type="button" onClick={openRecord}>タスクを追加</button>
+                      <button className="primary-button" type="button" onClick={() => { setFilter('active'); setQuadrantFilter(null); }}>
+                        未燃焼をすべて表示
+                      </button>
                     </div>
                   )}
                 </div>
@@ -471,7 +531,7 @@ export default function App() {
             type="button"
             aria-current={activeTab === tab.id ? 'page' : undefined}
             className={activeTab === tab.id ? 'tab-button is-active' : 'tab-button'}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => navigateToTab(tab.id)}
           >
             <span><TabIcon tab={tab.id} /></span>
             {tab.label}
