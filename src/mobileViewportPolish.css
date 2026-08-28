@@ -10,6 +10,13 @@
   overflow: hidden;
 }
 
+/* Fixed bottom navigation and the elevated create action must never cover the
+   last piece of scrollable content. Preserve the existing compact floor on
+   ordinary phones, then add clearance only when the device safe area needs it. */
+.app-screen {
+  padding-bottom: max(164px, calc(env(safe-area-inset-bottom) + 162px));
+}
+
 .record-sheet {
   max-height: min(92vh, 820px);
   max-height: min(92dvh, 820px);
@@ -119,6 +126,10 @@
 }
 
 @media (min-width: 760px) {
+  .app-screen {
+    padding-bottom: 184px;
+  }
+
   .record-sheet {
     max-height: min(84vh, 820px);
     max-height: min(84dvh, 820px);
