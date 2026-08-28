@@ -19,8 +19,20 @@ describe('calendar freshness after long-lived app sessions', () => {
     expect(hookSource).toContain('scheduleNextLocalDayRefresh();');
   });
 
-  it('forces day-dependent UI to refresh even when the streak remains valid', () => {
-    expect(hookSource).toContain('return { ...effective };');
+  it('advances one calendar revision only when the local date actually changes', () => {
+    expect(hookSource).toContain('const calendarDayKeyRef = useRef(getLocalDayKey());');
+    expect(hookSource).toContain('const [calendarRevision, setCalendarRevision] = useState(0);');
+    expect(hookSource).toContain('if (nextDayKey !== calendarDayKeyRef.current)');
+    expect(hookSource).toContain('setCalendarRevision((current) => current + 1);');
+  });
+
+  it('recomputes date-sensitive stats when the calendar revision changes', () => {
+    expect(hookSource).toContain('getFireSeedStats(seeds), [seeds, calendarRevision]');
+  });
+
+  it('does not create a new streak object on every same-day focus refresh', () => {
+    expect(hookSource).toContain('if (!changed) return current;');
+    expect(hookSource).not.toContain('return { ...effective };');
   });
 
   it('derives daily copy from local calendar components without Date.now elapsed-day drift', () => {
