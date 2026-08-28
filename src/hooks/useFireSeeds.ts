@@ -13,8 +13,6 @@ import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
-export const FIRE_UNDO_WINDOW_MS = 6000;
-
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -31,7 +29,6 @@ const prefersReducedMotion = () => (
 
 export function useFireSeeds() {
   const storageDriverRef = useRef(getWebStorageDriver());
-  const undoTimerRef = useRef<number | null>(null);
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
   const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
@@ -55,23 +52,22 @@ export function useFireSeeds() {
   }, [notice]);
 
   useEffect(() => () => {
-    if (undoTimerRef.current !== null) {
-      window.clearTimeout(undoTimerRef.current);
-    }
     if (completionTimerRef.current !== null) {
       window.clearTimeout(completionTimerRef.current);
     }
   }, []);
 
   const clearUndoBurn = () => {
-    if (undoTimerRef.current !== null) {
-      window.clearTimeout(undoTimerRef.current);
-      undoTimerRef.current = null;
-    }
     setUndoBurnSnapshot(null);
   };
 
+  const dismissUndoBurn = () => {
+    clearUndoBurn();
+    setNotice('');
+  };
+
   const addSeed = (input: NewFireSeedInput) => {
+    clearUndoBurn();
     const timestamp = nowIso();
     const quadrant = getQuadrant(input.urgency, input.importance);
     const priority = derivePriority(input.urgency, input.importance);
@@ -133,10 +129,6 @@ export function useFireSeeds() {
       activeBurnIdRef.current = null;
       completionTimerRef.current = null;
       setUndoBurnSnapshot(undoSnapshot);
-      undoTimerRef.current = window.setTimeout(() => {
-        setUndoBurnSnapshot(null);
-        undoTimerRef.current = null;
-      }, FIRE_UNDO_WINDOW_MS);
 
       const base = `Fire完了！ +${target.ashPoints}炭になりました`;
       const decorated = target.difficulty === 'boss'
@@ -170,9 +162,7 @@ export function useFireSeeds() {
     const target = seeds.find((seed) => seed.id === id);
     if (!target || target.isBurning) return;
 
-    if (undoBurnSnapshot?.seed.id === id) {
-      clearUndoBurn();
-    }
+    clearUndoBurn();
     setSeeds((current) => current.filter((seed) => seed.id !== id));
     setNotice('削除しました');
   };
@@ -197,6 +187,7 @@ export function useFireSeeds() {
     undoBurnCandidate,
     addSeed,
     burnTask,
+    dismissUndoBurn,
     undoLastBurn,
     deleteSeed,
   };

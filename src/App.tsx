@@ -101,6 +101,7 @@ export default function App() {
     burnTask,
     burningSpectacle,
     deleteSeed,
+    dismissUndoBurn,
     focusSeed,
     notice,
     stats,
@@ -156,11 +157,25 @@ export default function App() {
     window.setTimeout(() => setNewSeedId(null), 600);
   };
 
+  const focusPrimaryAction = () => {
+    window.setTimeout(() => {
+      (
+        focusFireButtonRef.current
+        ?? allClearActionRef.current
+        ?? floatingActionRef.current
+        ?? document.querySelector<HTMLElement>('.tab-button[aria-current="page"]')
+      )?.focus({ preventScroll: true });
+    }, 0);
+  };
+
   const handleUndoBurn = () => {
     undoLastBurn();
-    window.setTimeout(() => {
-      (focusFireButtonRef.current ?? floatingActionRef.current)?.focus({ preventScroll: true });
-    }, 0);
+    focusPrimaryAction();
+  };
+
+  const handleDismissUndo = () => {
+    dismissUndoBurn();
+    focusPrimaryAction();
   };
 
   const requestDelete = (id: string) => {
@@ -254,7 +269,8 @@ export default function App() {
 
   useEffect(() => {
     if (!hasQueueTasks && quadrantFilter !== null) {
-      resetQueueView();
+      setQuadrantFilter(null);
+      setQueueVisibleCount(QUEUE_PAGE_SIZE);
     }
   }, [hasQueueTasks, quadrantFilter]);
 
@@ -336,6 +352,14 @@ export default function App() {
             aria-label={`「${undoBurnCandidate.title}」のFireを元に戻す`}
           >
             元に戻す
+          </button>
+          <button
+            type="button"
+            className="toast-dismiss-button"
+            onClick={handleDismissUndo}
+            aria-label="Fire通知を閉じる"
+          >
+            ×
           </button>
         </div>
       ) : notice ? (
