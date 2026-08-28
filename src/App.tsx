@@ -144,6 +144,7 @@ export default function App() {
   const {
     addSeed,
     allSeeds,
+    burnCompletion,
     burnTask,
     burningSpectacle,
     deleteSeed,
@@ -439,6 +440,22 @@ export default function App() {
 
     const burnOrigin = burnOriginRef.current;
     burnOriginRef.current = null;
+
+    if (burnCompletion?.status !== 'succeeded') {
+      lastCompletedBurnOriginRef.current = null;
+      const failedBurnId = burnCompletion?.status === 'failed' ? burnCompletion.id : null;
+      const timer = window.setTimeout(() => {
+        if (failedBurnId && focusTaskButtonById(failedBurnId)) return;
+        const fallback = focusFireButtonRef.current ?? allClearActionRef.current ?? floatingActionRef.current;
+        fallback?.focus({ preventScroll: true });
+        fallback?.scrollIntoView({
+          block: 'nearest',
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        });
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
     lastCompletedBurnOriginRef.current = burnOrigin;
 
     const timer = window.setTimeout(() => {
@@ -461,7 +478,7 @@ export default function App() {
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [burningTask]);
+  }, [burningTask, burnCompletion]);
 
   useEffect(() => {
     if (!isRecordOpen) return;
