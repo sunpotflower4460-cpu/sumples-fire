@@ -146,13 +146,13 @@ html {
   .matrix-cell:disabled {
     opacity: 0.78;
   }
+}
 
-  @media (prefers-contrast: more) {
-    :root {
-      --wc-muted: #d2c1b6;
-      --wc-hairline: rgba(255, 238, 224, 0.2);
-      --wc-hairline-strong: rgba(255, 238, 224, 0.3);
-    }
+@media (prefers-color-scheme: dark) and (prefers-contrast: more) {
+  :root {
+    --wc-muted: #d2c1b6;
+    --wc-hairline: rgba(255, 238, 224, 0.2);
+    --wc-hairline-strong: rgba(255, 238, 224, 0.3);
   }
 }
 
