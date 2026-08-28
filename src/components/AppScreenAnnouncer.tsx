@@ -1,21 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
-const screenNameFromTitle = (title: string) => title.split(' — ')[0]?.trim() || 'Fire Task';
-
 export function AppScreenAnnouncer() {
   const [announcement, setAnnouncement] = useState('');
-  const previousTitleRef = useRef('');
+  const previousScreenNameRef = useRef('');
 
   useEffect(() => {
-    previousTitleRef.current = document.title;
-    const titleElement = document.querySelector('title');
+    const titleElement = document.querySelector<HTMLElement>('#app-screen-title');
     if (!titleElement) return;
 
+    previousScreenNameRef.current = titleElement.textContent?.trim() ?? '';
+
     const announceScreenChange = () => {
-      const nextTitle = document.title;
-      if (!nextTitle || nextTitle === previousTitleRef.current) return;
-      previousTitleRef.current = nextTitle;
-      setAnnouncement(`${screenNameFromTitle(nextTitle)}画面を表示しました`);
+      const nextScreenName = titleElement.textContent?.trim() ?? '';
+      if (!nextScreenName || nextScreenName === previousScreenNameRef.current) return;
+      previousScreenNameRef.current = nextScreenName;
+      setAnnouncement(`${nextScreenName}画面を表示しました`);
     };
 
     const observer = new MutationObserver(announceScreenChange);
