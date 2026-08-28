@@ -23,6 +23,7 @@ import './flowContinuityPolish.css';
 import './archiveScalePolish.css';
 import './settingsHierarchyPolish.css';
 import './decisionClarityPolish.css';
+import './undoActionPolish.css';
 import './accessibilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(
