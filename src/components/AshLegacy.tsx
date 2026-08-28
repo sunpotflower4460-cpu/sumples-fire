@@ -16,6 +16,18 @@ const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
 
 const MAX_MOSAIC_TILES = 80;
 
+function DeleteGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 7h14" />
+      <path d="M9 7V4.8h6V7" />
+      <path d="M7.5 7l.7 12h7.6l.7-12" />
+      <path d="M10 10.5v5" />
+      <path d="M14 10.5v5" />
+    </svg>
+  );
+}
+
 export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
   const totalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
   const mosaicTiles = seeds.slice(-MAX_MOSAIC_TILES);
@@ -24,20 +36,14 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
 
   return (
     <div className="ash-legacy-panel">
-
-      {/* ── Overview header ── */}
       <div className="ash-legacy-header">
-        <p className="ash-legacy-total-label">炭の遺産</p>
-        <div
-          className="ash-legacy-total-points"
-          aria-label={`合計${totalAsh}炭`}
-        >
+        <p className="ash-legacy-total-label">積み上がった炭</p>
+        <div className="ash-legacy-total-points" aria-label={`合計${totalAsh}炭`}>
           {totalAsh}
         </div>
-        <p className="ash-legacy-count">{seeds.length}個のタスクが炭になった</p>
+        <p className="ash-legacy-count">{seeds.length}個のタスクを燃やしてきました</p>
       </div>
 
-      {/* ── Charcoal mosaic ── */}
       <div className="ash-charcoal-mosaic" aria-hidden="true">
         <p className="ash-mosaic-label">炭の紋様</p>
         {seeds.length > 0 ? (
@@ -46,7 +52,6 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
               <div
                 key={seed.id}
                 className={`ash-coal-tile coal-${seed.difficulty}${seed.id === newestId ? ' is-newest' : ''}`}
-                title={seed.title}
               />
             ))}
           </div>
@@ -55,7 +60,6 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
         )}
       </div>
 
-      {/* ── Compact ash records (newest first) ── */}
       {seeds.length > 0 ? (
         <div className="ash-records-list" role="list" aria-label="燃やしたタスクの一覧">
           {reversedSeeds.map((seed) => {
@@ -63,19 +67,13 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
               ? dateFormatter.format(new Date(seed.burnedAt))
               : null;
             return (
-              <div
-                key={seed.id}
-                className={`ash-record-card is-${seed.difficulty}`}
-                role="listitem"
-              >
+              <div key={seed.id} className={`ash-record-card is-${seed.difficulty}`} role="listitem">
                 <div className="ash-record-main">
                   <p className="ash-record-title">{seed.title}</p>
                   <div className="ash-record-meta">
                     <span className="ash-record-points">+{seed.ashPoints}炭</span>
                     <span className="ash-record-difficulty">{difficultyLabels[seed.difficulty]}</span>
-                    {burnedDate ? (
-                      <span className="ash-record-date">{burnedDate}</span>
-                    ) : null}
+                    {burnedDate ? <span className="ash-record-date">{burnedDate}</span> : null}
                   </div>
                 </div>
                 <button
@@ -84,7 +82,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
                   onClick={() => onDelete(seed.id)}
                   aria-label={`「${seed.title}」を削除`}
                 >
-                  ×
+                  <DeleteGlyph />
                 </button>
               </div>
             );
