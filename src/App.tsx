@@ -57,6 +57,15 @@ const focusQueuePosition = (index: number) => {
   return true;
 };
 
+const focusQueueCardAtIndex = (index: number) => {
+  const queueCards = Array.from(document.querySelectorAll<HTMLElement>('#up-next-list .fire-card'));
+  const target = queueCards[index];
+  if (!target) return false;
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  return true;
+};
+
 function FlameGlyph() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -131,7 +140,7 @@ export default function App() {
   const burnOriginRef = useRef<BurnOrigin | null>(null);
   const lastCompletedBurnOriginRef = useRef<BurnOrigin | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
-  const swipeTouchStartY = useRef<number | null>(null);
+  const swipeTouchStartRef = useRef<{ x: number; y: number } | null>(null);
   const {
     addSeed,
     allSeeds,
@@ -166,6 +175,11 @@ export default function App() {
     }, 0);
   };
 
+  const closeRecordAfterSubmit = () => {
+    previouslyFocusedElementRef.current = null;
+    setIsRecordOpen(false);
+  };
+
   const navigateToTab = (nextTab: AppTab, resetPosition = false) => {
     if (nextTab === activeTab) {
       if (resetPosition || window.scrollY > 0) {
@@ -187,11 +201,23 @@ export default function App() {
   const handleAddSeed = (input: NewFireSeedInput) => {
     lastCompletedBurnOriginRef.current = null;
     const id = addSeed(input);
-    closeRecord();
+    closeRecordAfterSubmit();
     navigateToTab('today', true);
     setQuadrantFilter(null);
     setQueueVisibleCount(QUEUE_PAGE_SIZE);
     setNewSeedId(id);
+    window.setTimeout(() => {
+      if (focusTaskButtonById(id)) return;
+      const fallback = focusFireButtonRef.current
+        ?? allClearActionRef.current
+        ?? floatingActionRef.current
+        ?? document.querySelector<HTMLElement>('.tab-button[aria-current="page"]');
+      fallback?.focus({ preventScroll: true });
+      fallback?.scrollIntoView({
+        block: 'nearest',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+    }, 0);
     window.setTimeout(() => setNewSeedId(null), 600);
   };
 
@@ -280,16 +306,34 @@ export default function App() {
   };
 
   const handleSheetSwipeStart = (event: React.TouchEvent) => {
-    swipeTouchStartY.current = event.touches[0]?.clientY ?? null;
+    if (event.touches.length !== 1) {
+      swipeTouchStartRef.current = null;
+      return;
+    }
+
+    const touch = event.touches[0];
+    swipeTouchStartRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
   };
 
   const handleSheetSwipeEnd = (event: React.TouchEvent) => {
-    if (swipeTouchStartY.current === null) return;
-    const deltaY = (event.changedTouches[0]?.clientY ?? 0) - swipeTouchStartY.current;
-    swipeTouchStartY.current = null;
-    if (deltaY > 80) {
+    const start = swipeTouchStartRef.current;
+    swipeTouchStartRef.current = null;
+    if (!start) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    const isIntentionalDownwardSwipe = deltaY > 80 && deltaY > Math.abs(deltaX) * 1.25;
+
+    if (isIntentionalDownwardSwipe) {
       closeRecord();
     }
+  };
+
+  const handleSheetSwipeCancel = () => {
+    swipeTouchStartRef.current = null;
   };
 
   const hasTasks = stats.total > 0;
@@ -563,7 +607,9 @@ export default function App() {
                     aria-expanded={hiddenQueueCount === 0}
                     onClick={() => {
                       if (hiddenQueueCount > 0) {
+                        const firstRevealedIndex = visibleQueueTasks.length;
                         setQueueVisibleCount((current) => Math.min(current + QUEUE_PAGE_SIZE, filteredQueueTasks.length));
+                        window.setTimeout(() => focusQueueCardAtIndex(firstRevealedIndex), 0);
                       } else {
                         setQueueVisibleCount(QUEUE_PAGE_SIZE);
                       }
@@ -676,7 +722,12 @@ export default function App() {
       {isRecordOpen ? (
         <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
           <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
-            <div className="sheet-drag-zone" onTouchStart={handleSheetSwipeStart} onTouchEnd={handleSheetSwipeEnd}>
+            <div
+              className="sheet-drag-zone"
+              onTouchStart={handleSheetSwipeStart}
+              onTouchEnd={handleSheetSwipeEnd}
+              onTouchCancel={handleSheetSwipeCancel}
+            >
               <div className="sheet-handle" aria-hidden="true" />
               <div className="sheet-header">
                 <div>
