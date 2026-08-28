@@ -1,0 +1,334 @@
+/*
+ * Fire Task — interaction polish pass 3
+ * Capture speed, thumb reach, semantic controls, and settings clarity.
+ */
+
+.choice-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choice-fieldset > legend {
+  width: 100%;
+  margin: 0 0 9px;
+  padding: 0;
+  color: #5f4a40;
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.optional-label {
+  margin-left: 5px;
+  color: var(--wc-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.form-primary-field label {
+  font-size: 0.95rem;
+}
+
+.form-primary-field input {
+  min-height: 56px;
+  font-size: 1rem;
+}
+
+.form-section-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+
+.form-section-index {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgba(232, 90, 36, 0.12);
+  border-radius: 10px;
+  background: rgba(232, 90, 36, 0.055);
+  color: #a84d2a;
+  font-size: 0.68rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.form-section-intro > div {
+  min-width: 0;
+}
+
+.form-section-intro strong {
+  display: block;
+  color: var(--wc-ink);
+  font-size: 0.92rem;
+  letter-spacing: -0.015em;
+}
+
+.form-section-intro p {
+  margin: 3px 0 0;
+  color: var(--wc-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.fast-matrix-picker {
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 20px;
+  background: rgba(92, 60, 46, 0.035);
+}
+
+.choice-button {
+  min-height: 64px;
+  border-color: var(--wc-hairline);
+  border-radius: 16px;
+  background: rgba(255, 253, 249, 0.82);
+  box-shadow: none;
+}
+
+.choice-button:hover:not(:disabled) {
+  border-color: var(--wc-hairline-strong);
+  background: rgba(255, 253, 249, 0.98);
+  box-shadow: var(--wc-shadow-sm);
+}
+
+.choice-button.is-selected {
+  border-color: rgba(232, 90, 36, 0.24);
+  background: rgba(232, 90, 36, 0.075);
+  box-shadow: inset 0 0 0 1px rgba(232, 90, 36, 0.035);
+}
+
+.choice-button.is-selected b {
+  color: #a33f20;
+}
+
+.matrix-result-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.difficulty-fieldset {
+  padding: 1px;
+}
+
+.advanced-fields {
+  overflow: clip;
+}
+
+/* Keep the primary completion action reachable while the long sheet scrolls. */
+.form-sticky-submit {
+  position: sticky;
+  bottom: -1px;
+  z-index: 8;
+  margin: 4px -18px -22px;
+  padding: 12px 18px max(15px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--wc-hairline);
+  background: rgba(255, 250, 244, 0.92);
+  box-shadow: 0 -12px 28px rgba(43, 24, 16, 0.06);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+.form-sticky-submit .primary-button {
+  min-height: 52px;
+}
+
+.submit-hint.is-ready {
+  color: #6c6a53;
+  opacity: 0.82;
+}
+
+/* Settings should read as two calm system rows, not a promotional card. */
+.comfort-settings-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px 12px;
+  padding: 16px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 20px;
+  background: var(--wc-surface);
+  box-shadow: none;
+}
+
+.comfort-setting-copy span {
+  color: var(--wc-ink);
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.comfort-setting-copy p {
+  max-width: 36ch;
+  margin-top: 4px;
+  color: var(--wc-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.sound-pill {
+  display: inline-flex;
+  min-width: 78px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--wc-hairline-strong);
+  border-radius: 999px;
+  background: rgba(92, 60, 46, 0.055);
+  color: var(--wc-muted);
+  box-shadow: none;
+}
+
+.sound-pill.is-on {
+  border-color: rgba(232, 90, 36, 0.22);
+  background: rgba(232, 90, 36, 0.08);
+  color: #a43f20;
+}
+
+.sound-pill-icon {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+}
+
+.sound-pill-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.storage-note {
+  grid-column: 1 / -1;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--wc-hairline);
+  border-radius: 14px;
+  background: rgba(92, 60, 46, 0.035);
+}
+
+.storage-note b {
+  color: var(--wc-ink);
+  font-size: 0.78rem;
+}
+
+.storage-note small {
+  color: var(--wc-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 390px) {
+  .comfort-settings-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .sound-pill {
+    width: auto;
+  }
+
+  .storage-note {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .storage-note small {
+    text-align: right;
+  }
+}
+
+@media (max-width: 340px) {
+  .comfort-settings-card {
+    grid-template-columns: 1fr;
+  }
+
+  .sound-pill {
+    width: 100%;
+  }
+
+  .storage-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .storage-note small {
+    text-align: left;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .choice-fieldset > legend,
+  .form-section-intro strong,
+  .comfort-setting-copy span,
+  .storage-note b {
+    color: #fff1e7;
+  }
+
+  .optional-label,
+  .form-section-intro p,
+  .comfort-setting-copy p,
+  .storage-note small {
+    color: rgba(255, 239, 227, 0.56);
+  }
+
+  .fast-matrix-picker,
+  .comfort-settings-card,
+  .storage-note {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.035);
+  }
+
+  .choice-button {
+    border-color: rgba(255, 238, 224, 0.09);
+    background: rgba(255, 238, 224, 0.045);
+  }
+
+  .choice-button:hover:not(:disabled) {
+    border-color: rgba(255, 238, 224, 0.15);
+    background: rgba(255, 238, 224, 0.065);
+  }
+
+  .choice-button.is-selected {
+    border-color: rgba(255, 129, 65, 0.25);
+    background: rgba(255, 111, 48, 0.1);
+  }
+
+  .choice-button.is-selected b,
+  .sound-pill.is-on {
+    color: #ffad78;
+  }
+
+  .sound-pill {
+    border-color: rgba(255, 238, 224, 0.1);
+    background: rgba(255, 238, 224, 0.045);
+    color: rgba(255, 239, 227, 0.62);
+  }
+
+  .sound-pill.is-on {
+    border-color: rgba(255, 129, 65, 0.24);
+    background: rgba(255, 111, 48, 0.1);
+  }
+
+  .form-sticky-submit {
+    border-color: rgba(255, 238, 224, 0.08);
+    background: rgba(18, 15, 14, 0.92);
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-sticky-submit {
+    scroll-behavior: auto;
+  }
+}

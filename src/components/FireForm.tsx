@@ -99,9 +99,9 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
 
   return (
     <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate>
-      <div className="field-group">
+      <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
-        <p id={titleHelperId} className="form-helper">まずは名前だけでOK。あとから詳しくできます。</p>
+        <p id={titleHelperId} className="form-helper">名前だけでも追加できます。短いほど、あとで動きやすくなります。</p>
         <input
           id="seed-title"
           ref={titleInputRef}
@@ -119,12 +119,12 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         />
         <div className="field-meta">
           <span className="char-count" aria-label="文字数">{titleCounter}</span>
-          {!title.trim() && !error ? <span className="field-hint">例のように短く書くだけで大丈夫です</span> : null}
+          {!title.trim() && !error ? <span className="field-hint">まずは1行だけで大丈夫です</span> : null}
         </div>
       </div>
 
       <div className="field-group compact-field">
-        <label htmlFor="seed-next-action">最初の一歩</label>
+        <label htmlFor="seed-next-action">最初の一歩 <span className="optional-label">任意</span></label>
         <input
           id="seed-next-action"
           value={nextAction}
@@ -134,9 +134,17 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         />
       </div>
 
-      <section className="fast-matrix-picker" aria-label="緊急度と重要度">
-        <div className="choice-section">
-          <span>緊急度</span>
+      <section className="fast-matrix-picker" aria-label="タスクの整理">
+        <div className="form-section-intro">
+          <span className="form-section-index" aria-hidden="true">01</span>
+          <div>
+            <strong>いつ・どれくらい大事？</strong>
+            <p>2つ選ぶだけで、燃やす順番を自動で整えます。</p>
+          </div>
+        </div>
+
+        <fieldset className="choice-section choice-fieldset">
+          <legend>緊急度</legend>
           <div className="choice-grid two-choice">
             {levelOptions.map((option) => (
               <button
@@ -151,10 +159,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div className="choice-section">
-          <span>重要度</span>
+        <fieldset className="choice-section choice-fieldset">
+          <legend>重要度</legend>
           <div className="choice-grid two-choice">
             {levelOptions.map((option) => (
               <button
@@ -169,7 +177,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite">
           <span>自動分類</span>
@@ -178,8 +186,8 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
         </div>
       </section>
 
-      <section className="choice-section">
-        <span>重さ</span>
+      <fieldset className="choice-section choice-fieldset difficulty-fieldset">
+        <legend>タスクの重さ <span className="optional-label">だいたいでOK</span></legend>
         <div className="choice-grid difficulty-choice-grid">
           {difficultyOptions.map((option) => (
             <button
@@ -194,10 +202,10 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
             </button>
           ))}
         </div>
-      </section>
+      </fieldset>
 
       <details className="advanced-fields">
-        <summary>詳しく書く</summary>
+        <summary>メモ・カテゴリなど</summary>
 
         <div className="field-group">
           <label htmlFor="seed-body">メモ</label>
@@ -220,9 +228,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
               onChange={(event) => setCategory(event.target.value as FireCategory)}
             >
               {Object.entries(categoryLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
@@ -235,9 +241,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
               onChange={(event) => setPriority(event.target.value as FirePriority)}
             >
               {Object.entries(priorityLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
@@ -246,9 +250,7 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
             <label htmlFor="seed-stage">状態</label>
             <select id="seed-stage" value={stage} onChange={(event) => setStage(event.target.value as FireStage)}>
               {Object.entries(stageLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
@@ -257,11 +259,11 @@ export function FireForm({ defaultTitle, onClearDefaultTitle, onAddSeed }: FireF
 
       {error ? <p id={titleErrorId} className="form-error" role="alert">{error}</p> : null}
 
-      <div className="submit-row">
+      <div className="submit-row form-sticky-submit">
         <button className="primary-button" type="submit" disabled={!canSubmit}>
           タスクを薪にする
         </button>
-        {!canSubmit ? <p className="submit-hint">タスク名を入れると追加できます</p> : null}
+        {!canSubmit ? <p className="submit-hint">タスク名を入れると追加できます</p> : <p className="submit-hint is-ready">この内容で追加できます</p>}
       </div>
     </form>
   );

@@ -16,6 +16,7 @@ import './worldClassPolish.css';
 import './hierarchyPolish.css';
 import './taskCardPolish.css';
 import './dialogPolish.css';
+import './interactionPolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
