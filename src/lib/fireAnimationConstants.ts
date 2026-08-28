@@ -40,6 +40,16 @@ export const BURN_TIMING = {
 } as const;
 
 export const BURN_SEQUENCE_DURATION = BURN_TIMING.COMPLETE_END;
+export const COMPLETE_PHASE_DURATION_MS = BURN_TIMING.COMPLETE_END - BURN_TIMING.CARBONIZING_END;
+
+/**
+ * Completion effects must finish before the 700 ms complete phase ends.
+ * Delays are deliberately clustered so even the last particle is visible.
+ */
+export const PARTICLE_BURST_MAX_DELAY_MS = 60;
+export const PARTICLE_BURST_DURATION_S = 0.56;
+export const PARTICLE_BURST_CLEAR_MS = COMPLETE_PHASE_DURATION_MS;
+export const SPECTACLE_BURST_DURATION_S = 0.64;
 
 /** Reduced-motion keeps the semantic phases but completes in about one second. */
 export const REDUCED_MOTION_FACTOR = 0.35;
