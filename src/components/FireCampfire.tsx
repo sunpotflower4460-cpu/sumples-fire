@@ -1,3 +1,4 @@
+import { useMilestone } from '../hooks/useMilestone';
 import type { FireStreakData } from '../lib/fireStreak';
 import { getCampfireNextThreshold, getCampfireStage, getCampfireStageLabel, getDailyCravingCopy, getStreakState } from '../lib/fireStreak';
 
@@ -31,10 +32,12 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         : '';
 
   const emberCount = [2, 4, 6, 8, 10, 14][stage];
+  const isStageUp = useMilestone(stage);
+  const isStreakUp = useMilestone(streakData.currentStreak);
 
   return (
     <section
-      className={`fire-campfire campfire-stage-${stage} streak-${streakState} ${hasPendingTasks ? 'has-pending' : ''}`}
+      className={`fire-campfire campfire-stage-${stage} streak-${streakState} ${hasPendingTasks ? 'has-pending' : ''} ${isStageUp ? 'is-stage-up' : ''}`}
       aria-label="あなたの焚き火"
     >
       <div className="campfire-bg-glow" aria-hidden="true" />
@@ -66,7 +69,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
       </div>
 
       <div className="campfire-info">
-        <div className="campfire-stage-badge">
+        <div className={`campfire-stage-badge ${isStageUp ? 'is-stage-up' : ''}`}>
           <span className="campfire-stage-name">{stageLabel}</span>
           {nextThreshold ? (
             <span className="campfire-next-hint">あと {nextThreshold - ashPoints} 炭で次の段階へ</span>
@@ -76,7 +79,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         </div>
 
         {streakData.currentStreak > 0 ? (
-          <div className={`campfire-streak streak-state-${streakState}`}>
+          <div className={`campfire-streak streak-state-${streakState} ${isStreakUp ? 'is-streak-up' : ''}`}>
             <span className="sr-only">
               連続燃焼{streakData.currentStreak}日{streakMomentumLabel ? `、${streakMomentumLabel}` : ''}
             </span>

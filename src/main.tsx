@@ -39,6 +39,7 @@ import './choiceSemanticsPolish.css';
 import './touchInteractionPolish.css';
 import './accessibilityPolish.css';
 import './dimensionalPolish.css';
+import './tactilePolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

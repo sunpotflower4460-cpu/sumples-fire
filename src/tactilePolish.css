@@ -1,0 +1,579 @@
+/*
+ * Fire Task — Tactile polish layer
+ *
+ * The second depth pass. `dimensionalPolish.css` gave the app its 3D grammar;
+ * this layer makes that grammar responsive — surfaces now answer the pointer,
+ * the scroll position and the drag, and the reward moments (rank up, campfire
+ * stage up, streak) get a celebration the everyday surfaces deliberately avoid.
+ *
+ * House rules inherited from the previous layer and kept here:
+ *   - never a bare `perspective:` property; always `perspective()` inside the
+ *     transform list, so sticky and fixed descendants keep their containing block
+ *   - every hover tilt lives behind `(hover: hover) and (pointer: fine)`
+ *   - a closing `prefers-reduced-motion: reduce` block flattens everything added
+ *
+ * JS-driven variables published by hooks:
+ *   --tilt-x / --tilt-y / --tilt-lift / --glare-x / --glare-y  (usePointerTilt)
+ *   --sheet-drag                                               (useSheetDrag)
+ *   --scroll-depth                                             (useScrollDepth)
+ */
+
+:root {
+  --tp-ease-lift: cubic-bezier(0.16, 1, 0.3, 1);
+  --tp-ease-pop: cubic-bezier(0.22, 1.28, 0.36, 1);
+  --tp-tilt-perspective: 1000px;
+  --scroll-depth: 0;
+}
+
+/* ── Screen layers: two screens share one grid cell during a swap ──
+   Overlapping instead of stacking keeps `.app-screen` tall while the outgoing
+   screen fades, so App.tsx's synchronous scroll restoration still lands. */
+.app-screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.screen-layer {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* ── Top bar condenses as the page scrolls under it ── */
+.app-topbar {
+  border-bottom: 1px solid rgba(66, 39, 28, calc(0.09 * var(--scroll-depth)));
+  box-shadow: 0 12px 28px -18px rgba(43, 24, 16, calc(0.55 * var(--scroll-depth)));
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.app-topbar h1 {
+  transform: scale(calc(1 - 0.055 * var(--scroll-depth)));
+  transform-origin: 0 50%;
+  transition: transform 220ms var(--tp-ease-lift);
+}
+
+.ambient-embers {
+  transform: translate3d(0, calc(var(--scroll-depth) * 26px), 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-topbar {
+    border-bottom-color: rgba(255, 236, 222, calc(0.08 * var(--scroll-depth)));
+    box-shadow: 0 14px 30px -18px rgba(0, 0, 0, calc(0.8 * var(--scroll-depth)));
+  }
+}
+
+/* ── Task cards follow the pointer ──
+   The queue entrance also re-declares campfire.css's pending pulse, because
+   that rule is more specific than the entrance and would otherwise replace it. */
+.cards-stack .fire-card:nth-of-type(1) { --tp-stagger: 0.02s; }
+.cards-stack .fire-card:nth-of-type(2) { --tp-stagger: 0.06s; }
+.cards-stack .fire-card:nth-of-type(3) { --tp-stagger: 0.1s; }
+.cards-stack .fire-card:nth-of-type(4) { --tp-stagger: 0.14s; }
+.cards-stack .fire-card:nth-of-type(5) { --tp-stagger: 0.18s; }
+.cards-stack .fire-card:nth-of-type(n+6) { --tp-stagger: 0.2s; }
+
+.cards-stack .fire-card:not(.is-new):not(.is-burned):not(.is-burning) {
+  animation:
+    tpCardSettle 0.5s var(--tp-ease-lift) backwards,
+    pendingTaskPulse 3.5s ease-in-out infinite;
+  animation-delay: var(--tp-stagger, 0s), 0s;
+}
+
+@keyframes tpCardSettle {
+  0%   { opacity: 0; transform: perspective(900px) translateY(16px) rotateX(-7deg); }
+  100% { opacity: 1; transform: perspective(900px) translateY(0) rotateX(0deg); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fire-card,
+  .focus-seed {
+    transform:
+      perspective(var(--tp-tilt-perspective))
+      rotateX(var(--tilt-x, 0deg))
+      rotateY(var(--tilt-y, 0deg));
+    transition:
+      transform 340ms var(--tp-ease-lift),
+      box-shadow 340ms var(--tp-ease-lift),
+      border-color 180ms ease;
+  }
+
+  /* While the pointer is actually moving across the card, track it almost
+     immediately — the long ease is only for settling back to neutral. */
+  .fire-card.is-tilting,
+  .focus-seed.is-tilting {
+    transition: transform 90ms linear, box-shadow 240ms var(--tp-ease-lift);
+  }
+
+  .fire-card:hover:not(.is-burning):not(.is-burned) {
+    transform:
+      perspective(var(--tp-tilt-perspective))
+      rotateX(var(--tilt-x, 0deg))
+      rotateY(var(--tilt-y, 0deg))
+      translateY(calc(var(--tilt-lift, 0px) * -0.45))
+      translateZ(16px);
+    box-shadow:
+      0 2px 3px rgba(43, 24, 16, 0.06),
+      0 32px 52px -16px rgba(43, 24, 16, 0.34);
+  }
+
+  .focus-seed:hover {
+    transform:
+      perspective(1200px)
+      rotateX(calc(var(--tilt-x, 0deg) * 0.6))
+      rotateY(calc(var(--tilt-y, 0deg) * 0.6))
+      translateZ(10px);
+  }
+
+  .fire-card:active:not(.is-burning) {
+    transform: perspective(var(--tp-tilt-perspective)) translateZ(2px) scale(0.99);
+  }
+
+  /* Specular highlight that follows the cursor across the card face. */
+  .fire-card:not(.is-burning)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      22rem circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(255, 236, 210, 0.5),
+      transparent 46%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 260ms ease;
+  }
+
+  .fire-card.is-tilting:not(.is-burning)::after {
+    opacity: 0.55;
+  }
+
+  .fire-card.is-burned.is-tilting::after {
+    opacity: 0.28;
+  }
+}
+
+@media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
+  .fire-card:not(.is-burning)::after {
+    background: radial-gradient(
+      22rem circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(255, 180, 110, 0.16),
+      transparent 46%
+    );
+  }
+}
+
+/* ── Capture sheet follows the finger, then springs back ── */
+.record-sheet {
+  transform: translateY(var(--sheet-drag, 0px));
+  transition: transform 340ms var(--tp-ease-pop);
+}
+
+.record-sheet.is-dragging {
+  transition: none;
+}
+
+.sheet-backdrop {
+  transition: background 200ms ease;
+}
+
+.record-sheet.is-dragging .sheet-handle {
+  background: rgba(232, 90, 36, 0.5);
+}
+
+.sheet-handle {
+  transition: background 180ms ease, transform 180ms var(--tp-ease-pop);
+}
+
+/* ── Capture form: the pickers become physical switches ── */
+.choice-button {
+  transition:
+    transform 220ms var(--tp-ease-pop),
+    box-shadow 220ms var(--tp-ease-lift),
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.choice-button.is-selected {
+  transform: perspective(600px) translateZ(6px) translateY(-1px);
+  box-shadow: 0 12px 26px -10px rgba(184, 45, 24, 0.4);
+}
+
+.choice-button:active {
+  transform: perspective(600px) translateZ(0) scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .choice-button:hover {
+    transform: perspective(600px) translateZ(4px) translateY(-2px);
+  }
+
+  .choice-button.is-selected:hover {
+    transform: perspective(600px) translateZ(8px) translateY(-2px);
+  }
+}
+
+/* The 4-quadrant readout flips when the answer changes, so the consequence of
+   the two toggles above is impossible to miss. */
+.matrix-result-card {
+  animation: tpResultFlip 0.42s var(--tp-ease-pop) backwards;
+  transform-origin: 50% 100%;
+}
+
+@keyframes tpResultFlip {
+  0%   { opacity: 0; transform: perspective(800px) rotateX(-42deg) translateY(8px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: perspective(800px) rotateX(0deg) translateY(0); }
+}
+
+/* Disclosures open with a reveal instead of snapping to full height. */
+.task-tuning-fields[open] > .task-tuning-body,
+.advanced-fields[open] > .field-group,
+.settings-disclosure[open] > .settings-disclosure-body,
+.progress-disclosure[open] > .progress-disclosure-body {
+  animation: tpDisclosureReveal 0.34s var(--tp-ease-lift) backwards;
+}
+
+@keyframes tpDisclosureReveal {
+  0%   { opacity: 0; transform: translateY(-8px) scaleY(0.96); transform-origin: 50% 0; }
+  100% { opacity: 1; transform: translateY(0) scaleY(1); transform-origin: 50% 0; }
+}
+
+/* The submit dock cannot take a transform (sticky + backdrop-filter), so it
+   gains depth through its shadow only. */
+.form-sticky-submit {
+  box-shadow: 0 -14px 30px -22px rgba(43, 24, 16, 0.7);
+}
+
+/* ── Ash archive: charcoal you could pick up ── */
+.ash-coal-tile {
+  transition:
+    transform 220ms var(--tp-ease-pop),
+    box-shadow 220ms var(--tp-ease-lift),
+    filter 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ash-coal-tile:hover {
+    transform: perspective(500px) translateZ(10px) rotateX(-10deg);
+    filter: brightness(1.25);
+  }
+
+  .ash-record-card:hover {
+    transform: perspective(900px) translateZ(8px) translateY(-2px);
+  }
+
+  .ash-records-toggle:hover {
+    transform: perspective(700px) translateZ(6px) translateY(-2px);
+  }
+}
+
+.ash-record-card {
+  transition:
+    transform 260ms var(--tp-ease-lift),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.ash-record-card:active {
+  transform: perspective(900px) translateZ(0) scale(0.99);
+}
+
+/* Newly revealed history rows drop in; `content-visibility: auto` means only
+   the rows actually painted animate, which is exactly the batch just added. */
+.ash-records-list .ash-record-card {
+  animation: tpRecordDrop 0.42s var(--tp-ease-lift) backwards;
+}
+
+@keyframes tpRecordDrop {
+  0%   { opacity: 0; transform: perspective(900px) translateY(12px) rotateX(-6deg); }
+  100% { opacity: 1; transform: perspective(900px) translateY(0) rotateX(0deg); }
+}
+
+/* ── Progress: the bar fills, it does not teleport ── */
+.rank-progress-fill {
+  position: relative;
+  overflow: hidden;
+  transition: width 900ms var(--tp-ease-lift);
+}
+
+.rank-stat-card {
+  transition: transform 420ms var(--tp-ease-pop), box-shadow 420ms var(--tp-ease-lift);
+}
+
+/* ══ Reward moments ══════════════════════════════════════
+   Everything above stays quiet on purpose. These rules are the opposite: they
+   only ever run for one moment, when a number the user has been working toward
+   finally moves. */
+
+/* Rank up — the card flips and a gold sweep crosses the progress bar. */
+.rank-stat-card.is-rank-up {
+  animation: tpRankFlip 0.9s var(--tp-ease-pop) both;
+}
+
+.rank-stat-card.is-rank-up .rank-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 250, 220, 0.9) 50%, transparent 80%);
+  animation: tpProgressSweep 1.1s ease-out 0.25s both;
+}
+
+@keyframes tpRankFlip {
+  0%   { transform: perspective(1000px) rotateY(0deg) scale(1); }
+  35%  { transform: perspective(1000px) rotateY(16deg) scale(1.035); box-shadow: 0 26px 60px -22px rgba(246, 179, 77, 0.85); }
+  70%  { transform: perspective(1000px) rotateY(-7deg) scale(1.012); }
+  100% { transform: perspective(1000px) rotateY(0deg) scale(1); }
+}
+
+@keyframes tpProgressSweep {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(220%); }
+}
+
+/* The rank also lives on the collapsed disclosure summary — celebrate where the
+   user is actually looking, not only inside the panel they may never open. */
+.progress-disclosure[data-rank-up] > summary {
+  animation: tpSummaryFlare 1.5s var(--tp-ease-lift) both;
+}
+
+@keyframes tpSummaryFlare {
+  0%   { transform: perspective(800px) translateZ(0); box-shadow: 0 0 0 0 rgba(246, 179, 77, 0); }
+  22%  { transform: perspective(800px) translateZ(18px); box-shadow: 0 16px 40px -12px rgba(246, 179, 77, 0.85); }
+  60%  { transform: perspective(800px) translateZ(4px); box-shadow: 0 10px 26px -14px rgba(246, 179, 77, 0.4); }
+  100% { transform: perspective(800px) translateZ(0); box-shadow: 0 0 0 0 rgba(246, 179, 77, 0); }
+}
+
+/* Campfire stage up — the whole fire flares once, then settles into its new size. */
+.fire-campfire.is-stage-up {
+  animation: tpCampfireFlare 1.5s var(--tp-ease-lift) both;
+}
+
+.campfire-stage-badge.is-stage-up {
+  animation: tpBadgePop 0.8s var(--tp-ease-pop) both;
+}
+
+@keyframes tpCampfireFlare {
+  0%   { filter: brightness(1); }
+  18%  { filter: brightness(1.5) saturate(1.15); }
+  55%  { filter: brightness(1.12); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes tpBadgePop {
+  0%   { transform: perspective(600px) translateZ(0) scale(1); }
+  30%  { transform: perspective(600px) translateZ(24px) scale(1.16); }
+  62%  { transform: perspective(600px) translateZ(6px) scale(0.985); }
+  100% { transform: perspective(600px) translateZ(0) scale(1); }
+}
+
+/* Streak extended — the badge bounces once; the existing blaze glow keeps running. */
+.campfire-streak.is-streak-up {
+  animation: tpStreakBounce 0.72s var(--tp-ease-pop) both;
+}
+
+@keyframes tpStreakBounce {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-7px) scale(1.09); }
+  70%  { transform: translateY(1px) scale(0.98); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ── Campfire depth: the flame column sits inside the bowl, not on top of it ──
+   The flames themselves run infinite keyframes, so their depth has to come from
+   non-transform properties that those keyframes never touch. */
+.campfire-flame.cf-1,
+.campfire-flame.cf-3,
+.campfire-flame.cf-5 {
+  filter: blur(2.5px) brightness(0.88);
+}
+
+.campfire-flame.cf-7,
+.campfire-flame.cf-9 {
+  filter: blur(5px) brightness(0.8);
+  opacity: 0.85;
+}
+
+.campfire-flame.cf-2,
+.campfire-flame.cf-4 {
+  filter: blur(2px) brightness(1.08);
+}
+
+.campfire-logs {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+}
+
+/* ── Root canvas: follow the active colour scheme ──
+   `styles.css` paints the root with `--color-bg`, which `darkTheme.css` (written
+   when the app was dark-only, and never scoped to a media query) pins to
+   #0a0a0a. `:root` outranks worldClassPolish's `html` rule, so the canvas stayed
+   black in light mode and showed through wherever `body` did not paint — the
+   strip above the desktop shell, and overscroll on mobile. `--wc-canvas` already
+   carries the correct value for both schemes. */
+:root {
+  background: var(--wc-canvas);
+}
+
+/* ── Toast: hand the animation to framer-motion ──
+   `styles.css` animates the toast with `toastSlideIn ... both`, and a filled CSS
+   animation outranks inline styles — so it silently overrode the enter/exit
+   variants and pinned the transform, which also made the exit animation
+   impossible. Dropping that animation hands motion to the component; centring
+   then has to come from the box model rather than `translateX(-50%)`, which the
+   animated transform would otherwise clobber. */
+.toast {
+  animation: none;
+  right: 0;
+  left: 0;
+  margin-inline: auto;
+}
+
+/* Clear the (now genuinely sticky) header instead of covering the screen title.
+   The undo snackbar sets `top: auto` and stays in the thumb zone above the dock. */
+.toast:not(.toast-action) {
+  top: max(74px, calc(env(safe-area-inset-top) + 62px));
+}
+
+/* ── App chrome: restore the pinning the shell was designed around ──
+   `styles.css` pins the header (`sticky`), the tab dock, the sheet scrim and the
+   floating action button (`fixed`). A later blanket rule — darkTheme.css's
+   "keep content above the ambient glow", which is not scoped to dark mode — sets
+   `position: relative` on all four, plus nativeFinishPolish.css does the same for
+   the action button's glyph pseudo-elements. The result was a header that
+   scrolled away, a tab dock parked below the fold, and a modal scrim laid out in
+   the page flow. These four rules restore the intended positioning while keeping
+   both of those layers' other effects (and their stacking intent) untouched. */
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.bottom-tabs {
+  position: fixed;
+  z-index: 30;
+}
+
+.floating-action {
+  position: fixed;
+  z-index: 40;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+/* ── Navigation: the dock reacts to the screen behind it ── */
+.bottom-tabs {
+  transition: box-shadow 260ms var(--tp-ease-lift);
+  box-shadow:
+    0 18px 48px rgba(43, 24, 16, calc(0.13 + 0.1 * var(--scroll-depth))),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.tab-icon {
+  transition: transform 260ms var(--tp-ease-pop);
+}
+
+.tab-button.is-active .tab-icon {
+  transform: perspective(400px) translateZ(8px) scale(1.06);
+}
+
+/* ── Burn ritual: finishing touches only, no timing or structure changes ── */
+.burning-ritual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(circle at 50% 46%, transparent 38%, rgba(0, 0, 0, 0.55) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+.burning-ritual.ritual-phase-carbonizing::after,
+.burning-ritual.ritual-phase-complete::after {
+  opacity: 1;
+}
+
+.ritual-stage {
+  transform: perspective(1400px) translateZ(40px);
+}
+
+.ritual-title-wrapper {
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.6));
+}
+
+/* ── Touch devices: no hover tilt, but keep the press feedback ── */
+@media (hover: none), (pointer: coarse) {
+  .fire-card,
+  .focus-seed,
+  .ash-record-card,
+  .ash-coal-tile,
+  .ash-records-toggle {
+    transform: none;
+  }
+
+  .fire-card::after {
+    display: none;
+  }
+}
+
+/* ── Reduced motion: everything above collapses to a static, flat surface ── */
+@media (prefers-reduced-motion: reduce) {
+  .cards-stack .fire-card:not(.is-new):not(.is-burned):not(.is-burning),
+  .matrix-result-card,
+  .task-tuning-fields[open] > .task-tuning-body,
+  .advanced-fields[open] > .field-group,
+  .settings-disclosure[open] > .settings-disclosure-body,
+  .progress-disclosure[open] > .progress-disclosure-body,
+  .ash-records-list .ash-record-card,
+  .rank-stat-card.is-rank-up,
+  .rank-stat-card.is-rank-up .rank-progress-fill::after,
+  .fire-campfire.is-stage-up,
+  .campfire-stage-badge.is-stage-up,
+  .campfire-streak.is-streak-up,
+  .progress-disclosure[data-rank-up] > summary {
+    animation: none !important;
+  }
+
+  .app-topbar h1,
+  .ambient-embers,
+  .fire-card,
+  .fire-card:hover,
+  .fire-card:active,
+  .focus-seed,
+  .focus-seed:hover,
+  .choice-button,
+  .choice-button.is-selected,
+  .choice-button:hover,
+  .choice-button:active,
+  .ash-coal-tile:hover,
+  .ash-record-card:hover,
+  .ash-record-card:active,
+  .ash-records-toggle:hover,
+  .record-sheet,
+  .ritual-stage,
+  .tab-button.is-active .tab-icon {
+    transform: none !important;
+  }
+
+  .fire-card::after {
+    display: none !important;
+  }
+
+  .rank-progress-fill,
+  .record-sheet,
+  .app-topbar,
+  .app-topbar h1,
+  .bottom-tabs,
+  .tab-icon,
+  .ash-record-card,
+  .ash-coal-tile,
+  .choice-button {
+    transition: none !important;
+  }
+}

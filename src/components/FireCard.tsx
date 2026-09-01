@@ -1,3 +1,4 @@
+import { usePointerTilt } from '../hooks/usePointerTilt';
 import type { FireSeed } from '../types/fireSeed';
 import { categoryLabels, difficultyLabels, quadrantLabels } from '../types/fireSeed';
 
@@ -37,9 +38,11 @@ function DeleteGlyph() {
 export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
   const createdAt = dateFormatter.format(new Date(seed.burnedAt ?? seed.createdAt));
   const titleId = `fire-card-${seed.id}-title`;
+  const tiltRef = usePointerTilt<HTMLElement>();
 
   return (
     <article
+      ref={tiltRef}
       className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}
       aria-labelledby={titleId}
       tabIndex={-1}

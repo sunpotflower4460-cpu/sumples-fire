@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { BurningRitual } from './components/BurningRitual';
 import { AshLegacy } from './components/AshLegacy';
 import { FireCard } from './components/FireCard';
@@ -7,9 +8,16 @@ import { FireDeleteModal } from './components/FireDeleteModal';
 import { FireForm } from './components/FireForm';
 import { FireSettingsPanel } from './components/FireSettingsPanel';
 import { FireStats } from './components/FireStats';
+import { ScreenLayer } from './components/ScreenLayer';
 import { useFocusTrap } from './hooks/useFocusTrap';
+import { useMilestone } from './hooks/useMilestone';
+import { usePointerTilt } from './hooks/usePointerTilt';
+import { useScrollDepth } from './hooks/useScrollDepth';
+import { useSheetDrag } from './hooks/useSheetDrag';
 import { useFireSeeds } from './hooks/useFireSeeds';
+import { getFireRankLevel } from './lib/fireSeedModel';
 import { getStreakState } from './lib/fireStreak';
+import { toastVariants } from './lib/shellVariants';
 import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fireSeed';
 import { difficultyLabels, quadrantLabels } from './types/fireSeed';
 
@@ -140,7 +148,16 @@ export default function App() {
   const burnOriginRef = useRef<BurnOrigin | null>(null);
   const lastCompletedBurnOriginRef = useRef<BurnOrigin | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
+  const sheetDragRef = useSheetDrag<HTMLElement>(isRecordOpen);
+  const focusSeedTiltRef = usePointerTilt<HTMLElement>();
   const swipeTouchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const previousTabIndexRef = useRef(0);
+  useScrollDepth();
+
+  const bindRecordSheet = (node: HTMLElement | null) => {
+    dialogRef.current = node;
+    sheetDragRef.current = node;
+  };
   const {
     addSeed,
     allSeeds,
@@ -340,6 +357,9 @@ export default function App() {
     swipeTouchStartRef.current = null;
   };
 
+  const isRankUp = useMilestone(getFireRankLevel(stats.totalAshPoints));
+  const activeTabIndex = Math.max(0, tabs.findIndex((tab) => tab.id === activeTab));
+  const screenDepth = activeTabIndex >= previousTabIndexRef.current ? 1 : -1;
   const hasTasks = stats.total > 0;
   const burnedTasks = allSeeds.filter((seed) => seed.burned);
   const burningTask = allSeeds.find((seed) => seed.isBurning) ?? null;
@@ -397,6 +417,7 @@ export default function App() {
   useEffect(() => {
     const tab = tabs.find((item) => item.id === activeTab);
     document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
+    previousTabIndexRef.current = Math.max(0, tabs.findIndex((item) => item.id === activeTab));
   }, [activeTab]);
 
   useEffect(() => {
@@ -506,7 +527,9 @@ export default function App() {
       </header>
 
       <section className="app-screen" aria-labelledby="app-screen-title">
+        <AnimatePresence initial={false} custom={screenDepth}>
         {activeTab === 'today' ? (
+          <ScreenLayer key="today" depth={screenDepth}>
           <div className="screen-stack">
             {!hasTasks ? (
               <section className="brand-hero" aria-label="Fire Task の概要">
@@ -518,7 +541,7 @@ export default function App() {
             ) : null}
 
             {focusSeed ? (
-              <section className="focus-seed" aria-label="今日の火種">
+              <section ref={focusSeedTiltRef} className="focus-seed" aria-label="今日の火種">
                 <div className="section-heading">
                   <p className="eyebrow">今日の火種</p>
                   <h2>{focusSeed.title}</h2>
@@ -656,7 +679,7 @@ export default function App() {
             ) : null}
 
             {hasTasks ? (
-              <details className="progress-disclosure">
+              <details className="progress-disclosure" data-rank-up={isRankUp || undefined}>
                 <summary>
                   <span className="progress-summary-title">
                     <span className="eyebrow">PROGRESS</span>
@@ -674,9 +697,11 @@ export default function App() {
               </details>
             ) : null}
           </div>
+          </ScreenLayer>
         ) : null}
 
         {activeTab === 'ash' ? (
+          <ScreenLayer key="ash" depth={screenDepth}>
           <section className="panel app-panel" aria-labelledby="ash-screen-heading">
             <div className="section-heading ash-screen-heading">
               <p className="eyebrow">ASH ARCHIVE</p>
@@ -684,9 +709,11 @@ export default function App() {
             </div>
             <AshLegacy seeds={burnedTasks} onDelete={requestDelete} />
           </section>
+          </ScreenLayer>
         ) : null}
 
         {activeTab === 'info' ? (
+          <ScreenLayer key="info" depth={screenDepth}>
           <section className="panel app-panel settings-panel" aria-labelledby="settings-screen-heading">
             <div className="section-heading">
               <p className="eyebrow">SETTINGS</p>
@@ -694,11 +721,22 @@ export default function App() {
             </div>
             <FireSettingsPanel totalTasks={stats.total} />
           </section>
+          </ScreenLayer>
         ) : null}
+        </AnimatePresence>
       </section>
 
+      <AnimatePresence initial={false}>
       {undoBurnCandidate ? (
-        <div className="toast toast-action" role="group" aria-label="直前のFire">
+        <motion.div
+          key="undo-toast"
+          className="toast toast-action"
+          role="group" aria-label="直前のFire"
+          variants={toastVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
           <span className="toast-action-message" role="status" aria-live="polite">
             {notice || `「${undoBurnCandidate.title}」をFireしました`}
             <span className="sr-only"> 元に戻す操作が利用できます。</span>
@@ -719,10 +757,22 @@ export default function App() {
           >
             <CloseGlyph />
           </button>
-        </div>
+        </motion.div>
       ) : notice ? (
-        <div className="toast" role="status" aria-live="polite">{notice}</div>
+        <motion.div
+          key="notice-toast"
+          className="toast"
+          role="status"
+          aria-live="polite"
+          variants={toastVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          {notice}
+        </motion.div>
       ) : null}
+      </AnimatePresence>
 
       {shouldShowFloatingAction ? (
         <button ref={floatingActionRef} className="floating-action" type="button" onClick={openRecord} aria-label="燃やしたいタスクを書く" />
@@ -745,7 +795,7 @@ export default function App() {
 
       {isRecordOpen ? (
         <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
-          <section ref={dialogRef} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
+          <section ref={bindRecordSheet} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
             <div
               className="sheet-drag-zone"
               onTouchStart={handleSheetSwipeStart}

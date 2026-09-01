@@ -106,7 +106,7 @@
 
 /* ── Task cards: physical, tiltable paper with real elevation ── */
 .fire-card.is-new {
-  animation: dpCardRise 0.52s var(--dp-ease-pop) both;
+  animation: dpCardRise 0.52s var(--dp-ease-pop) backwards;
 }
 
 @keyframes dpCardRise {
@@ -116,7 +116,7 @@
 }
 
 .cards-stack .fire-card:not(.is-new) {
-  animation: dpCardSettle 0.5s var(--dp-ease-lift) both;
+  animation: dpCardSettle 0.5s var(--dp-ease-lift) backwards;
 }
 
 .cards-stack .fire-card:nth-of-type(1) { animation-delay: 0.02s; }
@@ -155,11 +155,17 @@
 
 /* ── Buttons: tactile depth, ember shimmer, ignite flash ── */
 .primary-button,
-.fire-button,
-.floating-action {
+.fire-button {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+}
+
+/* The floating action button is already `position: fixed` and its glow ring
+   deliberately extends past its edge, so it takes neither the positioning nor
+   the clipping the two buttons above need for their shimmer sweep. */
+.floating-action {
+  isolation: isolate;
 }
 
 .primary-button::before,
@@ -221,25 +227,26 @@
   transform: perspective(600px) translateZ(0) translateY(1px) scale(0.985);
 }
 
-.floating-action::after {
-  content: '';
-  position: absolute;
-  inset: -10px;
-  z-index: -1;
-  border-radius: inherit;
-  background: radial-gradient(circle, rgba(232, 90, 36, 0.55), transparent 70%);
-  opacity: 0;
-  pointer-events: none;
-}
-
+/* The glow ring rides on the button's own box-shadow: `::before` and `::after`
+   already draw the two bars of the plus glyph. */
 @media (prefers-reduced-motion: no-preference) {
-  .floating-action::after {
-    animation: dpFabPulse 2.8s ease-in-out infinite;
+  .floating-action {
+    animation: dpFabPulse 2.9s ease-in-out infinite;
   }
 
   @keyframes dpFabPulse {
-    0%, 100% { transform: scale(0.9); opacity: 0; }
-    50%      { transform: scale(1.18); opacity: 0.4; }
+    0%, 100% {
+      box-shadow:
+        0 12px 26px rgba(164, 45, 24, 0.3),
+        0 0 0 0 rgba(232, 90, 36, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    55% {
+      box-shadow:
+        0 15px 30px rgba(164, 45, 24, 0.34),
+        0 0 0 13px rgba(232, 90, 36, 0),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
   }
 }
 
@@ -267,7 +274,7 @@
 
 /* ── Sheets & dialogs: paper lifted off the notebook, not a flat fade ── */
 .record-sheet {
-  animation: dpSheetRise 0.42s var(--dp-ease-pop) both;
+  animation: dpSheetRise 0.42s var(--dp-ease-pop) backwards;
   transform-origin: 50% 100%;
 }
 
@@ -311,11 +318,14 @@
     animation: none !important;
   }
 
+  .floating-action {
+    animation: none !important;
+  }
+
   .primary-button::before,
   .fire-button::before,
   .primary-button:active:not(:disabled)::after,
-  .fire-button:active:not(:disabled)::after,
-  .floating-action::after {
+  .fire-button:active:not(:disabled)::after {
     display: none !important;
   }
 

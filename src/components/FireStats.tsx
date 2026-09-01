@@ -1,3 +1,6 @@
+import { useMilestone } from '../hooks/useMilestone';
+import { getFireRankLevel } from '../lib/fireSeedModel';
+
 type FireStatsProps = {
   stats: {
     total: number;
@@ -27,11 +30,12 @@ export function FireStats({ stats }: FireStatsProps) {
     ? `次の称号「${stats.nextRank}」まであと${stats.nextRankRemaining}炭`
     : '最高称号に到達しています';
   const rankProgressPercent = Math.round(stats.rankProgress);
+  const isRankUp = useMilestone(getFireRankLevel(stats.totalAshPoints));
   const rankProgressText = `${rankProgressPercent}%。${rankMessage}`;
 
   return (
     <section className="stats-grid" aria-label="Fireタスクの統計">
-      <div className="stat-card rank-stat-card">
+      <div className={`stat-card rank-stat-card ${isRankUp ? 'is-rank-up' : ''}`}>
         <span>現在の称号</span>
         <strong>{stats.rank}</strong>
         <small>{rankMessage}</small>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useCountUp } from '../hooks/useCountUp';
 import { sortAshRecordsOldestFirst } from '../lib/ashHistory';
 import type { FireSeed } from '../types/fireSeed';
 import { difficultyLabels } from '../types/fireSeed';
@@ -32,7 +33,10 @@ function DeleteGlyph() {
 
 export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
   const [visibleRecordCount, setVisibleRecordCount] = useState(RECORD_PAGE_SIZE);
-  const totalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
+  const settledTotalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
+  // The headline number rolls up to the new score; it settles within 720ms and
+  // is not a live region, so assistive tech still reads the final total.
+  const totalAsh = useCountUp(settledTotalAsh);
   const chronologicalSeeds = useMemo(() => sortAshRecordsOldestFirst(seeds), [seeds]);
   const newestFirstSeeds = useMemo(() => [...chronologicalSeeds].reverse(), [chronologicalSeeds]);
   const mosaicTiles = chronologicalSeeds.slice(-MAX_MOSAIC_TILES);
