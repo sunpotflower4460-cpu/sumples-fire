@@ -38,6 +38,7 @@ import './dialogViewportPolish.css';
 import './choiceSemanticsPolish.css';
 import './touchInteractionPolish.css';
 import './accessibilityPolish.css';
+import './dimensionalPolish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

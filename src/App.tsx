@@ -494,6 +494,10 @@ export default function App() {
 
   return (
     <main ref={appShellRef} className={`mobile-app-shell fire-mode streak-${streakState}`}>
+      <div className="ambient-embers" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i /><i /><i />
+      </div>
+
       <header className="app-topbar">
         <div>
           <p className="app-kicker">Fire Task</p>
