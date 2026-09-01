@@ -58,10 +58,12 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
         <i className="sound-pill-icon" aria-hidden="true"><SoundGlyph muted={!soundEnabled} /></i>
         {soundEnabled ? 'オン' : 'オフ'}
       </button>
-      <div className="storage-note">
-        <b>端末内保存</b>
-        <small>{totalTasks}件のタスクを保存しています</small>
-      </div>
+      {/* Not "端末内保存" here again — Settings > データとプライバシー already
+          explains local storage. This is only the live count, so the same fact
+          (your tasks stay on this device) is stated once, not twice. */}
+      <p className="storage-note">
+        <small>現在{totalTasks}件のタスクを保存中</small>
+      </p>
     </div>
   );
 }

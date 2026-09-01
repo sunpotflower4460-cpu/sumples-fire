@@ -1,0 +1,347 @@
+/*
+ * Fire Task — Dimensional polish layer
+ *
+ * Adds physical depth (3D tilt, layered elevation) and a richer,
+ * ember-inspired motion language on top of the existing material system.
+ * Loads last so it can extend hover/press/entrance states without fighting
+ * earlier layers — it never removes a rule another layer relies on, it
+ * only adds transforms, shadows and keyframes.
+ *
+ * 3D tilt always uses a local `perspective(...)` inside its own `transform`
+ * list rather than an ancestor `perspective` property, so nothing here can
+ * change containing-block behavior for `.app-topbar`'s sticky header or any
+ * fixed-position layer — each element carries its own vanishing point.
+ *
+ * Every animation introduced here is either a one-shot entrance (gated by
+ * the reduced-motion block at the bottom) or lives entirely inside
+ * `prefers-reduced-motion: no-preference`, so a reduced-motion user gets
+ * the same flat, static presentation the earlier layers already produce.
+ */
+
+:root {
+  --dp-ease-lift: cubic-bezier(0.16, 1, 0.3, 1);
+  --dp-ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+  --dp-ease-pop: cubic-bezier(0.22, 1.28, 0.36, 1);
+}
+
+/* ── Ambient embers (decorative depth cue, drifts behind every screen) ── */
+.ambient-embers {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-embers i {
+  position: absolute;
+  bottom: -6%;
+  left: var(--x, 50%);
+  width: var(--size, 3px);
+  height: var(--size, 3px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 148, 0.95), rgba(232, 90, 36, 0.55) 60%, transparent 72%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.ambient-embers i:nth-child(1) { --x: 8%;  --size: 3px; }
+.ambient-embers i:nth-child(2) { --x: 20%; --size: 5px; }
+.ambient-embers i:nth-child(3) { --x: 34%; --size: 2px; }
+.ambient-embers i:nth-child(4) { --x: 48%; --size: 4px; }
+.ambient-embers i:nth-child(5) { --x: 62%; --size: 3px; }
+.ambient-embers i:nth-child(6) { --x: 74%; --size: 5px; }
+.ambient-embers i:nth-child(7) { --x: 86%; --size: 2px; }
+.ambient-embers i:nth-child(8) { --x: 94%; --size: 4px; }
+
+@media (prefers-color-scheme: dark) {
+  .ambient-embers i {
+    background: radial-gradient(circle, rgba(255, 224, 170, 0.9), rgba(232, 90, 36, 0.6) 60%, transparent 72%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-embers i {
+    animation-name: dpEmberDrift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .ambient-embers i:nth-child(1) { animation-duration: 17s; animation-delay: 0s; }
+  .ambient-embers i:nth-child(2) { animation-duration: 21s; animation-delay: -3s; }
+  .ambient-embers i:nth-child(3) { animation-duration: 15s; animation-delay: -9s; }
+  .ambient-embers i:nth-child(4) { animation-duration: 24s; animation-delay: -6s; }
+  .ambient-embers i:nth-child(5) { animation-duration: 18s; animation-delay: -14s; }
+  .ambient-embers i:nth-child(6) { animation-duration: 22s; animation-delay: -2s; }
+  .ambient-embers i:nth-child(7) { animation-duration: 16s; animation-delay: -11s; }
+  .ambient-embers i:nth-child(8) { animation-duration: 20s; animation-delay: -17s; }
+
+  .ambient-embers i:nth-child(odd) { --wobble: 1; }
+  .ambient-embers i:nth-child(even) { --wobble: -1; }
+
+  @keyframes dpEmberDrift {
+    0%   { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
+    10%  { opacity: 0.55; }
+    50%  { transform: translate3d(calc(var(--wobble, 1) * 10px), -48vh, 0) scale(1); }
+    90%  { opacity: 0.3; }
+    100% { transform: translate3d(0, -92vh, 0) scale(1.2); opacity: 0; }
+  }
+}
+
+/* ── Flame glyphs get a living flicker instead of sitting static ── */
+@media (prefers-reduced-motion: no-preference) {
+  .brand-mark,
+  .all-clear-mark {
+    animation: dpFlameFlicker 3.6s ease-in-out infinite;
+    transform-origin: 50% 85%;
+  }
+
+  @keyframes dpFlameFlicker {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 6px 14px rgba(232, 90, 36, 0.28)); }
+    22%      { transform: scale(1.035) rotate(-1.2deg); filter: drop-shadow(0 8px 18px rgba(232, 90, 36, 0.4)); }
+    48%      { transform: scale(0.985) rotate(0.8deg); filter: drop-shadow(0 5px 12px rgba(232, 90, 36, 0.24)); }
+    75%      { transform: scale(1.02) rotate(-0.5deg); filter: drop-shadow(0 7px 16px rgba(232, 90, 36, 0.34)); }
+  }
+}
+
+/* ── Task cards: physical, tiltable paper with real elevation ── */
+.fire-card.is-new {
+  animation: dpCardRise 0.52s var(--dp-ease-pop) backwards;
+}
+
+@keyframes dpCardRise {
+  0%   { opacity: 0; transform: perspective(900px) translateY(26px) translateZ(-40px) rotateX(-10deg) scale(0.96); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: perspective(900px) translateY(0) translateZ(0) rotateX(0deg) scale(1); }
+}
+
+.cards-stack .fire-card:not(.is-new) {
+  animation: dpCardSettle 0.5s var(--dp-ease-lift) backwards;
+}
+
+.cards-stack .fire-card:nth-of-type(1) { animation-delay: 0.02s; }
+.cards-stack .fire-card:nth-of-type(2) { animation-delay: 0.06s; }
+.cards-stack .fire-card:nth-of-type(3) { animation-delay: 0.1s; }
+.cards-stack .fire-card:nth-of-type(4) { animation-delay: 0.14s; }
+.cards-stack .fire-card:nth-of-type(5) { animation-delay: 0.18s; }
+.cards-stack .fire-card:nth-of-type(n+6) { animation-delay: 0.2s; }
+
+@keyframes dpCardSettle {
+  0%   { opacity: 0; transform: perspective(900px) translateY(14px) rotateX(-6deg); }
+  100% { opacity: 1; transform: perspective(900px) translateY(0) rotateX(0deg); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fire-card:hover:not(.is-burning):not(.is-burned) {
+    transform: perspective(1000px) translateY(-5px) translateZ(18px) rotateX(3deg) scale(1.008);
+    box-shadow:
+      0 2px 3px rgba(43, 24, 16, 0.06),
+      0 28px 46px -12px rgba(43, 24, 16, 0.32);
+  }
+
+  .fire-card.is-burned:hover {
+    transform: perspective(1000px) translateY(-4px) translateZ(10px) rotateX(2deg);
+  }
+
+  .focus-seed:hover {
+    transform: perspective(1200px) translateZ(6px);
+  }
+}
+
+.fire-card:active:not(.is-burning) {
+  transition: transform 120ms var(--dp-ease-press), box-shadow 120ms var(--dp-ease-press);
+  transform: perspective(1000px) translateY(-1px) translateZ(2px) scale(0.992);
+}
+
+/* ── Buttons: tactile depth, ember shimmer, ignite flash ── */
+.primary-button,
+.fire-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* The floating action button is already `position: fixed` and its glow ring
+   deliberately extends past its edge, so it takes neither the positioning nor
+   the clipping the two buttons above need for their shimmer sweep. */
+.floating-action {
+  isolation: isolate;
+}
+
+.primary-button::before,
+.fire-button::before {
+  content: '';
+  position: absolute;
+  inset: -40% -60%;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.32) 48%, transparent 66%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .primary-button::before,
+  .fire-button::before {
+    animation: dpEmberShimmer 5.5s ease-in-out infinite;
+  }
+
+  @keyframes dpEmberShimmer {
+    0%, 62%, 100% { transform: translateX(-120%); }
+    80% { transform: translateX(120%); }
+  }
+}
+
+.primary-button:active:not(:disabled)::after,
+.fire-button:active:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(circle at 50% 120%, rgba(255, 226, 170, 0.55), transparent 70%);
+  animation: dpIgniteFlash 420ms ease-out both;
+  pointer-events: none;
+}
+
+@keyframes dpIgniteFlash {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary-button:hover:not(:disabled),
+  .fire-button:hover:not(:disabled) {
+    transform: perspective(600px) translateZ(4px) translateY(-2px);
+  }
+
+  .floating-action:hover {
+    transform: perspective(600px) translateY(-3px) translateZ(22px) rotateX(6deg) scale(1.03);
+  }
+
+  .matrix-cell:hover:not(:disabled) {
+    transform: perspective(700px) translateY(-3px) translateZ(10px) rotateX(3deg);
+  }
+}
+
+.primary-button:active:not(:disabled),
+.fire-button:active:not(:disabled) {
+  transform: perspective(600px) translateZ(0) translateY(1px) scale(0.985);
+}
+
+/* The glow ring rides on the button's own box-shadow: `::before` and `::after`
+   already draw the two bars of the plus glyph. */
+@media (prefers-reduced-motion: no-preference) {
+  .floating-action {
+    animation: dpFabPulse 2.9s ease-in-out infinite;
+  }
+
+  @keyframes dpFabPulse {
+    0%, 100% {
+      box-shadow:
+        0 12px 26px rgba(164, 45, 24, 0.3),
+        0 0 0 0 rgba(232, 90, 36, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    55% {
+      box-shadow:
+        0 15px 30px rgba(164, 45, 24, 0.34),
+        0 0 0 13px rgba(232, 90, 36, 0),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+  }
+}
+
+.floating-action:active {
+  transform: perspective(600px) translateY(1px) translateZ(0) scale(0.94);
+}
+
+/* ── Navigation dock: the active tab lifts toward the viewer ── */
+.tab-button {
+  transition:
+    transform 260ms var(--dp-ease-pop),
+    box-shadow 260ms var(--dp-ease-lift),
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.tab-button.is-active {
+  transform: perspective(700px) translateZ(14px) translateY(-2px);
+  box-shadow: 0 14px 26px rgba(43, 24, 16, 0.22), 0 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.tab-button:active {
+  transform: perspective(700px) translateZ(2px) scale(0.96);
+}
+
+/* ── Sheets & dialogs: paper lifted off the notebook, not a flat fade ── */
+.record-sheet {
+  animation: dpSheetRise 0.42s var(--dp-ease-pop) backwards;
+  transform-origin: 50% 100%;
+}
+
+@keyframes dpSheetRise {
+  0%   { opacity: 0.4; transform: perspective(1200px) translateY(60%) rotateX(18deg); }
+  100% { opacity: 1;   transform: perspective(1200px) translateY(0) rotateX(0deg); }
+}
+
+.fire-delete-modal {
+  animation: dpModalRise 0.3s var(--dp-ease-pop) both;
+}
+
+@keyframes dpModalRise {
+  0%   { opacity: 0; transform: perspective(900px) translateY(18px) scale(0.92) rotateX(8deg); }
+  100% { opacity: 1; transform: perspective(900px) translateY(0) scale(1) rotateX(0deg); }
+}
+
+/* ── Matrix quadrant cells: pressable tiles, not flat labels ── */
+.matrix-cell:active:not(:disabled) {
+  transform: perspective(700px) translateY(0) translateZ(0) scale(0.97);
+}
+
+/* ── Campfire: a slow ambient glow pulse behind the flames ── */
+@media (prefers-reduced-motion: no-preference) {
+  .fire-campfire .campfire-bg-glow {
+    animation: dpCampfireGlowPulse 4.2s ease-in-out infinite;
+  }
+
+  @keyframes dpCampfireGlowPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50%      { opacity: 1; transform: scale(1.06); }
+  }
+}
+
+/* ── Reduced motion: collapse every addition above to a static, flat UI ── */
+@media (prefers-reduced-motion: reduce) {
+  .fire-card.is-new,
+  .cards-stack .fire-card:not(.is-new),
+  .record-sheet,
+  .fire-delete-modal {
+    animation: none !important;
+  }
+
+  .floating-action {
+    animation: none !important;
+  }
+
+  .primary-button::before,
+  .fire-button::before,
+  .primary-button:active:not(:disabled)::after,
+  .fire-button:active:not(:disabled)::after {
+    display: none !important;
+  }
+
+  .fire-card:hover,
+  .fire-card:active,
+  .focus-seed:hover,
+  .primary-button:hover,
+  .fire-button:hover,
+  .primary-button:active,
+  .fire-button:active,
+  .floating-action:hover,
+  .floating-action:active,
+  .tab-button.is-active,
+  .tab-button:active,
+  .matrix-cell:hover,
+  .matrix-cell:active {
+    transform: none !important;
+  }
+}

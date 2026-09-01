@@ -110,11 +110,20 @@ body {
   background: linear-gradient(180deg, var(--wc-gold), var(--wc-ember), transparent 90%);
 }
 
+/* This heading holds the user's own task title, so its length is unknown.
+   Two fixes, both aimed at the same failure mode:
+   - no max-width: `ch` is calibrated to a Latin digit, roughly half a Japanese
+     full-width glyph, so a `13ch` cap forced a wrap after ~6-7 kana/kanji.
+   - no `text-wrap: balance`: balance evens out line *lengths*, with no idea
+     where a Japanese word ends — for a 12-character title it chose an even
+     6/6 split, which cut a compound word ("たたき台") right down the middle.
+     Default wrapping fills each line greedily instead, which is far less
+     likely to land a break inside a word. Fixed, short, designer-written
+     copy elsewhere (brand-hero, empty states) keeps `balance` deliberately —
+     the risk only exists for text nobody proofread before it shipped. */
 .focus-seed .section-heading h2 {
-  max-width: 13ch;
   font-size: clamp(1.8rem, 8vw, 2.55rem);
   letter-spacing: -0.07em;
-  text-wrap: balance;
 }
 
 .focus-next-action,
@@ -201,8 +210,9 @@ body {
   height: 28px;
 }
 
+/* Same fix as `.focus-seed h2` above: a `ch`-based cap undersizes Japanese
+   text, which forced this fixed headline into 3-4 lines with mid-word breaks. */
 .brand-hero h2 {
-  max-width: 10ch;
   font-size: clamp(2.25rem, 10.5vw, 3.55rem);
   line-height: 0.98;
   letter-spacing: -0.075em;

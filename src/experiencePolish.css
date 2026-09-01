@@ -48,10 +48,12 @@
   color: rgba(240, 200, 77, 0.74);
 }
 
+/* `ch` undersizes Japanese text (see worldClassPolish.css); dropping the cap
+   lets `text-wrap: balance` wrap this fixed headline against its real width
+   instead of forcing an early, mid-phrase break. */
 .ash-empty-state h3 {
   position: relative;
   z-index: 1;
-  max-width: 16ch;
   margin: 0;
   color: #f7ead7;
   font-size: clamp(1.35rem, 6vw, 1.75rem);

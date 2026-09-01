@@ -131,6 +131,12 @@ const isSameLocalDay = (left?: string, right = new Date()) => {
   );
 };
 
+/** Index of the rank a score sits in — lets the UI notice a rank-up. */
+export const getFireRankLevel = (ashPoints: number) => {
+  const index = [...fireRanks].reverse().findIndex((rank) => ashPoints >= rank.min);
+  return index === -1 ? 0 : fireRanks.length - 1 - index;
+};
+
 export const getFireRank = (ashPoints: number) => {
   return [...fireRanks].reverse().find((rank) => ashPoints >= rank.min)?.label ?? fireRanks[0].label;
 };

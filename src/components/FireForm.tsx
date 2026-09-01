@@ -205,7 +205,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
 
         <div className="task-tuning-body">
           <p className="task-tuning-default-note">
-            初期値は「緊急 高・重要 高・普通」です。タイトルから自動判定しているわけではありません。
+            この初期値は固定で、タイトルから自動判定しているわけではありません。
           </p>
 
           <section className="fast-matrix-picker" aria-label="タスクの優先度">
