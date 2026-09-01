@@ -7,7 +7,7 @@ import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { getEffectiveFireStreak, loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
-import { playSpectacleSequence } from '../lib/fireSoundEngine';
+import { playSparkSound, playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
@@ -168,6 +168,9 @@ export function useFireSeeds() {
     clearUndoBurn();
     setSeeds(nextSeeds);
     setNotice('薪を追加しました');
+    if (isFireSoundEnabled()) {
+      void playSparkSound();
+    }
     return id;
   };
 

@@ -8,7 +8,7 @@ describe('transparent task tuning defaults', () => {
 
   it('labels untouched tuning as an initial value rather than inferred intelligence', () => {
     expect(formSource).toContain('const [hasAdjustedTuning, setHasAdjustedTuning] = useState(initialDraft.hasAdjustedTuning)');
-    expect(formSource).toContain("{hasAdjustedTuning ? '設定' : '初期値'}: {tuningSummary}");
+    expect(formSource).toContain("{hasAdjustedTuning ? '設定' : '初期値'}: {jp(tuningSummary)}");
     expect(formSource).toContain('タイトルから自動判定しているわけではありません');
     expect(formSource).not.toContain('<span>自動分類</span>');
   });

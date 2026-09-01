@@ -40,6 +40,7 @@ import './touchInteractionPolish.css';
 import './accessibilityPolish.css';
 import './dimensionalPolish.css';
 import './tactilePolish.css';
+import './japaneseWrap.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

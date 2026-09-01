@@ -17,15 +17,15 @@ export type SpecialVariantConfig = {
 };
 
 export const specialVariantConfigs: Record<BurnSpectacleType, SpecialVariantConfig> = {
-  normal:      { titleGlow: 'drop-shadow(0 0 18px rgba(255,107,0,0.75))',    particleCount: 32, burstScale: 1.0 },
-  blueGhost:   { titleGlow: 'drop-shadow(0 0 22px rgba(50,160,255,0.88))',   particleCount: 36, burstScale: 1.2 },
-  golden:      { titleGlow: 'drop-shadow(0 0 26px rgba(232,185,35,0.92))',   particleCount: 44, burstScale: 1.3 },
-  explosion:   { titleGlow: 'drop-shadow(0 0 30px rgba(255,107,0,0.92))',    particleCount: 55, burstScale: 1.7 },
-  dragon:      { titleGlow: 'drop-shadow(0 0 28px rgba(180,60,255,0.88))',   particleCount: 50, burstScale: 1.5 },
-  cherry:      { titleGlow: 'drop-shadow(0 0 20px rgba(230,130,180,0.82))',  particleCount: 38, burstScale: 1.1 },
-  ironFire:    { titleGlow: 'drop-shadow(0 0 24px rgba(100,180,255,0.88))',  particleCount: 34, burstScale: 1.2 },
-  voidFire:    { titleGlow: 'drop-shadow(0 0 26px rgba(160,50,240,0.85))',   particleCount: 38, burstScale: 1.3 },
-  phoenixRise: { titleGlow: 'drop-shadow(0 0 36px rgba(232,185,35,0.98))',   particleCount: 80, burstScale: 1.9 },
+  normal:      { titleGlow: 'drop-shadow(0 0 22px rgba(255,107,0,0.82))',    particleCount: 40, burstScale: 1.15 },
+  blueGhost:   { titleGlow: 'drop-shadow(0 0 26px rgba(50,160,255,0.92))',   particleCount: 44, burstScale: 1.3 },
+  golden:      { titleGlow: 'drop-shadow(0 0 30px rgba(232,185,35,0.96))',   particleCount: 52, burstScale: 1.4 },
+  explosion:   { titleGlow: 'drop-shadow(0 0 34px rgba(255,107,0,0.96))',    particleCount: 64, burstScale: 1.85 },
+  dragon:      { titleGlow: 'drop-shadow(0 0 32px rgba(180,60,255,0.92))',   particleCount: 56, burstScale: 1.6 },
+  cherry:      { titleGlow: 'drop-shadow(0 0 24px rgba(230,130,180,0.88))',  particleCount: 42, burstScale: 1.2 },
+  ironFire:    { titleGlow: 'drop-shadow(0 0 28px rgba(100,180,255,0.92))',   particleCount: 40, burstScale: 1.3 },
+  voidFire:    { titleGlow: 'drop-shadow(0 0 30px rgba(160,50,240,0.9))',    particleCount: 46, burstScale: 1.4 },
+  phoenixRise: { titleGlow: 'drop-shadow(0 0 42px rgba(232,185,35,1))',      particleCount: 80, burstScale: 2.05 },
 };
 
 /** Overlay entrance / exit (managed by AnimatePresence in App.tsx) */
@@ -43,29 +43,30 @@ export const overlayVariants: Variants = {
 export const titleVariants: Variants = {
   ignite: {
     opacity: 1,
-    scale: 1,
-    transition: { duration: 0.42, ease: BURN_EASE },
+    scale: 1.06,
+    y: 0,
+    transition: { duration: 0.32, ease: BURN_EASE },
   },
   burning: {
-    opacity: 0.95,
-    scale: 1.02,
+    opacity: 0.96,
+    scale: 1.03,
     transition: { ...FIRE_SPRING },
   },
   carbonizing: {
-    opacity: 0.6,
-    scale: 0.96,
+    opacity: 0.58,
+    scale: 0.95,
     transition: { duration: 0.5, ease: CARBONIZE_EASE },
   },
   complete: {
-    opacity: 0.45,
-    scale: 0.92,
-    transition: { duration: 0.45, ease: CARBONIZE_EASE },
+    opacity: 0.4,
+    scale: 0.9,
+    transition: { duration: 0.4, ease: CARBONIZE_EASE },
   },
 };
 
 /** Reward badge — spring pop-in */
 export const rewardVariants: Variants = {
-  hidden:  { opacity: 0, scale: 0.72, y: 16 },
+  hidden:  { opacity: 0, scale: 0.62, y: 22 },
   visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...REWARD_SPRING } },
   exit:    { opacity: 0, scale: 0.88, y: -8, transition: { duration: 0.18, ease: CARBONIZE_EASE } },
 };

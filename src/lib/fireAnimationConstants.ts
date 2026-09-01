@@ -9,16 +9,16 @@ export const FIRE_SPRING: SpringOptions = {
 
 /** Reward pop — snappy and satisfying */
 export const REWARD_SPRING: SpringOptions = {
-  stiffness: 140,
-  damping: 14,
-  mass: 0.5,
+  stiffness: 220,
+  damping: 13,
+  mass: 0.42,
 };
 
 /** Spectacle burst spring */
 export const BURST_SPRING: SpringOptions = {
-  stiffness: 120,
-  damping: 10,
-  mass: 0.6,
+  stiffness: 160,
+  damping: 11,
+  mass: 0.5,
 };
 
 /** Smooth ignition easing */

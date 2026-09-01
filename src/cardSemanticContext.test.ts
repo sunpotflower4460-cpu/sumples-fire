@@ -8,7 +8,7 @@ describe('task card semantic context', () => {
   it('labels every article with its visible task title', () => {
     expect(source).toContain('const titleId = `fire-card-${seed.id}-title`');
     expect(source).toContain('aria-labelledby={titleId}');
-    expect(source).toContain('<h3 id={titleId}>{seed.title}</h3>');
+    expect(source).toContain('<h3 id={titleId}>{jp(seed.title)}</h3>');
   });
 
   it('keeps repeated memo disclosures tied to the exact task', () => {

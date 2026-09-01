@@ -14,6 +14,7 @@ import {
 } from '../lib/specialVariants';
 import type { FireSeed } from '../types/fireSeed';
 import { useBurnSequence, useFireParticles } from '../hooks/useBurnSequence';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type BurningRitualProps = {
   seed: FireSeed;
@@ -114,6 +115,15 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
 
       {/* ── Background glow layer ── */}
       <div className="ritual-bg" aria-hidden="true" />
+      <div className="ritual-heat-haze" aria-hidden="true" />
+      <div className="ritual-shockwave" aria-hidden="true" />
+      <div className="ritual-sparks" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i /><i /><i />
+        <i /><i /><i /><i />
+      </div>
+      <div className="ritual-ash-fall" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i /><i /><i />
+      </div>
 
       {/* ── Ambient ember particles (CSS-driven, lightweight) ── */}
       <div className="ritual-embers" aria-hidden="true">
@@ -123,8 +133,8 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         <i /><i /><i /><i /><i />
       </div>
 
-      {/* ── Spectacle burst ring — reserved for the reward beat. ── */}
-      {isSpecial && !shouldReduceMotion && phase === 'complete' ? (
+      {/* ── Spectacle burst ring — every Fire gets a pulse; specials scale up. ── */}
+      {!shouldReduceMotion && phase === 'complete' ? (
         <AnimatePresence>
           <motion.div
             key="spectacle-burst"
@@ -230,7 +240,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
             variants={titleVariants}
             style={{ filter: variantConfig.titleGlow }}
           >
-            {seed.title}
+            {jp(seed.title)}
           </motion.h2>
         </div>
 
@@ -249,7 +259,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
                 <span className="ritual-ash-points">+{seed.ashPoints}</span>
                 <span className="ritual-ash-unit">炭</span>
               </div>
-              <p className="ritual-ash-message">{spectacle.message}</p>
+              <p className="ritual-ash-message">{jp(spectacle.message)}</p>
             </motion.div>
           ) : (
             <motion.p
@@ -272,6 +282,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       <div className="ritual-flames" aria-hidden="true">
         <i /><i /><i /><i /><i /><i />
         <i /><i /><i /><i /><i /><i />
+        <i /><i /><i /><i />
       </div>
     </motion.div>
   );

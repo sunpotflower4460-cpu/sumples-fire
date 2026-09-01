@@ -24,8 +24,8 @@ describe('Fire ritual feedback contracts', () => {
     expect(ritualSource).not.toContain('0.95 + p.size * 0.05');
   });
 
-  it('triggers the special spectacle burst on the reward beat and keeps it on that clock', () => {
-    expect(ritualSource).toContain("isSpecial && !shouldReduceMotion && phase === 'complete'");
+  it('triggers the spectacle burst on the reward beat and keeps it on that clock', () => {
+    expect(ritualSource).toContain("!shouldReduceMotion && phase === 'complete'");
     expect(ritualSource).not.toContain("phase === 'burning' || phase === 'complete'");
     expect(variantsSource).toContain('SPECTACLE_BURST_DURATION_S');
     expect(variantsSource).not.toContain('duration: 1.4');
@@ -34,7 +34,7 @@ describe('Fire ritual feedback contracts', () => {
 
   it('honors reduced-motion preferences across Framer Motion and spectacle effects', () => {
     expect(mainSource).toContain('MotionConfig reducedMotion="user"');
-    expect(ritualSource).toContain('isSpecial && !shouldReduceMotion');
+    expect(ritualSource).toContain("!shouldReduceMotion && phase === 'complete'");
     expect(ritualSource).toContain('duration: shouldReduceMotion ? 0 : 0.28');
   });
 

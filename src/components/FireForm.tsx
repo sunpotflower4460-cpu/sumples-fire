@@ -9,6 +9,7 @@ import {
   quadrantShortDescriptions,
 } from '../types/fireSeed';
 import { getQuadrant } from '../lib/fireSeedModel';
+import { jp } from '../lib/japanesePhraseWrap';
 import { clearFireFormDraft, loadFireFormDraft, saveFireFormDraft } from '../lib/fireFormDraft';
 
 type FireFormProps = {
@@ -101,7 +102,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     setSubmitError('');
 
     if (!title.trim()) {
-      setTitleError('タスク名を入力してください');
+      setTitleError(jp('タスク名を入力してください'));
       window.setTimeout(() => titleInputRef.current?.focus(), 0);
       return;
     }
@@ -135,7 +136,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     } catch {
       submitLockRef.current = false;
       setIsSubmitting(false);
-      setSubmitError('追加できませんでした。内容は残っています。もう一度お試しください');
+      setSubmitError(jp('追加できませんでした。内容は残っています。もう一度お試しください'));
       window.setTimeout(() => submitButtonRef.current?.focus(), 0);
     }
   };
@@ -144,8 +145,8 @@ export function FireForm({ onAddSeed }: FireFormProps) {
     <form className="fire-form fire-form-fast" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting || undefined}>
       <div className="field-group form-primary-field">
         <label htmlFor="seed-title">燃やしたいタスク</label>
-        <p id={titleHelperId} className="form-helper">名前だけで追加できます。閉じても、このセッション中は書きかけを保持します。</p>
-        {showRestoredCue ? <p id={draftRestoredStatusId} className="draft-restored-status">書きかけを復元しました</p> : null}
+        <p id={titleHelperId} className="form-helper">{jp('名前だけで追加できます。閉じても、このセッション中は書きかけを保持します。')}</p>
+        {showRestoredCue ? <p id={draftRestoredStatusId} className="draft-restored-status">{jp('書きかけを復元しました')}</p> : null}
         <input
           id="seed-title"
           ref={titleInputRef}
@@ -198,14 +199,14 @@ export function FireForm({ onAddSeed }: FireFormProps) {
         <summary>
           <span className="task-tuning-summary-copy">
             <strong>優先度と重さ</strong>
-            <small>{hasAdjustedTuning ? '設定' : '初期値'}: {tuningSummary}</small>
+            <small>{hasAdjustedTuning ? '設定' : '初期値'}: {jp(tuningSummary)}</small>
           </span>
           <span className="task-tuning-summary-action">{hasAdjustedTuning ? '調整済み' : '必要なら調整'}</span>
         </summary>
 
         <div className="task-tuning-body">
           <p className="task-tuning-default-note">
-            この初期値は固定で、タイトルから自動判定しているわけではありません。
+            {jp('この初期値は固定で、タイトルから自動判定しているわけではありません。')}
           </p>
 
           <section className="fast-matrix-picker" aria-label="タスクの優先度">
@@ -230,7 +231,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
                       }}
                     />
                     <b>{levelLabels[option.value]}</b>
-                    <small>{option.hint}</small>
+                    <small>{jp(option.hint)}</small>
                   </label>
                 ))}
               </div>
@@ -266,7 +267,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
             <div className={`matrix-result-card matrix-result-${quadrant}`} aria-live="polite" aria-atomic="true">
               <span>4象限の結果</span>
               <strong>{quadrantLabels[quadrant]}</strong>
-              <p>{quadrantShortDescriptions[quadrant]}</p>
+              <p>{jp(quadrantShortDescriptions[quadrant])}</p>
             </div>
           </section>
 
@@ -291,7 +292,7 @@ export function FireForm({ onAddSeed }: FireFormProps) {
                     }}
                   />
                   <b>{difficultyLabels[option.value]}</b>
-                  <small>{option.hint} / +{difficultyAshPoints[option.value]}炭</small>
+                  <small>{jp(option.hint)} / +{difficultyAshPoints[option.value]}炭</small>
                 </label>
               ))}
             </div>

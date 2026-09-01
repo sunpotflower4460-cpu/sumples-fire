@@ -1,6 +1,7 @@
 import { usePointerTilt } from '../hooks/usePointerTilt';
 import type { FireSeed } from '../types/fireSeed';
 import { categoryLabels, difficultyLabels, quadrantLabels } from '../types/fireSeed';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type FireCardProps = {
   seed: FireSeed;
@@ -50,7 +51,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
       <div className="card-header">
         <div>
           <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
-          <h3 id={titleId}>{seed.title}</h3>
+          <h3 id={titleId}>{jp(seed.title)}</h3>
         </div>
         {seed.burned ? <span className="priority">+{seed.ashPoints} 炭</span> : null}
       </div>
@@ -58,7 +59,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
       {seed.nextAction && !seed.burned ? (
         <div className="next-action" aria-label="まずこれだけ">
           <span>まずこれだけ</span>
-          <p>{seed.nextAction}</p>
+          <p>{jp(seed.nextAction)}</p>
         </div>
       ) : null}
 
@@ -74,7 +75,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
         <details className="card-details">
           <summary aria-label={`「${seed.title}」のメモを見る`}>メモを見る</summary>
           <div className="card-details-body">
-            <p className="card-body">{seed.body}</p>
+            <p className="card-body">{jp(seed.body)}</p>
           </div>
         </details>
       ) : null}
@@ -82,7 +83,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
       {seed.burned ? (
         <div className="ash-log">
           <span className="ash-reward">+{seed.ashPoints}炭</span>
-          <p className="ash-message">{burnMessages[seed.difficulty]}</p>
+          <p className="ash-message">{jp(burnMessages[seed.difficulty])}</p>
         </div>
       ) : null}
 
@@ -92,7 +93,7 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
           <div className="burn-flames" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
           <div className="burn-embers" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
           <div className="ash-reward-pop" aria-hidden="true">+{seed.ashPoints} 炭</div>
-          <p className="burn-message" aria-live="polite">{burnMessages[seed.difficulty]}</p>
+          <p className="burn-message" aria-live="polite">{jp(burnMessages[seed.difficulty])}</p>
         </>
       ) : null}
 

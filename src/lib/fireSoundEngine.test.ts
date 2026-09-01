@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { BURN_SEQUENCE_DURATION } from './fireAnimationConstants';
+import { FIRE_SOUND_DURATION_S } from './fireSoundEngine';
 
 const originalWindow = globalThis.window;
 
@@ -9,6 +11,12 @@ afterEach(() => {
   } else {
     Object.defineProperty(globalThis, 'window', { value: originalWindow, configurable: true });
   }
+});
+
+describe('fireSoundEngine duration', () => {
+  it('keeps the Fire SE as long as the visual ritual', () => {
+    expect(FIRE_SOUND_DURATION_S * 1000).toBe(BURN_SEQUENCE_DURATION);
+  });
 });
 
 describe('fireSoundEngine warm-up', () => {
