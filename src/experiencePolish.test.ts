@@ -12,12 +12,19 @@ describe('experience polish contracts', () => {
   it('treats an empty ash archive as a beginning rather than a zero dashboard', () => {
     expect(ashSource).toContain('if (seeds.length === 0)');
     expect(ashSource).toContain('className="ash-empty-state"');
-    expect(ashSource).toContain('最初の炭は、まだありません。');
+    // Split across a manual <br /> at the natural clause boundary so automatic
+    // Japanese line-wrapping (no concept of word boundaries) can't cut through
+    // a word instead — see the same fix on the App.tsx headings below.
+    expect(ashSource).toContain('最初の炭は、<br />まだありません。');
     expect(ashSource).not.toContain('ash-mosaic-empty');
   });
 
-  it('uses user-facing settings copy instead of design rationale', () => {
-    expect(settingsSource).toContain('Fireの演出音を、好みに合わせて切り替えられます。');
+  it('uses user-facing settings copy instead of design rationale, stated once', () => {
+    // The comfort section used to restate "you can switch Fire's sound" both in
+    // its own intro paragraph and in the sound row directly below it. Only the
+    // row's copy should remain — it already carries the visible label and the
+    // control's accessible description, so nothing above it should repeat it.
+    expect(settingsSource).not.toContain('Fireの演出音を、好みに合わせて切り替えられます。');
     expect(settingsSource).not.toContain('すぐ触れる場所に置いています');
     expect(comfortSource).toContain('Fireするときの効果音です。');
     expect(cssSource).toContain('.settings-screen-intro');

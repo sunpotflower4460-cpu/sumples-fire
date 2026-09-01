@@ -37,7 +37,6 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
         <div className="settings-section-heading">
           <p className="eyebrow">COMFORT</p>
           <h3 id="settings-comfort-title">快適さ</h3>
-          <p>Fireの演出音を、好みに合わせて切り替えられます。</p>
         </div>
         <FireComfortSettings totalTasks={totalTasks} />
       </section>

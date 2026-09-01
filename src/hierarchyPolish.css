@@ -136,8 +136,10 @@
   height: 24px;
 }
 
+/* `ch` undersizes Japanese text (see worldClassPolish.css); dropping the cap
+   lets `text-wrap: balance` wrap this fixed headline against its real width
+   instead of forcing an early, mid-phrase break. */
 .all-clear-card h2 {
-  max-width: 15ch;
   margin: 0;
   font-size: 1.6rem;
   line-height: 1.1;

@@ -534,7 +534,7 @@ export default function App() {
             {!hasTasks ? (
               <section className="brand-hero" aria-label="Fire Task の概要">
                 <div className="brand-mark"><FlameGlyph /></div>
-                <h2>嫌なタスクを、燃やして終わらせる。</h2>
+                <h2>嫌なタスクを、<br />燃やして<br />終わらせる。</h2>
                 <p>まずは1つだけ、燃やしたいことを書きましょう。</p>
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
               </section>
@@ -579,7 +579,7 @@ export default function App() {
               <section className="all-clear-card" aria-label="未燃焼タスクはありません">
                 <div className="all-clear-mark" aria-hidden="true"><FlameGlyph /></div>
                 <p className="eyebrow">ALL CLEAR</p>
-                <h2>今日の薪は、きれいに燃え尽きました。</h2>
+                <h2>今日の薪は、<br />きれいに燃え尽きました。</h2>
                 <p>必要なら次のひとつだけを追加しましょう。何も足さず、火を眺めて終わるのも正解です。</p>
                 <button ref={allClearActionRef} className="primary-button" type="button" onClick={openRecord}>次の薪をくべる</button>
               </section>

@@ -69,7 +69,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
             <span />
           </div>
           <p className="eyebrow">NO ASH YET</p>
-          <h3 id="ash-empty-title">最初の炭は、まだありません。</h3>
+          <h3 id="ash-empty-title">最初の炭は、<br />まだありません。</h3>
           <p>タスクをひとつ終えてFireすると、ここに燃やした記録が残ります。</p>
           <small>記録は新しい順に残り、積み上がった炭もここで確認できます。</small>
         </section>
