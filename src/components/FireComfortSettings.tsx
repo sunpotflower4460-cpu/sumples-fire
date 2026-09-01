@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { warmUpFireSound } from '../lib/fireSoundEngine';
+import { playSoundPreview } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled, setFireSoundEnabled } from '../lib/fireSoundSettings';
 
 type FireComfortSettingsProps = {
@@ -36,7 +36,7 @@ export function FireComfortSettings({ totalTasks }: FireComfortSettingsProps) {
     setSoundEnabled(nextEnabled);
     setFireSoundEnabled(nextEnabled);
     if (nextEnabled) {
-      void warmUpFireSound();
+      void playSoundPreview();
     }
   };
 

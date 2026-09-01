@@ -16,7 +16,7 @@ describe('humane motivation contracts', () => {
   });
 
   it('does not announce static daily encouragement as a live update', () => {
-    expect(campfireSource).toContain('<p className="campfire-craving-copy">{cravingCopy}</p>');
+    expect(campfireSource).toContain('<p className="campfire-craving-copy">{jp(cravingCopy)}</p>');
     expect(campfireSource).not.toContain('className="campfire-craving-copy" aria-live');
   });
 });

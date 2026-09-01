@@ -9,6 +9,8 @@ describe('text scale and narrow-width resilience', () => {
 
   it('lets user-generated and action copy wrap instead of clipping', () => {
     expect(cssSource).toContain('overflow-wrap: anywhere');
+    expect(cssSource).toContain('word-break: keep-all');
+    expect(cssSource).toContain('line-break: strict');
     expect(cssSource).toContain('.toast-action-message');
     expect(cssSource).toContain('white-space: normal');
     expect(cssSource).toContain('text-overflow: clip');

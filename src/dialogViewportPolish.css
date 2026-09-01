@@ -35,7 +35,8 @@
 .fire-delete-seed {
   min-width: 0;
   overflow-wrap: anywhere;
-  word-break: normal;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .fire-delete-cancel,

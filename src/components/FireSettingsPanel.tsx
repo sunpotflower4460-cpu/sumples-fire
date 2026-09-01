@@ -1,4 +1,5 @@
 import { FireComfortSettings } from './FireComfortSettings';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type FireSettingsPanelProps = {
   totalTasks: number;
@@ -53,15 +54,15 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
           <ol className="settings-steps">
             <li>
               <strong>タスクを書く</strong>
-              <p>やりたくないこと、先延ばししていることを短く書きます。</p>
+              <p>{jp('やりたくないこと、先延ばししていることを短く書きます。')}</p>
             </li>
             <li>
               <strong>緊急度と重要度を決める</strong>
-              <p>高低を選ぶと、4象限へ自動分類されて燃やす順番が見つけやすくなります。</p>
+              <p>{jp('高低を選ぶと、4象限へ自動分類されて燃やす順番が見つけやすくなります。')}</p>
             </li>
             <li>
               <strong>終わったらFireする</strong>
-              <p>完了したタスクは炭の記録へ移り、炭ポイントとして積み上がります。</p>
+              <p>{jp('完了したタスクは炭の記録へ移り、炭ポイントとして積み上がります。')}</p>
             </li>
           </ol>
         </div>
@@ -78,11 +79,11 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
         <div className="settings-disclosure-body settings-data-copy">
           <div>
             <strong>この端末に保存</strong>
-            <p>タスクと設定はこの端末内に保存されます。アカウント登録は不要です。</p>
+            <p>{jp('タスクと設定はこの端末内に保存されます。アカウント登録は不要です。')}</p>
           </div>
           <div>
             <strong>タスク内容を外部送信しません</strong>
-            <p>入力したタスクを運営者のサーバーへ送信する機能はありません。</p>
+            <p>{jp('入力したタスクを運営者のサーバーへ送信する機能はありません。')}</p>
           </div>
         </div>
       </details>

@@ -1,0 +1,69 @@
+/*
+ * Fire Task — Japanese phrase wrapping
+ *
+ * CJK has no spaces, so default wrapping can cut a compound in half.
+ * Keep characters together, wrap at phrase boundaries (ZWSP from
+ * japanesePhraseWrap.ts), and only break mid-token as a last resort.
+ * `overflow-wrap: anywhere` stays as that overflow valve.
+ */
+
+html {
+  line-break: strict;
+}
+
+.mobile-app-shell,
+.burning-ritual,
+.fire-delete-modal,
+.record-sheet,
+.toast {
+  line-break: strict;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.jp-keep {
+  white-space: nowrap;
+}
+
+.focus-seed .section-heading h2,
+.fire-card h3,
+.ash-record-title,
+.ritual-title,
+.fire-delete-heading,
+.fire-delete-seed,
+.sheet-header h2,
+#settings-screen-heading,
+#up-next-heading,
+#ash-screen-heading,
+#ash-records-heading,
+#app-screen-title {
+  line-break: strict;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.brand-hero h2,
+.all-clear-card h2,
+.ash-empty-state h3 {
+  text-wrap: unset;
+  line-break: strict;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.matrix-cell span,
+.focus-meta span,
+.card-quick-meta span,
+.priority,
+.streak-label,
+.campfire-stage-name {
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.fire-button,
+.primary-button,
+.toast-undo-button {
+  line-break: strict;
+  word-break: keep-all;
+}

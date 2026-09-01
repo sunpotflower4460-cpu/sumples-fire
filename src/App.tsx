@@ -18,6 +18,7 @@ import { useFireSeeds } from './hooks/useFireSeeds';
 import { getFireRankLevel } from './lib/fireSeedModel';
 import { getStreakState } from './lib/fireStreak';
 import { toastVariants } from './lib/shellVariants';
+import { jp } from './lib/japanesePhraseWrap';
 import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fireSeed';
 import { difficultyLabels, quadrantLabels } from './types/fireSeed';
 
@@ -517,6 +518,7 @@ export default function App() {
     <main ref={appShellRef} className={`mobile-app-shell fire-mode streak-${streakState}`}>
       <div className="ambient-embers" aria-hidden="true">
         <i /><i /><i /><i /><i /><i /><i /><i />
+        <i /><i /><i /><i />
       </div>
 
       <header className="app-topbar">
@@ -535,7 +537,7 @@ export default function App() {
               <section className="brand-hero" aria-label="Fire Task の概要">
                 <div className="brand-mark"><FlameGlyph /></div>
                 <h2>嫌なタスクを、<br />燃やして<br />終わらせる。</h2>
-                <p>まずは1つだけ、燃やしたいことを書きましょう。</p>
+                <p>{jp('まずは1つだけ、燃やしたいことを書きましょう。')}</p>
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
               </section>
             ) : null}
@@ -544,15 +546,15 @@ export default function App() {
               <section ref={focusSeedTiltRef} className="focus-seed" aria-label="今日の火種">
                 <div className="section-heading">
                   <p className="eyebrow">今日の火種</p>
-                  <h2>{focusSeed.title}</h2>
+                  <h2>{jp(focusSeed.title)}</h2>
                 </div>
                 {focusSeed.nextAction ? (
                   <div className="focus-next-action">
                     <span>まずこれだけ</span>
-                    <p>{focusSeed.nextAction}</p>
+                    <p>{jp(focusSeed.nextAction)}</p>
                   </div>
                 ) : (
-                  <p className="focus-hint">次の一歩が思いつかなければ、2分だけ着手してみましょう。</p>
+                  <p className="focus-hint">{jp('次の一歩が思いつかなければ、2分だけ着手してみましょう。')}</p>
                 )}
                 <div className="focus-meta">
                   <span>{quadrantLabels[focusSeed.quadrant]}</span>
@@ -579,8 +581,8 @@ export default function App() {
               <section className="all-clear-card" aria-label="未燃焼タスクはありません">
                 <div className="all-clear-mark" aria-hidden="true"><FlameGlyph /></div>
                 <p className="eyebrow">ALL CLEAR</p>
-                <h2>今日の薪は、<br />きれいに燃え尽きました。</h2>
-                <p>必要なら次のひとつだけを追加しましょう。何も足さず、火を眺めて終わるのも正解です。</p>
+                <h2>今日の薪は、<br />{jp('きれいに燃え尽きました。')}</h2>
+                <p>{jp('必要なら次のひとつだけを追加しましょう。何も足さず、火を眺めて終わるのも正解です。')}</p>
                 <button ref={allClearActionRef} className="primary-button" type="button" onClick={openRecord}>次の薪をくべる</button>
               </section>
             ) : null}
@@ -636,8 +638,8 @@ export default function App() {
                     <div className="empty-state useful-empty queue-empty-state">
                       <div className="empty-state-icon" aria-hidden="true" />
                       <div className="useful-empty-header">
-                        <p>この象限に次のタスクはありません</p>
-                        <span>4象限の絞り込みを解除すると、その次のタスクをすべて表示できます。</span>
+                        <p>{jp('この象限に次のタスクはありません')}</p>
+                        <span>{jp('4象限の絞り込みを解除すると、その次のタスクをすべて表示できます。')}</span>
                       </div>
                       <button className="primary-button" type="button" onClick={resetQueueView}>
                         絞り込みを解除
@@ -738,7 +740,7 @@ export default function App() {
           exit="exit"
         >
           <span className="toast-action-message" role="status" aria-live="polite">
-            {notice || `「${undoBurnCandidate.title}」をFireしました`}
+            {jp(notice || `「${undoBurnCandidate.title}」をFireしました`)}
             <span className="sr-only"> 元に戻す操作が利用できます。</span>
           </span>
           <button
@@ -769,7 +771,7 @@ export default function App() {
           animate="visible"
           exit="exit"
         >
-          {notice}
+          {jp(notice)}
         </motion.div>
       ) : null}
       </AnimatePresence>
@@ -806,7 +808,7 @@ export default function App() {
               <div className="sheet-header">
                 <div>
                   <p className="eyebrow">薪をくべる</p>
-                  <h2 id="record-title">燃やしたいタスクを書く</h2>
+                  <h2 id="record-title">{jp('燃やしたいタスクを書く')}</h2>
                 </div>
                 <button className="sheet-close" type="button" onClick={closeRecord} aria-label="閉じる" />
               </div>

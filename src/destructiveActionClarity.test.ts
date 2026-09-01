@@ -17,7 +17,7 @@ describe('destructive action clarity', () => {
 
   it('announces the exact delete target before its consequences', () => {
     expect(modalSource).toContain('aria-describedby="fire-delete-seed fire-delete-description"');
-    expect(modalSource).toContain('<p id="fire-delete-seed" className="fire-delete-seed">{seed.title}</p>');
+    expect(modalSource).toContain('<p id="fire-delete-seed" className="fire-delete-seed">{jp(seed.title)}</p>');
     expect(modalSource.indexOf('id="fire-delete-seed"'))
       .toBeLessThan(modalSource.indexOf('id="fire-delete-description"'));
   });

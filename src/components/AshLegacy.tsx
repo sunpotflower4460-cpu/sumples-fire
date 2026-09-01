@@ -3,6 +3,7 @@ import { useCountUp } from '../hooks/useCountUp';
 import { sortAshRecordsOldestFirst } from '../lib/ashHistory';
 import type { FireSeed } from '../types/fireSeed';
 import { difficultyLabels } from '../types/fireSeed';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type AshLegacyProps = {
   seeds: FireSeed[];
@@ -70,8 +71,8 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
           </div>
           <p className="eyebrow">NO ASH YET</p>
           <h3 id="ash-empty-title">最初の炭は、<br />まだありません。</h3>
-          <p>タスクをひとつ終えてFireすると、ここに燃やした記録が残ります。</p>
-          <small>記録は新しい順に残り、積み上がった炭もここで確認できます。</small>
+          <p>{jp('タスクをひとつ終えてFireすると、ここに燃やした記録が残ります。')}</p>
+          <small>{jp('記録は新しい順に残り、積み上がった炭もここで確認できます。')}</small>
         </section>
       </div>
     );
@@ -85,7 +86,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
           <span aria-hidden="true">{totalAsh}</span>
           <span className="sr-only">合計{totalAsh}炭</span>
         </div>
-        <p className="ash-legacy-count">{seeds.length}個のタスクを燃やしてきました</p>
+        <p className="ash-legacy-count">{jp(`${seeds.length}個のタスクを燃やしてきました`)}</p>
       </div>
 
       <div className="ash-charcoal-mosaic" aria-hidden="true">
@@ -124,7 +125,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
                 data-ash-record-index={index}
               >
                 <div className="ash-record-main">
-                  <p className="ash-record-title">{seed.title}</p>
+                  <p className="ash-record-title">{jp(seed.title)}</p>
                   <div className="ash-record-meta">
                     <span className="ash-record-points">+{seed.ashPoints}炭</span>
                     <span className="ash-record-difficulty">{difficultyLabels[seed.difficulty]}</span>

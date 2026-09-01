@@ -1,6 +1,13 @@
 import { useMilestone } from '../hooks/useMilestone';
 import type { FireStreakData } from '../lib/fireStreak';
-import { getCampfireNextThreshold, getCampfireStage, getCampfireStageLabel, getDailyCravingCopy, getStreakState } from '../lib/fireStreak';
+import {
+  getCampfireNextThreshold,
+  getCampfireStage,
+  getCampfireStageLabel,
+  getDailyCravingCopy,
+  getStreakState,
+} from '../lib/fireStreak';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type FireCampfireProps = {
   ashPoints: number;
@@ -72,9 +79,9 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         <div className={`campfire-stage-badge ${isStageUp ? 'is-stage-up' : ''}`}>
           <span className="campfire-stage-name">{stageLabel}</span>
           {nextThreshold ? (
-            <span className="campfire-next-hint">あと {nextThreshold - ashPoints} 炭で次の段階へ</span>
+            <span className="campfire-next-hint">{jp(`あと ${nextThreshold - ashPoints} 炭で次の段階へ`)}</span>
           ) : (
-            <span className="campfire-next-hint">最高段階に到達</span>
+            <span className="campfire-next-hint">{jp('最高段階に到達')}</span>
           )}
         </div>
 
@@ -95,9 +102,9 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         ) : null}
 
         {hasPendingTasks ? (
-          <p className="campfire-craving-copy">{cravingCopy}</p>
+          <p className="campfire-craving-copy">{jp(cravingCopy)}</p>
         ) : (
-          <p className="campfire-craving-copy">今日も、よく燃やした。</p>
+          <p className="campfire-craving-copy">{jp('今日も、よく燃やした。')}</p>
         )}
       </div>
     </section>

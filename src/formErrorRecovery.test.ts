@@ -9,7 +9,7 @@ describe('Fire form error recovery', () => {
     expect(source).toContain('disabled={isSubmitting}');
     expect(source).not.toContain('disabled={!canSubmit}');
     expect(source).not.toContain('const canSubmit =');
-    expect(source).toContain("setTitleError('タスク名を入力してください')");
+    expect(source).toContain("setTitleError(jp('タスク名を入力してください'))");
     expect(source).toContain('titleInputRef.current?.focus()');
   });
 

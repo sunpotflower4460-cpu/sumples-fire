@@ -15,7 +15,8 @@
 .ash-record-title {
   min-width: 0;
   overflow-wrap: anywhere;
-  word-break: normal;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .primary-button,

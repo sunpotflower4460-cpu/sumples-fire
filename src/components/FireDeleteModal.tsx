@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import type { FireSeed } from '../types/fireSeed';
+import { jp } from '../lib/japanesePhraseWrap';
 
 type FireDeleteModalProps = {
   seed: FireSeed;
@@ -131,13 +132,13 @@ export function FireDeleteModal({ seed, onConfirm, onCancel }: FireDeleteModalPr
         </div>
         <p className="fire-delete-kicker">REMOVE</p>
         <h2 id="fire-delete-title" className="fire-delete-heading">
-          {isAshRecord ? 'この炭の記録を削除しますか？' : 'このタスクを削除しますか？'}
+          {isAshRecord ? jp('この炭の記録を削除しますか？') : jp('このタスクを削除しますか？')}
         </h2>
-        <p id="fire-delete-seed" className="fire-delete-seed">{seed.title}</p>
+        <p id="fire-delete-seed" className="fire-delete-seed">{jp(seed.title)}</p>
         <p id="fire-delete-description" className="fire-delete-copy">
           {isAshRecord
-            ? `削除すると${seed.ashPoints}炭が合計から減り、称号の進捗にも反映されます。連続Fireの記録は変わりません。`
-            : '削除すると元に戻せません。迷う場合は、そのまま残しておけます。'}
+            ? jp(`削除すると${seed.ashPoints}炭が合計から減り、称号の進捗にも反映されます。連続Fireの記録は変わりません。`)
+            : jp('削除すると元に戻せません。迷う場合は、そのまま残しておけます。')}
         </p>
         <div className="fire-delete-actions">
           <button ref={cancelRef} className="fire-delete-cancel" type="button" onClick={onCancel}>

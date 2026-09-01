@@ -53,6 +53,10 @@
 .ambient-embers i:nth-child(6) { --x: 74%; --size: 5px; }
 .ambient-embers i:nth-child(7) { --x: 86%; --size: 2px; }
 .ambient-embers i:nth-child(8) { --x: 94%; --size: 4px; }
+.ambient-embers i:nth-child(9) { --x: 14%; --size: 3px; }
+.ambient-embers i:nth-child(10) { --x: 41%; --size: 4px; }
+.ambient-embers i:nth-child(11) { --x: 68%; --size: 2px; }
+.ambient-embers i:nth-child(12) { --x: 90%; --size: 5px; }
 
 @media (prefers-color-scheme: dark) {
   .ambient-embers i {
@@ -75,6 +79,10 @@
   .ambient-embers i:nth-child(6) { animation-duration: 22s; animation-delay: -2s; }
   .ambient-embers i:nth-child(7) { animation-duration: 16s; animation-delay: -11s; }
   .ambient-embers i:nth-child(8) { animation-duration: 20s; animation-delay: -17s; }
+  .ambient-embers i:nth-child(9) { animation-duration: 19s; animation-delay: -5s; }
+  .ambient-embers i:nth-child(10) { animation-duration: 23s; animation-delay: -8s; }
+  .ambient-embers i:nth-child(11) { animation-duration: 14s; animation-delay: -12s; }
+  .ambient-embers i:nth-child(12) { animation-duration: 25s; animation-delay: -4s; }
 
   .ambient-embers i:nth-child(odd) { --wobble: 1; }
   .ambient-embers i:nth-child(even) { --wobble: -1; }
@@ -224,7 +232,7 @@
 
 .primary-button:active:not(:disabled),
 .fire-button:active:not(:disabled) {
-  transform: perspective(600px) translateZ(0) translateY(1px) scale(0.985);
+  transform: perspective(600px) translateZ(0) translateY(2px) scale(0.96);
 }
 
 /* The glow ring rides on the button's own box-shadow: `::before` and `::after`

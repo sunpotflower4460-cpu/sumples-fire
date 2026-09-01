@@ -7,7 +7,7 @@ import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { getEffectiveFireStreak, loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
-import { playSpectacleSequence } from '../lib/fireSoundEngine';
+import { playSparkSound, playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
@@ -168,6 +168,9 @@ export function useFireSeeds() {
     clearUndoBurn();
     setSeeds(nextSeeds);
     setNotice('薪を追加しました');
+    if (isFireSoundEnabled()) {
+      void playSparkSound();
+    }
     return id;
   };
 
@@ -187,16 +190,17 @@ export function useFireSeeds() {
     const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
     const burningSeeds = seeds.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed));
     setBurningSpectacle(spectacle);
+    const reduceMotion = prefersReducedMotion();
 
     if (isFireSoundEnabled()) {
-      void playSpectacleSequence(spectacle.soundProfile);
+      void playSpectacleSequence(spectacle.soundProfile, reduceMotion);
     }
 
     // Burning is deliberately transient. The durable seed list and streak are
     // committed only after the ritual completes and the final list is writable.
     setSeeds(burningSeeds);
 
-    const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
+    const completionDelay = getBurnSequenceDuration(reduceMotion);
     completionTimerRef.current = window.setTimeout(() => {
       const completedSeeds = sortFireTasks(
         burningSeeds.map((seed) => (seed.id === id ? burnSeed(seed) : seed)),
