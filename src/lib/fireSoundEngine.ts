@@ -1,9 +1,29 @@
 import type { BurnSpectacleSound } from './fireBurnSpectacle';
-import { BURN_SEQUENCE_DURATION, BURN_TIMING } from './fireAnimationConstants';
+import {
+  BURN_SEQUENCE_DURATION,
+  BURN_TIMING,
+  getBurnSequenceDuration,
+  REDUCED_MOTION_FACTOR,
+} from './fireAnimationConstants';
 
 type AudioWindow = Window & {
   webkitAudioContext?: typeof AudioContext;
 };
+
+type SoundClock = {
+  factor: number;
+  ignite: number;
+  burning: number;
+  carbonizing: number;
+  complete: number;
+};
+
+type SoundDecorator = (
+  context: AudioContext,
+  master: AudioNode,
+  start: number,
+  clock: SoundClock,
+) => void;
 
 let audioContext: AudioContext | null = null;
 let crackleBuffer: AudioBuffer | null = null;
@@ -14,6 +34,24 @@ export const FIRE_SOUND_DURATION_S = BURN_SEQUENCE_DURATION / 1000;
 const IGNITE_S = BURN_TIMING.IGNITE_END / 1000;
 const BURNING_S = BURN_TIMING.BURNING_END / 1000;
 const CARBONIZING_S = BURN_TIMING.CARBONIZING_END / 1000;
+const MIN_EVENT_S = 0.04;
+
+export const getFireSoundDuration = (reduceMotion = false) => (
+  getBurnSequenceDuration(reduceMotion) / 1000
+);
+
+const getSoundClock = (reduceMotion: boolean): SoundClock => {
+  const factor = reduceMotion ? REDUCED_MOTION_FACTOR : 1;
+  return {
+    factor,
+    ignite: IGNITE_S * factor,
+    burning: BURNING_S * factor,
+    carbonizing: CARBONIZING_S * factor,
+    complete: getFireSoundDuration(reduceMotion),
+  };
+};
+
+const scaledDuration = (seconds: number, factor: number) => Math.max(MIN_EVENT_S, seconds * factor);
 
 const getAudioContext = async () => {
   if (typeof window === 'undefined') return null;
@@ -134,7 +172,7 @@ const scheduleTone = (
   oscillator.stop(options.start + options.duration + 0.04);
 };
 
-const createMaster = (context: AudioContext) => {
+const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S) => {
   const compressor = context.createDynamicsCompressor();
   compressor.threshold.setValueAtTime(-16, context.currentTime);
   compressor.knee.setValueAtTime(14, context.currentTime);
@@ -148,7 +186,7 @@ const createMaster = (context: AudioContext) => {
   compressor.connect(gain);
   gain.connect(context.destination);
 
-  const hangMs = Math.ceil(FIRE_SOUND_DURATION_S * 1000) + 180;
+  const hangMs = Math.ceil(durationS * 1000) + 180;
   window.setTimeout(() => {
     try {
       compressor.disconnect();
@@ -169,11 +207,19 @@ const crackleOffsets = (from: number, to: number, step: number) => {
   return offsets;
 };
 
-const playCoreRitual = (context: AudioContext, master: AudioNode, start: number) => {
+const playCoreRitual = (
+  context: AudioContext,
+  master: AudioNode,
+  start: number,
+  clock: SoundClock,
+) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  const at = (seconds: number) => start + seconds * clock.factor;
+
   // ── Ignite: ボッ + whoosh ────────────────────────────────
   scheduleNoise(context, master, {
     start,
-    duration: 0.28,
+    duration: dur(0.28),
     gain: 0.46,
     frequency: 140,
     q: 0.55,
@@ -181,23 +227,23 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
   });
   scheduleTone(context, master, {
     start,
-    duration: 0.22,
+    duration: dur(0.22),
     frequency: 92,
     endFrequency: 42,
     gain: 0.24,
     type: 'triangle',
   });
   scheduleTone(context, master, {
-    start: start + 0.02,
-    duration: 0.16,
+    start: at(0.02),
+    duration: dur(0.16),
     frequency: 58,
     endFrequency: 32,
     gain: 0.2,
     type: 'sine',
   });
   scheduleNoise(context, master, {
-    start: start + 0.04,
-    duration: 0.2,
+    start: at(0.04),
+    duration: dur(0.2),
     gain: 0.18,
     frequency: 2400,
     q: 0.7,
@@ -205,8 +251,8 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
     pan: -0.35,
   });
   scheduleNoise(context, master, {
-    start: start + 0.07,
-    duration: 0.12,
+    start: at(0.07),
+    duration: dur(0.12),
     gain: 0.22,
     frequency: 1900,
     q: 7,
@@ -216,27 +262,27 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
 
   // ── Burning: roar + stereo パチパチ ──────────────────────
   scheduleNoise(context, master, {
-    start: start + IGNITE_S,
-    duration: BURNING_S - IGNITE_S,
+    start: start + clock.ignite,
+    duration: clock.burning - clock.ignite,
     gain: 0.14,
     frequency: 180,
     q: 0.45,
     type: 'lowpass',
   });
   scheduleTone(context, master, {
-    start: start + IGNITE_S,
-    duration: BURNING_S - IGNITE_S + 0.08,
+    start: start + clock.ignite,
+    duration: clock.burning - clock.ignite + dur(0.08),
     frequency: 52,
     endFrequency: 38,
     gain: 0.1,
     type: 'triangle',
-    attack: 0.08,
+    attack: dur(0.08),
   });
 
-  crackleOffsets(0.16, IGNITE_S, 0.09).forEach((offset, index) => {
+  crackleOffsets(0.16 * clock.factor, clock.ignite, 0.09).forEach((offset, index) => {
     scheduleNoise(context, master, {
       start: start + offset,
-      duration: 0.055 + (index % 3) * 0.008,
+      duration: dur(0.055 + (index % 3) * 0.008),
       gain: 0.2 - index * 0.018,
       frequency: 1700 + index * 220,
       q: 6.5,
@@ -245,40 +291,41 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
     });
   });
 
-  crackleOffsets(IGNITE_S + 0.04, BURNING_S - 0.04, 0.11).forEach((offset, index) => {
-    scheduleNoise(context, master, {
-      start: start + offset,
-      duration: 0.06 + (index % 4) * 0.006,
-      gain: 0.17 - (index % 5) * 0.012,
-      frequency: 1500 + (index % 6) * 280,
-      q: 6,
-      type: 'bandpass',
-      pan: index % 2 === 0 ? -0.55 : 0.5,
+  crackleOffsets(clock.ignite + 0.04 * clock.factor, clock.burning - 0.04 * clock.factor, 0.11)
+    .forEach((offset, index) => {
+      scheduleNoise(context, master, {
+        start: start + offset,
+        duration: dur(0.06 + (index % 4) * 0.006),
+        gain: 0.17 - (index % 5) * 0.012,
+        frequency: 1500 + (index % 6) * 280,
+        q: 6,
+        type: 'bandpass',
+        pan: index % 2 === 0 ? -0.55 : 0.5,
+      });
     });
-  });
 
   // ── Carbonizing: サァ, crackle thins out ───────────────────
   scheduleNoise(context, master, {
-    start: start + BURNING_S,
-    duration: CARBONIZING_S - BURNING_S + 0.18,
+    start: start + clock.burning,
+    duration: clock.carbonizing - clock.burning + dur(0.18),
     gain: 0.11,
     frequency: 760,
     q: 0.4,
     type: 'highpass',
   });
   scheduleTone(context, master, {
-    start: start + BURNING_S,
-    duration: 0.42,
+    start: start + clock.burning,
+    duration: dur(0.42),
     frequency: 70,
     endFrequency: 36,
     gain: 0.08,
     type: 'sine',
-    attack: 0.05,
+    attack: dur(0.05),
   });
   [0.08, 0.22, 0.38].forEach((offset, index) => {
     scheduleNoise(context, master, {
-      start: start + BURNING_S + offset,
-      duration: 0.07,
+      start: start + clock.burning + offset * clock.factor,
+      duration: dur(0.07),
       gain: 0.1 - index * 0.02,
       frequency: 1200 + index * 180,
       q: 5,
@@ -288,34 +335,34 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
   });
 
   // ── Complete: 解放の和音 ────────────────────────────────
-  const reward = start + CARBONIZING_S;
+  const reward = start + clock.carbonizing;
   scheduleTone(context, master, {
     start: reward,
-    duration: 0.28,
+    duration: dur(0.28),
     frequency: 523.25,
     endFrequency: 659.25,
     gain: 0.09,
     type: 'sine',
   });
   scheduleTone(context, master, {
-    start: reward + 0.06,
-    duration: 0.32,
+    start: reward + 0.06 * clock.factor,
+    duration: dur(0.32),
     frequency: 659.25,
     endFrequency: 783.99,
     gain: 0.075,
     type: 'sine',
   });
   scheduleTone(context, master, {
-    start: reward + 0.14,
-    duration: 0.38,
+    start: reward + 0.14 * clock.factor,
+    duration: dur(0.38),
     frequency: 783.99,
     endFrequency: 1046.5,
     gain: 0.07,
     type: 'sine',
   });
   scheduleTone(context, master, {
-    start: reward + 0.22,
-    duration: 0.42,
+    start: reward + 0.22 * clock.factor,
+    duration: dur(0.42),
     frequency: 1046.5,
     endFrequency: 1318.5,
     gain: 0.05,
@@ -323,7 +370,7 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
   });
   scheduleNoise(context, master, {
     start: reward,
-    duration: 0.2,
+    duration: dur(0.2),
     gain: 0.08,
     frequency: 2600,
     q: 0.6,
@@ -331,26 +378,29 @@ const playCoreRitual = (context: AudioContext, master: AudioNode, start: number)
   });
 };
 
-const playEtherealLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleTone(context, master, { start, duration: 0.7, frequency: 1200, endFrequency: 1860, gain: 0.055, type: 'sine', attack: 0.08 });
-  scheduleTone(context, master, { start: start + 0.12, duration: 0.62, frequency: 800, endFrequency: 1480, gain: 0.04, type: 'sine', attack: 0.1 });
-  scheduleTone(context, master, { start: start + CARBONIZING_S, duration: 0.5, frequency: 1760, endFrequency: 2480, gain: 0.05, type: 'sine' });
+const playEtherealLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleTone(context, master, { start, duration: dur(0.7), frequency: 1200, endFrequency: 1860, gain: 0.055, type: 'sine', attack: dur(0.08) });
+  scheduleTone(context, master, { start: start + 0.12 * clock.factor, duration: dur(0.62), frequency: 800, endFrequency: 1480, gain: 0.04, type: 'sine', attack: dur(0.1) });
+  scheduleTone(context, master, { start: start + clock.carbonizing, duration: dur(0.5), frequency: 1760, endFrequency: 2480, gain: 0.05, type: 'sine' });
 };
 
-const playGoldenLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  const reward = start + CARBONIZING_S;
-  scheduleTone(context, master, { start: reward, duration: 0.34, frequency: 880, endFrequency: 1320, gain: 0.09, type: 'sine' });
-  scheduleTone(context, master, { start: reward + 0.1, duration: 0.36, frequency: 1100, endFrequency: 1760, gain: 0.07, type: 'sine' });
-  scheduleTone(context, master, { start: reward + 0.2, duration: 0.4, frequency: 1320, endFrequency: 1980, gain: 0.06, type: 'sine' });
+const playGoldenLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  const reward = start + clock.carbonizing;
+  scheduleTone(context, master, { start: reward, duration: dur(0.34), frequency: 880, endFrequency: 1320, gain: 0.09, type: 'sine' });
+  scheduleTone(context, master, { start: reward + 0.1 * clock.factor, duration: dur(0.36), frequency: 1100, endFrequency: 1760, gain: 0.07, type: 'sine' });
+  scheduleTone(context, master, { start: reward + 0.2 * clock.factor, duration: dur(0.4), frequency: 1320, endFrequency: 1980, gain: 0.06, type: 'sine' });
 };
 
-const playExplosiveLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleNoise(context, master, { start, duration: 0.34, gain: 0.62, frequency: 72, q: 0.45, type: 'lowpass' });
-  scheduleTone(context, master, { start, duration: 0.28, frequency: 48, endFrequency: 26, gain: 0.3, type: 'triangle' });
+const playExplosiveLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleNoise(context, master, { start, duration: dur(0.34), gain: 0.62, frequency: 72, q: 0.45, type: 'lowpass' });
+  scheduleTone(context, master, { start, duration: dur(0.28), frequency: 48, endFrequency: 26, gain: 0.3, type: 'triangle' });
   [0.05, 0.12, 0.2, 0.3, 0.42].forEach((offset, i) => {
     scheduleNoise(context, master, {
-      start: start + offset,
-      duration: 0.08,
+      start: start + offset * clock.factor,
+      duration: dur(0.08),
       gain: 0.3 - i * 0.035,
       frequency: 1400 + i * 220,
       q: 7,
@@ -360,33 +410,38 @@ const playExplosiveLayers = (context: AudioContext, master: AudioNode, start: nu
   });
 };
 
-const playDragonLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleTone(context, master, { start, duration: 0.55, frequency: 40, endFrequency: 24, gain: 0.26, type: 'sawtooth', attack: 0.04 });
-  scheduleTone(context, master, { start: start + IGNITE_S, duration: 0.9, frequency: 36, endFrequency: 28, gain: 0.12, type: 'sawtooth', attack: 0.1 });
-  scheduleTone(context, master, { start: start + CARBONIZING_S, duration: 0.34, frequency: 770, endFrequency: 1320, gain: 0.08, type: 'sine' });
+const playDragonLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleTone(context, master, { start, duration: dur(0.55), frequency: 40, endFrequency: 24, gain: 0.26, type: 'sawtooth', attack: dur(0.04) });
+  scheduleTone(context, master, { start: start + clock.ignite, duration: dur(0.9), frequency: 36, endFrequency: 28, gain: 0.12, type: 'sawtooth', attack: dur(0.1) });
+  scheduleTone(context, master, { start: start + clock.carbonizing, duration: dur(0.34), frequency: 770, endFrequency: 1320, gain: 0.08, type: 'sine' });
 };
 
-const playSoftLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleTone(context, master, { start: start + CARBONIZING_S, duration: 0.3, frequency: 1047, endFrequency: 1568, gain: 0.055, type: 'sine' });
-  scheduleTone(context, master, { start: start + CARBONIZING_S + 0.1, duration: 0.34, frequency: 1175, endFrequency: 1976, gain: 0.04, type: 'sine' });
+const playSoftLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleTone(context, master, { start: start + clock.carbonizing, duration: dur(0.3), frequency: 1047, endFrequency: 1568, gain: 0.055, type: 'sine' });
+  scheduleTone(context, master, { start: start + clock.carbonizing + 0.1 * clock.factor, duration: dur(0.34), frequency: 1175, endFrequency: 1976, gain: 0.04, type: 'sine' });
 };
 
-const playMetallicLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleTone(context, master, { start: start + 0.08, duration: 0.5, frequency: 1480, endFrequency: 2220, gain: 0.06, type: 'sine' });
-  scheduleTone(context, master, { start: start + CARBONIZING_S, duration: 0.42, frequency: 1760, endFrequency: 2640, gain: 0.06, type: 'sine' });
+const playMetallicLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleTone(context, master, { start: start + 0.08 * clock.factor, duration: dur(0.5), frequency: 1480, endFrequency: 2220, gain: 0.06, type: 'sine' });
+  scheduleTone(context, master, { start: start + clock.carbonizing, duration: dur(0.42), frequency: 1760, endFrequency: 2640, gain: 0.06, type: 'sine' });
 };
 
-const playVoidLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  scheduleTone(context, master, { start, duration: 0.8, frequency: 32, endFrequency: 18, gain: 0.2, type: 'sine', attack: 0.12 });
-  scheduleTone(context, master, { start: start + CARBONIZING_S, duration: 0.5, frequency: 220, endFrequency: 330, gain: 0.05, type: 'sine', attack: 0.08 });
+const playVoidLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  scheduleTone(context, master, { start, duration: dur(0.8), frequency: 32, endFrequency: 18, gain: 0.2, type: 'sine', attack: dur(0.12) });
+  scheduleTone(context, master, { start: start + clock.carbonizing, duration: dur(0.5), frequency: 220, endFrequency: 330, gain: 0.05, type: 'sine', attack: dur(0.08) });
 };
 
-const playPhoenixLayers = (context: AudioContext, master: AudioNode, start: number) => {
-  playExplosiveLayers(context, master, start);
-  playGoldenLayers(context, master, start);
+const playPhoenixLayers: SoundDecorator = (context, master, start, clock) => {
+  const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
+  playExplosiveLayers(context, master, start, clock);
+  playGoldenLayers(context, master, start, clock);
   scheduleTone(context, master, {
-    start: start + CARBONIZING_S + 0.18,
-    duration: 0.48,
+    start: start + clock.carbonizing + 0.18 * clock.factor,
+    duration: dur(0.48),
     frequency: 1760,
     endFrequency: 2794,
     gain: 0.07,
@@ -394,18 +449,19 @@ const playPhoenixLayers = (context: AudioContext, master: AudioNode, start: numb
   });
 };
 
-const playWithProfile = async (decorate?: (context: AudioContext, master: AudioNode, start: number) => void) => {
+const playWithProfile = async (decorate?: SoundDecorator, reduceMotion = false) => {
   const context = await getAudioContext();
   if (!context) return false;
 
-  const master = createMaster(context);
+  const clock = getSoundClock(reduceMotion);
+  const master = createMaster(context, clock.complete);
   const start = context.currentTime + 0.012;
-  playCoreRitual(context, master, start);
-  decorate?.(context, master, start);
+  playCoreRitual(context, master, start, clock);
+  decorate?.(context, master, start, clock);
   return true;
 };
 
-export const playFireSequence = async () => playWithProfile();
+export const playFireSequence = async (reduceMotion = false) => playWithProfile(undefined, reduceMotion);
 
 export const playSparkSound = async () => {
   const context = await getAudioContext();
@@ -437,26 +493,29 @@ export const warmUpFireSound = async () => {
   return Boolean(context);
 };
 
-export const playSpectacleSequence = async (profile: BurnSpectacleSound) => {
+export const playSpectacleSequence = async (
+  profile: BurnSpectacleSound,
+  reduceMotion = false,
+) => {
   switch (profile) {
     case 'ethereal':
-      return playWithProfile(playEtherealLayers);
+      return playWithProfile(playEtherealLayers, reduceMotion);
     case 'golden':
-      return playWithProfile(playGoldenLayers);
+      return playWithProfile(playGoldenLayers, reduceMotion);
     case 'explosive':
-      return playWithProfile(playExplosiveLayers);
+      return playWithProfile(playExplosiveLayers, reduceMotion);
     case 'dragon':
-      return playWithProfile(playDragonLayers);
+      return playWithProfile(playDragonLayers, reduceMotion);
     case 'soft':
-      return playWithProfile(playSoftLayers);
+      return playWithProfile(playSoftLayers, reduceMotion);
     case 'metallic':
-      return playWithProfile(playMetallicLayers);
+      return playWithProfile(playMetallicLayers, reduceMotion);
     case 'void':
-      return playWithProfile(playVoidLayers);
+      return playWithProfile(playVoidLayers, reduceMotion);
     case 'phoenix':
-      return playWithProfile(playPhoenixLayers);
+      return playWithProfile(playPhoenixLayers, reduceMotion);
     case 'normal':
     default:
-      return playFireSequence();
+      return playFireSequence(reduceMotion);
   }
 };

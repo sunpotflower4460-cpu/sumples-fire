@@ -190,16 +190,17 @@ export function useFireSeeds() {
     const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
     const burningSeeds = seeds.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed));
     setBurningSpectacle(spectacle);
+    const reduceMotion = prefersReducedMotion();
 
     if (isFireSoundEnabled()) {
-      void playSpectacleSequence(spectacle.soundProfile);
+      void playSpectacleSequence(spectacle.soundProfile, reduceMotion);
     }
 
     // Burning is deliberately transient. The durable seed list and streak are
     // committed only after the ritual completes and the final list is writable.
     setSeeds(burningSeeds);
 
-    const completionDelay = getBurnSequenceDuration(prefersReducedMotion());
+    const completionDelay = getBurnSequenceDuration(reduceMotion);
     completionTimerRef.current = window.setTimeout(() => {
       const completedSeeds = sortFireTasks(
         burningSeeds.map((seed) => (seed.id === id ? burnSeed(seed) : seed)),
