@@ -29,6 +29,12 @@ describe('japanese phrase wrapping', () => {
     expect(insertJapaneseSoftWraps('コーヒー')).toBe('コーヒー');
   });
 
+  it('does not treat は or が inside ordinary kana words as wrap points', () => {
+    expect(insertJapaneseSoftWraps('おはよう')).toBe('おはよう');
+    expect(insertJapaneseSoftWraps('がんばる')).toBe('がんばる');
+    expect(insertJapaneseSoftWraps('これは明日やる')).toBe(`これは${JP_SOFT_WRAP}明日やる`);
+  });
+
   it('keeps latin tokens together and offers a wrap after them', () => {
     expect(insertJapaneseSoftWraps('Fireした')).toBe(`Fire${JP_SOFT_WRAP}した`);
     expect(insertJapaneseSoftWraps('ALL CLEAR')).toBe('ALL CLEAR');

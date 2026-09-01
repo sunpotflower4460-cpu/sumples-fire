@@ -60,7 +60,7 @@ const PARTICLES = [
   'の',
 ];
 
-const ALWAYS_BREAK_PARTICLES = new Set(['は', 'が', 'を']);
+const ALWAYS_BREAK_PARTICLES = new Set(['を']);
 
 const matchParticleAt = (source: string, index: number) => {
   if (index === 0 || !CJK.test(source[index - 1] ?? '')) return '';
