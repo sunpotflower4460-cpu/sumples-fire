@@ -21,16 +21,6 @@ html {
   overflow-wrap: anywhere;
 }
 
-@supports (word-break: auto-phrase) {
-  .mobile-app-shell,
-  .burning-ritual,
-  .fire-delete-modal,
-  .record-sheet,
-  .toast {
-    word-break: auto-phrase;
-  }
-}
-
 .jp-keep {
   white-space: nowrap;
 }
