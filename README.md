@@ -2,7 +2,7 @@
 
 やりたくないタスクを、終わったらFireして炭に変えるタスクアプリです。
 
-このリポジトリは、GitHub / Vercel を使った安全ゲート付き開発フローのテスト用に作成しています。
+iPhone アプリ（Capacitor）として App Store 配布を目指しています。Web 版は https://sumples-fire.vercel.app で公開しています。
 
 ## アプリ概要
 
@@ -25,7 +25,7 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 - 未燃焼 / 今日やる / 燃焼済みの絞り込み
 - 削除前の確認
 - 保存 / 燃焼 / 削除のフィードバック
-- localStorage保存
+- 端末内保存（iOS: UserDefaults / Web: localStorage）
 - スマホ対応UI
 
 ## Phase 15: Fireコンセプト導入
@@ -89,16 +89,17 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 
 ## 保存仕様
 
-- タスクはこの端末内に保存されます
-- アカウント登録は不要です
-- アプリを閉じて開き直してもタスクは残ります
-- 保存データは `sumples-fire-seeds-v2` キーで管理します
-- 旧キー `sumples-fire-seeds-v1` からの読み込みにも対応します
-- 保存データが壊れている場合は安全に空配列へ戻します
-- 端末内ストレージが利用できない場合は保存失敗の通知を表示します
-- 内部的には端末内ストレージ（localStorage）を使用します
+- タスク・炭の記録・連続日数・効果音設定は、すべてこの端末内に保存されます。アカウント登録は不要です
+- iOS アプリでは UserDefaults（`@capacitor/preferences`）に保存します。WebView の localStorage は OS に回収されることがあるためです
+- Web 版ではブラウザの localStorage に保存します
+- 旧バージョン（iOS でも localStorage 保存だった版）のデータは、初回起動時に自動で移行します
+- 保存データは `sumples-fire-seeds-v2` キーで管理し、旧キー `sumples-fire-seeds-v1` からの読み込みにも対応します
+- 保存データが壊れている場合は安全に空の状態で起動します
+- 保存に失敗した場合は、成功したように見せずに通知します
 
-注意: アプリ削除や端末データ削除時に、端末内保存データも消える場合があります。
+注意: アプリを削除すると、端末内の保存データも削除されます。
+
+詳細は `docs/IOS_RELEASE.md` を参照してください。
 
 ## PWA / iOS化準備で追加したこと
 
@@ -120,7 +121,9 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 - TypeScript
 - CSS
 - Web Audio API
-- localStorage
+- Capacitor 8（iOS）
+- localStorage / UserDefaults
+- Playwright
 - GitHub Actions
 - Vercel
 - ESLint
@@ -133,12 +136,26 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 
 ## 品質チェック
 
+```bash
 npm run lint
 npm run test
 npm run typecheck
 npm run build
+npm run test:e2e   # Playwright WebKit（初回は npx playwright install webkit）
+```
 
-GitHub Actions CI でも同じ品質チェックを実行します。
+GitHub Actions CI でも同じチェックを実行します。
+
+## iOS アプリ
+
+```bash
+npm run ios:sync   # iOS 用ビルド（vite --mode capacitor）+ cap sync
+npm run ios:open   # Xcode で開く
+```
+
+- `docs/IOS_RELEASE.md` — ビルド手順、設定の根拠、Privacy Manifest、提出までの手順
+- `docs/APP_STORE_SUBMISSION.md` — App Store Connect に入力する情報
+- `docs/RELEASE_MANUAL_TEST.md` — 実機での確認チェックリスト
 
 ## Vercel設定
 
@@ -158,13 +175,13 @@ GitHub Actions CI でも同じ品質チェックを実行します。
 - App Store Connectでの新規アプリ作成
 - App Store審査提出
 
-詳しくは `docs/CAPACITOR_NEXT_STEPS.md` と `docs/APP_STORE_READINESS_CHECKLIST.md` を参照してください。
+詳しくは `docs/IOS_RELEASE.md` を参照してください。
 
 ## 安全方針
 
-今回のMVPでは、外部API、認証、DB接続、課金、APIキー、token、.env は使っていません。
+外部API、認証、DB接続、課金、広告、アクセス解析、APIキー、token、.env は使っていません。
 
-保存は端末内ストレージのみです。外部送信・アカウント不要・端末内保存の方針です。
+iOS アプリはネットワーク通信を行わず、保存は端末内のみです。外部送信なし・アカウント不要・端末内保存の方針です。
 
 ## Phase
 
@@ -190,5 +207,4 @@ GitHub Actions CI でも同じ品質チェックを実行します。
 
 ## 次の候補
 
-- Phase 18: 炭ポイント体験と達成感の磨き込み
-- Phase 19: Capacitor依存関係の追加とiOSプロジェクト生成
+- 実機確認・TestFlight・App Store 審査提出（`docs/IOS_RELEASE.md` の「提出までの手順」）
