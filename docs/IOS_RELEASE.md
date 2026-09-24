@@ -1,6 +1,6 @@
 # iOS リリース手順と設定の根拠 — Fire Task
 
-Web（Vite + React）を Capacitor 8 で iOS アプリとして配布します。
+Web（Vite + React）を Capacitor 8.5 で iOS アプリとして配布します。
 このドキュメントは「どうビルドするか」「なぜこの設定なのか」「提出までに何が残っているか」をまとめたものです。
 
 最終更新: 2026-09-24（Xcode 26.2 / iOS 26.2 SDK で検証）
@@ -73,6 +73,7 @@ Simulator での実証（Release ビルド）:
 | `CFBundleDisplayName` | Fire Task | アプリ内・公開ページの名称と統一 |
 | `TARGETED_DEVICE_FAMILY` | 1（iPhone のみ） | UI はスマホ幅専用。iPad では未検証のため対象外（iPad でも iPhone アプリとして動作する） |
 | `UISupportedInterfaceOrientations` | Portrait のみ | 横画面レイアウトは未設計 |
+| ライフサイクル | UIScene（`SceneDelegate`） | iOS 27 SDK で必須（Apple TN3187） |
 | `IPHONEOS_DEPLOYMENT_TARGET` | 15.0 | Capacitor 8 の最小要件。Apple の「iOS 13 以上」要件を満たす |
 | `UIRequiredDeviceCapabilities` | arm64 | テンプレートの armv7 は廃止済みアーキテクチャ |
 | `ITSAppUsesNonExemptEncryption` | false | 通信も独自暗号もない |
@@ -103,7 +104,8 @@ Simulator での実証（Release ビルド）:
 
 ## 7. 既知の注意点（提出は阻害しない）
 
-- Xcode 26 のランタイムログに「UIScene lifecycle will soon be required」が出ます。現行 SDK では警告のみ。Capacitor が UIScene 対応テンプレートを出した時点で追従してください
+- UIScene ライフサイクル対応済み（Capacitor 8.5 + `npx cap migrate`、`SceneDelegate.swift`）。Apple TN3187 により、iOS 27 SDK（Xcode 27）でビルドする UIScene 未対応アプリは起動しないため。Xcode 26.2 / 27 のどちらでもビルド可能
+- `Package.swift` は Preferences プラグインを `node_modules` から参照します。Xcode で Archive する前に必ず `npm ci` と `npm run ios:sync` を実行してください
 - 起動直後、WebView がバンドルを読み込むまでの間は HTML の背景色（ライト: クリーム / ダーク: 黒）が表示されます
 - Web 版（Vercel）の privacy / support ページが App Store Connect に登録する公開 URL です。main にマージすると更新されます
 
