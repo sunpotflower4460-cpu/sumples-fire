@@ -10,6 +10,7 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "ios:sync": "npm run build:ios && npx cap sync ios",
     "ios:open": "npx cap open ios",
     "preview": "npm run build && wrangler dev",

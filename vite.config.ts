@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 import { cloudflare } from "@cloudflare/vite-plugin";
@@ -8,4 +9,8 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 // wrangler.json / .assetsignore (with local absolute paths) into the app.
 export default defineConfig(({ mode }) => ({
   plugins: mode === 'capacitor' ? [react()] : [react(), cloudflare()],
+  test: {
+    // Playwright owns e2e/; Vitest would otherwise try to run those specs.
+    exclude: [...configDefaults.exclude, 'e2e/**'],
+  },
 }));
