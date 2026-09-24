@@ -2,35 +2,48 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Fire Task プライバシーポリシー</title>
   <style>
     :root { color-scheme: light dark; }
-    body { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", system-ui, sans-serif; line-height: 1.7; }
+    body { max-width: 760px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", system-ui, sans-serif; line-height: 1.7; overflow-wrap: anywhere; }
     h1, h2 { line-height: 1.3; }
-    code { background: rgba(127, 127, 127, 0.14); padding: 2px 6px; border-radius: 4px; }
     a { color: inherit; }
+    .back-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; }
   </style>
 </head>
 <body>
+  <nav><a class="back-link" href="/">← アプリに戻る</a></nav>
   <h1>Fire Task プライバシーポリシー</h1>
-  <p>最終更新日: 2026-05-25</p>
+  <p>最終更新日: 2026-09-24</p>
 
-  <h2>1. 取得する情報</h2>
-  <p>Fire Task は、ユーザーが入力したタスク情報をこの端末内に保存します。内部的には端末内ストレージを使用します。</p>
-  <p>氏名、メールアドレス、位置情報などの個人情報を収集する機能はありません。</p>
+  <h2>1. 取得・保存する情報</h2>
+  <p>Fire Task が保存するのは、ユーザーが入力したタスク（タスク名、最初の一歩、メモ、カテゴリ、緊急度・重要度、重さ）と、燃やした記録（炭ポイント、連続日数）、効果音のオン/オフ設定だけです。</p>
+  <p>これらはすべてお使いの端末内に保存されます。</p>
+  <ul>
+    <li>iPhone アプリ版: アプリ専用の端末内保存領域に保存します。他のアプリからは読み取れません。</li>
+    <li>Web 版: お使いのブラウザの端末内ストレージ（localStorage）に保存します。</li>
+  </ul>
+  <p>氏名、メールアドレス、電話番号、位置情報、連絡先、写真、端末識別子などを取得する機能はありません。アカウント登録も不要です。</p>
 
-  <h2>2. 外部送信</h2>
-  <p>ユーザー入力データをアプリ運営者のサーバーへ送信する機能はありません。</p>
-  <p>本アプリでは外部API、アカウント認証、広告SDK、解析SDKを利用していません。</p>
+  <h2>2. 外部送信・第三者提供</h2>
+  <p>入力したタスクや記録を、開発者や第三者のサーバーへ送信する機能はありません。</p>
+  <p>本アプリは、広告、アクセス解析、クラッシュ解析、トラッキングを目的とした SDK や外部サービスを利用していません。ユーザーを追跡（トラッキング）することもありません。</p>
+  <p>iPhone アプリ版は、動作のためにインターネット通信を行いません。効果音も端末内で合成しており、マイクは使用しません。</p>
+  <p>Web 版（sumples-fire.vercel.app）をブラウザで開いた場合に限り、ページ配信のためホスティング事業者（Vercel Inc.）が IP アドレスやブラウザ情報などの一般的なアクセスログを記録することがあります。入力したタスク内容は送信されません。</p>
 
-  <h2>3. 端末内保存について</h2>
-  <p>保存データはこの端末内にのみ保持されます。アプリ削除や端末データ削除時にデータが消える場合があります。</p>
+  <h2>3. データの削除</h2>
+  <p>各タスクはアプリ内の「削除」からいつでも削除できます。iPhone アプリ版では、アプリを削除すると保存データもすべて削除されます。Web 版では、ブラウザのサイトデータを削除すると保存データも削除されます。</p>
+  <p>データは端末内にのみあるため、開発者がユーザーのデータを閲覧・復元することはできません。</p>
 
-  <h2>4. 将来の機能追加</h2>
-  <p>将来、外部通信やアカウント機能を追加する場合は、本ポリシーを更新します。</p>
+  <h2>4. お子さまの利用</h2>
+  <p>本アプリは個人情報を取得しないため、年齢にかかわらず同じ内容で利用できます。</p>
 
-  <h2>5. お問い合わせ</h2>
-  <p>サポート情報は <a href="/support.html">サポートページ</a> をご確認ください。</p>
+  <h2>5. ポリシーの変更</h2>
+  <p>将来、外部通信やアカウント機能などを追加する場合は、事前に本ポリシーを更新し、このページでお知らせします。</p>
+
+  <h2>6. お問い合わせ</h2>
+  <p>本ポリシーに関するお問い合わせは、<a href="/support.html">サポートページ</a>に記載の方法でご連絡ください。</p>
 </body>
 </html>
