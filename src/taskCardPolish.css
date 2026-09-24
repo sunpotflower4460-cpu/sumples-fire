@@ -149,6 +149,24 @@
   }
 }
 
+/* styles.css stacks the footer vertically at <=380px. In a column the
+   date's `flex: 1 1 14ch` basis became a ~110px tall blank, and the Fire
+   button stayed content-sized so "完了してFire" broke mid-word. */
+@media (max-width: 380px) {
+  .fire-card .card-footer > span {
+    flex: 0 0 auto;
+  }
+
+  .fire-card .card-actions {
+    align-self: stretch;
+  }
+
+  .fire-card .card-actions .fire-button {
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 360px) {
   .card-detail-list {
     grid-template-columns: 1fr;

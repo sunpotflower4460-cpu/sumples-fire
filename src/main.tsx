@@ -41,6 +41,7 @@ import './accessibilityPolish.css';
 import './dimensionalPolish.css';
 import './tactilePolish.css';
 import './japaneseWrap.css';
+import './lightThemeContrast.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

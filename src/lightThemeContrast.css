@@ -1,0 +1,95 @@
+/*
+ * Fire Task — light theme text contrast repair
+ *
+ * darkTheme.css is imported unconditionally, and the later light-surface
+ * layers (worldClassPolish and friends) repainted backgrounds but not every
+ * text colour. In light mode that left headings, task titles, form labels and
+ * stats in the dark theme's Ash White (#f5e8d3) on cream surfaces — a ~1.2:1
+ * contrast ratio, i.e. effectively invisible.
+ *
+ * This layer restores readable ink for light mode. Dark mode, the dark
+ * surfaces that stay dark in light mode (campfire, ash records, burning
+ * ritual, toast) and the white-on-ember buttons are intentionally untouched.
+ * e2e/contrast.spec.ts guards against this regressing.
+ */
+
+@media (prefers-color-scheme: light) {
+  /* Primary ink: headings, task titles, form labels, numbers. */
+  .app-topbar h1,
+  .brand-hero h2,
+  .focus-seed .section-heading h2,
+  .focus-next-action p,
+  .section-heading h2,
+  .ash-records-heading h3,
+  .fire-card h3,
+  .fire-card .next-action p,
+  .sheet-header h2,
+  .fire-form label,
+  .choice-button b,
+  .stat-card:not(.is-highlight) strong,
+  .rank-stat-card strong {
+    color: var(--wc-ink);
+  }
+
+  /* Secondary copy: helpers and hints. */
+  .focus-hint,
+  .form-helper,
+  .ash-records-heading > span,
+  .choice-button small,
+  .choice-button.is-selected small {
+    color: var(--wc-muted);
+  }
+
+  /* Eyebrows on light cards: the dark theme's translucent gold disappears on cream. */
+  .card-header .eyebrow,
+  .sheet-header .eyebrow,
+  .ash-records-heading .eyebrow,
+  .rank-progress-value {
+    color: #a64d2a;
+  }
+
+  .form-error {
+    color: #b42318;
+  }
+
+  /* worldClassPolish repaints the resting field but not :focus, so the dark
+     theme's charcoal focus fill came back while typing — dark ink on dark. */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    background: rgba(255, 254, 251, 0.98);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(118, 98, 88, 0.62);
+  }
+
+  select option {
+    background: #fffefb;
+    color: var(--wc-ink);
+  }
+
+  /* The highlighted stat card keeps its charcoal surface, so its label needs light ink. */
+  .stat-card.is-highlight span {
+    color: rgba(245, 232, 211, 0.78);
+  }
+}
+
+/* Dark mode keeps its design; only small secondary labels that fell below
+   3:1 on charcoal get a lighter tone. */
+@media (prefers-color-scheme: dark) {
+  .app-kicker,
+  .eyebrow,
+  .fire-card .next-action > span,
+  .focus-next-action > span {
+    color: #d9875a;
+  }
+
+  .focus-meta span,
+  .advanced-fields-summary > span,
+  .fire-delete-kicker,
+  .tab-button:not(.is-active) {
+    color: rgba(245, 232, 211, 0.74);
+  }
+}
