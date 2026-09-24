@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MotionConfig } from 'framer-motion';
 import App from './App';
+import { initializeAppStorage } from './lib/appStorage';
 import { AppModalIsolation } from './components/AppModalIsolation';
 import { AppScreenAnnouncer } from './components/AppScreenAnnouncer';
 import './styles.css';
@@ -43,12 +44,16 @@ import './tactilePolish.css';
 import './japaneseWrap.css';
 import './lightThemeContrast.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <MotionConfig reducedMotion="user">
-      <App />
-      <AppModalIsolation />
-      <AppScreenAnnouncer />
-    </MotionConfig>
-  </StrictMode>,
-);
+// Durable storage must be ready before the first render: every hook reads its
+// initial state synchronously, and rendering early would show an empty list.
+void initializeAppStorage().finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <MotionConfig reducedMotion="user">
+        <App />
+        <AppModalIsolation />
+        <AppScreenAnnouncer />
+      </MotionConfig>
+    </StrictMode>,
+  );
+});

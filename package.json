@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:ios": "tsc -b && vite build --mode capacitor",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
-    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:sync": "npm run build:ios && npx cap sync ios",
     "ios:open": "npx cap open ios",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
@@ -17,6 +18,7 @@
   "dependencies": {
     "@capacitor/core": "^8.3.4",
     "@capacitor/ios": "^8.3.4",
+    "@capacitor/preferences": "^8.0.1",
     "@vitejs/plugin-react": "^4.4.1",
     "framer-motion": "^12.38.0",
     "react": "^19.0.0",

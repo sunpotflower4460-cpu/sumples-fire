@@ -9,7 +9,7 @@ import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { getEffectiveFireStreak, loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
 import { playSparkSound, playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
-import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
+import { getAppStorageDriver, onAppStorageWriteFailure } from '../lib/appStorage';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
@@ -37,7 +37,7 @@ const getLocalDayKey = (date = new Date()) => (
 );
 
 export function useFireSeeds() {
-  const storageDriverRef = useRef(getWebStorageDriver());
+  const storageDriverRef = useRef(getAppStorageDriver());
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
   const calendarDayKeyRef = useRef(getLocalDayKey());
@@ -116,6 +116,12 @@ export function useFireSeeds() {
       }
     };
   }, []);
+
+  // Native writes settle asynchronously. A failure there is rare but must not
+  // be silent: tell the user instead of letting the next launch surprise them.
+  useEffect(() => onAppStorageWriteFailure(() => {
+    setNotice('端末への保存に失敗しました。アプリを閉じる前に、もう一度操作してください');
+  }), []);
 
   useEffect(() => () => {
     if (completionTimerRef.current !== null) {
@@ -281,7 +287,12 @@ export function useFireSeeds() {
   };
 
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
-  const stats = useMemo(() => getFireSeedStats(seeds), [seeds, calendarRevision]);
+  // calendarRevision bumps at local midnight so "today" counts recompute even
+  // when the seed list itself has not changed.
+  const stats = useMemo(() => {
+    void calendarRevision;
+    return getFireSeedStats(seeds);
+  }, [seeds, calendarRevision]);
   const undoBurnCandidate = undoBurnSnapshot
     ? {
         id: undoBurnSnapshot.seed.id,
