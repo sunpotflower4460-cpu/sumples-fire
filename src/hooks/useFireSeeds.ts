@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { burnSeed, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
+import { burnSeed, createStarterSeeds, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
 import { createFireBurnUndoSnapshot, restoreFireSeedFromUndo } from '../lib/fireBurnUndo';
 import type { FireBurnUndoSnapshot } from '../lib/fireBurnUndo';
@@ -180,6 +180,23 @@ export function useFireSeeds() {
     return id;
   };
 
+  // First-launch choice: start from a few template tasks instead of a blank
+  // list. Only offered while the list is empty, and saved in one write so a
+  // storage failure leaves the app exactly as it was.
+  const addStarterSeeds = () => {
+    if (seeds.length > 0) return false;
+
+    const starterSeeds = sortFireTasks(createStarterSeeds(createId));
+    if (!saveStoredSeeds(storageDriverRef.current, starterSeeds)) {
+      setNotice('保存できなかったため、例のタスクを追加できませんでした');
+      return false;
+    }
+
+    setSeeds(starterSeeds);
+    setNotice('例のタスクを3つ追加しました。不要なものは削除できます');
+    return true;
+  };
+
   const burnTask = (id: string) => {
     if (activeBurnIdRef.current !== null) return;
 
@@ -311,6 +328,7 @@ export function useFireSeeds() {
     burnCompletion,
     undoBurnCandidate,
     addSeed,
+    addStarterSeeds,
     burnTask,
     dismissUndoBurn,
     undoLastBurn,

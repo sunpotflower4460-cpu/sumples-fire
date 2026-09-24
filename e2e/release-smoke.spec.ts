@@ -13,6 +13,26 @@ test('first launch shows the empty state and a single clear action', async ({ pa
   }
 });
 
+test('first launch lets the user choose to start from template tasks', async ({ page }) => {
+  await page.getByRole('button', { name: '例のタスクを入れて試す' }).click();
+
+  await expect(page.getByRole('region', { name: '今日の火種' }).getByRole('heading', { name: '先延ばししていた返信をする' })).toBeVisible();
+  const seeds = await storedSeeds(page);
+  expect(seeds).toHaveLength(3);
+  expect(seeds.every((seed) => !seed.burned)).toBe(true);
+  await expect(page.getByRole('button', { name: '例のタスクを入れて試す' })).toHaveCount(0);
+
+  await page.reload();
+  await expect(fireButton(page, '先延ばししていた返信をする')).toBeVisible();
+  expect(await readTotalAsh(page)).toBe(0);
+});
+
+test('not choosing templates keeps the list empty across restarts', async ({ page }) => {
+  await page.reload();
+  await expect(page.getByRole('button', { name: '例のタスクを入れて試す' })).toBeVisible();
+  expect(await storedSeeds(page)).toEqual([]);
+});
+
 test('adding a task persists it and makes it today\'s focus', async ({ page }) => {
   await addTask(page, '請求書を送る', '金額だけ確認する');
 
