@@ -1,9 +1,9 @@
-import { getWebStorageDriver } from './webLocalStorageDriver';
+import { getAppStorageDriver } from './appStorage';
 
 const SOUND_STORAGE_KEY = 'fire-task-sound-enabled-v1';
 
 export const isFireSoundEnabled = () => {
-  const driver = getWebStorageDriver();
+  const driver = getAppStorageDriver();
   if (!driver) return true;
   try {
     return driver.getItem(SOUND_STORAGE_KEY) !== 'false';
@@ -13,7 +13,7 @@ export const isFireSoundEnabled = () => {
 };
 
 export const setFireSoundEnabled = (enabled: boolean) => {
-  const driver = getWebStorageDriver();
+  const driver = getAppStorageDriver();
   if (!driver) return;
   try {
     driver.setItem(SOUND_STORAGE_KEY, String(enabled));

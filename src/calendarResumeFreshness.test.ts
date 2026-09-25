@@ -27,7 +27,7 @@ describe('calendar freshness after long-lived app sessions', () => {
   });
 
   it('recomputes date-sensitive stats when the calendar revision changes', () => {
-    expect(hookSource).toContain('getFireSeedStats(seeds), [seeds, calendarRevision]');
+    expect(hookSource).toMatch(/return getFireSeedStats\(seeds\);\s*\}, \[seeds, calendarRevision\]\)/);
   });
 
   it('does not create a new streak object on every same-day focus refresh', () => {

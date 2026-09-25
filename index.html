@@ -17,6 +17,9 @@
 <link rel="icon" type="image/svg+xml" href="/icon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 <title>Fire Task</title>
+<!-- Paint the app canvas before the JS bundle runs so the iOS WebView does not
+     flash white between the launch screen and the first React render. -->
+<style>html,body{background:#faf6f0}@media (prefers-color-scheme:dark){html,body{background:#12100e}}</style>
 </head>
 <body>
 <div id="root"></div>

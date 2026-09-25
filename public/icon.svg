@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">Sumples Fire icon</title>
-  <desc id="desc">A warm flame mark for Sumples Fire.</desc>
+  <title id="title">Fire Task icon</title>
+  <desc id="desc">A warm flame mark for Fire Task.</desc>
   <rect width="512" height="512" rx="112" fill="#fff7ea"/>
   <circle cx="256" cy="266" r="172" fill="#2c1710" opacity="0.08"/>
   <path d="M272 84c25 60 2 95-31 132-30 34-57 70-57 124 0 68 51 118 120 118 70 0 124-51 124-124 0-85-68-133-156-250Z" fill="#ce321d"/>

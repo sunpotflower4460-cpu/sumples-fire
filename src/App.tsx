@@ -161,6 +161,7 @@ export default function App() {
   };
   const {
     addSeed,
+    addStarterSeeds,
     allSeeds,
     burnCompletion,
     burnTask,
@@ -238,6 +239,17 @@ export default function App() {
       });
     }, 0);
     window.setTimeout(() => setNewSeedId(null), 600);
+  };
+
+  const handleAddStarterSeeds = () => {
+    if (!addStarterSeeds()) return;
+    lastCompletedBurnOriginRef.current = null;
+    setQuadrantFilter(null);
+    setQueueVisibleCount(QUEUE_PAGE_SIZE);
+    // The hero (and the focused button) unmounts; land on the new first Fire.
+    window.setTimeout(() => {
+      focusFireButtonRef.current?.focus({ preventScroll: true });
+    }, 0);
   };
 
   const focusPrimaryAction = () => {
@@ -539,6 +551,10 @@ export default function App() {
                 <h2>嫌なタスクを、<br />燃やして<br />終わらせる。</h2>
                 <p>{jp('まずは1つだけ、燃やしたいことを書きましょう。')}</p>
                 <button className="primary-button" type="button" onClick={openRecord}>最初のタスクを書く</button>
+                <button className="ghost-button starter-seeds-button" type="button" onClick={handleAddStarterSeeds} aria-describedby="starter-seeds-note">
+                  例のタスクを入れて試す
+                </button>
+                <p id="starter-seeds-note" className="starter-seeds-note">{jp('燃やす前のタスクが3つ入ります。不要なものは削除できます。')}</p>
               </section>
             ) : null}
 
