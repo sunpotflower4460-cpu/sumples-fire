@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { SEEDS_KEY, addTask, fireButton, freshStart, readTotalAsh, storedSeeds } from './helpers';
+import { RITUAL_TIMEOUT, SEEDS_KEY, addTask, fireButton, freshStart, readTotalAsh, storedSeeds } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await freshStart(page);
@@ -71,7 +71,7 @@ test('Fire burns the task, adds ash, and Undo restores it', async ({ page }) => 
 
   const ritual = page.locator('.burning-ritual');
   await expect(ritual).toBeVisible();
-  await expect(ritual).toBeHidden({ timeout: 5_000 });
+  await expect(ritual).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
   const toast = page.getByRole('group', { name: '直前のFire' });
   await expect(toast).toContainText('Fire完了！ +5炭');
@@ -88,7 +88,7 @@ test('rapid double tap on Fire burns exactly once', async ({ page }) => {
   await addTask(page, 'メールを返す');
   await addTask(page, '本を返却する');
   await fireButton(page, 'メールを返す').dblclick();
-  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 5_000 });
+  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
   const seeds = await storedSeeds(page);
   expect(seeds.filter((seed) => seed.burned).map((seed) => seed.title)).toEqual(['メールを返す']);
@@ -99,7 +99,7 @@ test('the app shell is inert while the ritual runs', async ({ page }) => {
   await addTask(page, '書類を出す');
   await fireButton(page, '書類を出す').click();
   await expect(page.locator('main.mobile-app-shell')).toHaveAttribute('inert', '');
-  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 5_000 });
+  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
   await expect(page.locator('main.mobile-app-shell')).not.toHaveAttribute('inert', '');
 });
 
@@ -121,7 +121,7 @@ test('delete asks for confirmation and can be cancelled', async ({ page }) => {
 test('tabs switch between today, ash history and settings', async ({ page }) => {
   await addTask(page, '部屋を片付ける');
   await fireButton(page, '部屋を片付ける').click();
-  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 5_000 });
+  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
   await page.getByRole('button', { name: '炭', exact: true }).click();
   await expect(page.locator('#app-screen-title')).toHaveText('炭');
@@ -150,7 +150,7 @@ test('tasks, ash and streak survive a restart', async ({ page }) => {
   await addTask(page, '確定申告の書類を集める');
   await addTask(page, 'メールを返す');
   await fireButton(page, 'メールを返す').click();
-  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 5_000 });
+  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
   await page.reload();
   await expect(fireButton(page, '確定申告の書類を集める')).toBeVisible();
@@ -203,7 +203,7 @@ test('full-motion ritual also completes and unlocks the app', async ({ browser }
   await addTask(page, '演出確認');
   await fireButton(page, '演出確認').click();
   await expect(page.locator('.burning-ritual')).toBeVisible();
-  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 8_000 });
+  await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
   await expect(page.getByRole('group', { name: '直前のFire' })).toBeVisible();
   await context.close();
 });

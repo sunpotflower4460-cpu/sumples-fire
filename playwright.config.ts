@@ -6,8 +6,12 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   // Ten parallel WebKit instances on a cold machine timed out; cap it.
-  workers: process.env.CI ? 2 : 4,
-  expect: { timeout: 10_000 },
+  // GitHub's Linux runners render WebKit in software (no GPU): a single click
+  // on this blur-heavy UI takes 2-8s there, so CI gets one worker and longer
+  // budgets. Real devices and local macOS runs stay on the tighter limits.
+  workers: process.env.CI ? 1 : 4,
+  timeout: process.env.CI ? 120_000 : 30_000,
+  expect: { timeout: process.env.CI ? 20_000 : 10_000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',

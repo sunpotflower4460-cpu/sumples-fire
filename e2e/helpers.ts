@@ -2,6 +2,9 @@ import { expect, type Page } from '@playwright/test';
 
 export const SEEDS_KEY = 'sumples-fire-seeds-v2';
 
+/** The ritual is ~1s (reduced motion) / 3s; CI's software-rendered WebKit needs slack. */
+export const RITUAL_TIMEOUT = process.env.CI ? 30_000 : 8_000;
+
 /** Fresh first launch: no stored tasks, no draft. */
 export async function freshStart(page: Page) {
   await page.goto('/');

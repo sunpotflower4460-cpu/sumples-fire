@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { addTask, fireButton, freshStart } from './helpers';
+import { RITUAL_TIMEOUT, addTask, fireButton, freshStart } from './helpers';
 
 // Regression guard for "text is there but invisible": fails on any visible
 // text below 2:1 against its nearest solid background. (WCAG AA is stricter;
@@ -75,7 +75,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     expect(await findInvisibleText(page), 'home with tasks').toEqual([]);
 
     await fireButton(page, '請求書を送る').click();
-    await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: 5_000 });
+    await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
     await page.getByRole('button', { name: '炭', exact: true }).click();
     expect(await findInvisibleText(page), 'ash').toEqual([]);
     await page.getByRole('button', { name: '設定', exact: true }).click();
