@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process, console */
 /**
  * Release guard: the scripted purchase mock (E2E/dev only) must never ship.
  *
