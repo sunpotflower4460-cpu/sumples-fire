@@ -24,3 +24,32 @@
     width: 100%;
   }
 }
+
+/* Optional first-launch templates: clearly secondary to writing your own. */
+.brand-hero .starter-seeds-button {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.brand-hero .starter-seeds-note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  text-align: center;
+  color: var(--wc-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-hero .starter-seeds-button {
+    border-color: rgba(245, 232, 211, 0.18);
+    background: rgba(245, 232, 211, 0.06);
+    color: rgba(245, 232, 211, 0.9);
+  }
+
+  .brand-hero .starter-seeds-note {
+    color: rgba(245, 232, 211, 0.66);
+  }
+}

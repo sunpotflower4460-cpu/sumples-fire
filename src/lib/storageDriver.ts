@@ -5,13 +5,11 @@
  * `WebLocalStorageDriver` can be a zero-overhead wrapper while keeping
  * the call-sites decoupled from `window.localStorage`.
  *
- * ## Adding a CapacitorPreferencesDriver
- * Implement this interface and wrap `@capacitor/preferences`.
- * Because Capacitor Preferences is async, the driver will need to either:
- *   a) cache values synchronously (load eagerly on app start), or
- *   b) change the consuming code to async (requires updating `fireSeedStorage`,
- *      `fireSoundSettings`, and `fireStreak` to return Promises).
- * See docs/CAPACITOR_NEXT_STEPS.md for the recommended migration path.
+ * Implementations:
+ * - `WebLocalStorageDriver` — browser / PWA.
+ * - `NativePreferencesDriver` — iOS app. Preloads native storage into a cache
+ *   before first render so this interface can stay synchronous.
+ * `getAppStorageDriver()` in `./appStorage` picks the right one.
  */
 export interface StorageDriver {
   getItem(key: string): string | null;

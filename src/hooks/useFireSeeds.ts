@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { burnSeed, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
+import { burnSeed, createStarterSeeds, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
 import { createFireBurnUndoSnapshot, restoreFireSeedFromUndo } from '../lib/fireBurnUndo';
 import type { FireBurnUndoSnapshot } from '../lib/fireBurnUndo';
@@ -9,7 +9,7 @@ import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { getEffectiveFireStreak, loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
 import { playSparkSound, playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
-import { getWebStorageDriver } from '../lib/webLocalStorageDriver';
+import { getAppStorageDriver, onAppStorageWriteFailure } from '../lib/appStorage';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
@@ -37,7 +37,7 @@ const getLocalDayKey = (date = new Date()) => (
 );
 
 export function useFireSeeds() {
-  const storageDriverRef = useRef(getWebStorageDriver());
+  const storageDriverRef = useRef(getAppStorageDriver());
   const completionTimerRef = useRef<number | null>(null);
   const activeBurnIdRef = useRef<string | null>(null);
   const calendarDayKeyRef = useRef(getLocalDayKey());
@@ -117,6 +117,12 @@ export function useFireSeeds() {
     };
   }, []);
 
+  // Native writes settle asynchronously. A failure there is rare but must not
+  // be silent: tell the user instead of letting the next launch surprise them.
+  useEffect(() => onAppStorageWriteFailure(() => {
+    setNotice('端末への保存に失敗しました。アプリを閉じる前に、もう一度操作してください');
+  }), []);
+
   useEffect(() => () => {
     if (completionTimerRef.current !== null) {
       window.clearTimeout(completionTimerRef.current);
@@ -172,6 +178,23 @@ export function useFireSeeds() {
       void playSparkSound();
     }
     return id;
+  };
+
+  // First-launch choice: start from a few template tasks instead of a blank
+  // list. Only offered while the list is empty, and saved in one write so a
+  // storage failure leaves the app exactly as it was.
+  const addStarterSeeds = () => {
+    if (seeds.length > 0) return false;
+
+    const starterSeeds = sortFireTasks(createStarterSeeds(createId));
+    if (!saveStoredSeeds(storageDriverRef.current, starterSeeds)) {
+      setNotice('保存できなかったため、例のタスクを追加できませんでした');
+      return false;
+    }
+
+    setSeeds(starterSeeds);
+    setNotice('例のタスクを3つ追加しました。不要なものは削除できます');
+    return true;
   };
 
   const burnTask = (id: string) => {
@@ -281,7 +304,12 @@ export function useFireSeeds() {
   };
 
   const focusSeed = useMemo(() => getFocusSeed(seeds), [seeds]);
-  const stats = useMemo(() => getFireSeedStats(seeds), [seeds, calendarRevision]);
+  // calendarRevision bumps at local midnight so "today" counts recompute even
+  // when the seed list itself has not changed.
+  const stats = useMemo(() => {
+    void calendarRevision;
+    return getFireSeedStats(seeds);
+  }, [seeds, calendarRevision]);
   const undoBurnCandidate = undoBurnSnapshot
     ? {
         id: undoBurnSnapshot.seed.id,
@@ -300,6 +328,7 @@ export function useFireSeeds() {
     burnCompletion,
     undoBurnCandidate,
     addSeed,
+    addStarterSeeds,
     burnTask,
     dismissUndoBurn,
     undoLastBurn,

@@ -1,4 +1,4 @@
-import { getWebStorageDriver } from './webLocalStorageDriver';
+import { getAppStorageDriver } from './appStorage';
 
 export const STREAK_STORAGE_KEY = 'sumples-fire-streak-v1';
 
@@ -56,7 +56,7 @@ export const getEffectiveFireStreak = (streakData: FireStreakData, date = new Da
 };
 
 export const loadFireStreak = (): FireStreakData => {
-  const driver = getWebStorageDriver();
+  const driver = getAppStorageDriver();
   if (!driver) return defaultStreak();
   try {
     const raw = driver.getItem(STREAK_STORAGE_KEY);
@@ -68,7 +68,7 @@ export const loadFireStreak = (): FireStreakData => {
 };
 
 export const saveFireStreak = (data: FireStreakData): void => {
-  const driver = getWebStorageDriver();
+  const driver = getAppStorageDriver();
   if (!driver) return;
   try {
     driver.setItem(STREAK_STORAGE_KEY, JSON.stringify(data));

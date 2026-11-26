@@ -69,6 +69,12 @@
   box-shadow: none;
 }
 
+/* flameMobile.css made 今すぐ燃やす a double-height hero tile for the old
+   122px cells; with compact filter cells it only broke the 2x2 grid. */
+.matrix-filter-shell .matrix-doNow {
+  grid-row: auto;
+}
+
 .matrix-filter-shell .matrix-cell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

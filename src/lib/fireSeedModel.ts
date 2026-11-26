@@ -104,6 +104,36 @@ export const createSampleSeeds = (timestamp = nowIso()): FireSeed[] => [
   },
 ];
 
+type StarterTemplate = Pick<FireSeed, 'title' | 'nextAction' | 'category' | 'difficulty' | 'urgency' | 'importance'>;
+
+const starterTemplates: StarterTemplate[] = [
+  { title: '先延ばししていた返信をする', nextAction: '2分だけ文面を書く', category: 'task', difficulty: 'normal', urgency: 'high', importance: 'high' },
+  { title: '部屋の一角を片付ける', nextAction: 'いらない紙を3枚捨てる', category: 'life', difficulty: 'heavy', urgency: 'low', importance: 'high' },
+  { title: '5分で終わる用事をひとつ済ませる', nextAction: '', category: 'task', difficulty: 'small', urgency: 'high', importance: 'low' },
+];
+
+/**
+ * Optional first-launch templates the user can choose to start from.
+ * All are unburned: choosing them must never fabricate ash points, history
+ * or streaks. Ids are fresh so they behave exactly like user-written tasks.
+ */
+export const createStarterSeeds = (createId: () => string, timestamp = nowIso()): FireSeed[] => (
+  starterTemplates.map((template) => ({
+    ...template,
+    id: createId(),
+    body: '',
+    priority: derivePriority(template.urgency, template.importance),
+    stage: 'spark',
+    quadrant: getQuadrant(template.urgency, template.importance),
+    ashPoints: difficultyAshPoints[template.difficulty],
+    burned: false,
+    isBurning: false,
+    completed: false,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  }))
+);
+
 const inferDifficulty = (seed: Partial<FireSeed>): FireDifficulty => {
   if (seed.difficulty) return seed.difficulty;
   if (seed.priority === 'high') return 'heavy';

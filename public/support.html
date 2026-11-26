@@ -2,28 +2,40 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Fire Task サポート</title>
   <style>
     :root { color-scheme: light dark; }
-    body { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", system-ui, sans-serif; line-height: 1.7; }
+    body { max-width: 760px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", system-ui, sans-serif; line-height: 1.7; overflow-wrap: anywhere; }
     h1, h2 { line-height: 1.3; }
     a { color: inherit; }
+    .back-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; }
   </style>
 </head>
 <body>
+  <nav><a class="back-link" href="/">← アプリに戻る</a></nav>
   <h1>Fire Task サポート</h1>
-  <p>最終更新日: 2026-06-07</p>
+  <p>最終更新日: 2026-09-24</p>
 
   <h2>アプリ概要</h2>
-  <p>Fire Task は、やりたくないタスクを終えたら「Fire」して完了記録を残すタスクアプリです。</p>
+  <p>Fire Task は、やりたくないタスクを書いておき、終えたら「Fire」して燃やすタスクアプリです。燃やしたタスクは炭ポイントとして記録に残ります。</p>
+
+  <h2>基本の使い方</h2>
+  <ol>
+    <li>右下の「＋」ボタンから、燃やしたいタスクを書きます。初回は「例のタスクを入れて試す」で、燃やす前の例を3つ入れて始めることもできます（不要なものは削除できます）。</li>
+    <li>必要なら「優先度と重さ」を調整します。緊急度と重要度から、燃やす順番が自動で並びます。</li>
+    <li>終わったら「完了したら Fire」を押します。燃焼演出のあと、炭ポイントが加算されます。</li>
+    <li>押し間違えた場合は、直後に表示される「元に戻す」で取り消せます。</li>
+  </ol>
 
   <h2>よくある質問</h2>
-  <p><strong>Q. データはどこに保存されますか？</strong><br>この端末内に保存されます。アカウント登録は不要です。</p>
-  <p><strong>Q. ログインは必要ですか？</strong><br>不要です。</p>
-  <p><strong>Q. データが消えることはありますか？</strong><br>アプリ削除や端末データ削除時に消える場合があります。</p>
+  <p><strong>Q. データはどこに保存されますか？</strong><br>この端末内に保存されます。アカウント登録やログインは不要です。</p>
+  <p><strong>Q. 機種変更やアプリの再インストールでデータは引き継げますか？</strong><br>現在、引き継ぎ機能はありません。アプリを削除すると保存データも削除されます。</p>
+  <p><strong>Q. 効果音を消したいです。</strong><br>「設定」タブの「Fireサウンド」をオフにしてください。</p>
+  <p><strong>Q. 燃焼演出が長い・まぶしいと感じます。</strong><br>iPhone の「設定」→「アクセシビリティ」→「動作」→「視差効果を減らす」をオンにすると、演出が短く控えめになります。</p>
 
-  <h2>連絡先</h2>
+  <h2>お問い合わせ</h2>
   <p>不具合報告・改善要望・操作に関するご質問は、以下のいずれかの方法でお知らせください。</p>
   <ul>
     <li><strong>GitHub Issues</strong>（不具合の詳細共有に向いています）<br><a href="https://github.com/sunpotflower4460-cpu/sumples-fire/issues">https://github.com/sunpotflower4460-cpu/sumples-fire/issues</a></li>
@@ -32,6 +44,6 @@
   <p>どちらの方法でも、確認でき次第順次対応します。</p>
 
   <h2>関連ページ</h2>
-  <p><a href="/privacy.html">プライバシーポリシー</a> / <a href="/">Fire Task を開く</a></p>
+  <p><a href="/privacy.html">プライバシーポリシー</a></p>
 </body>
 </html>
