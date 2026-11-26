@@ -17,6 +17,8 @@ import { useSheetDrag } from './hooks/useSheetDrag';
 import { useFireSeeds } from './hooks/useFireSeeds';
 import { getFireRankLevel } from './lib/fireSeedModel';
 import { getStreakState } from './lib/fireStreak';
+import { prepareFireSounds } from './lib/fireSoundEngine';
+import { isFireSoundEnabled } from './lib/fireSoundSettings';
 import { toastVariants } from './lib/shellVariants';
 import { jp } from './lib/japanesePhraseWrap';
 import type { FireMatrixQuadrant, FireSeed, NewFireSeedInput } from './types/fireSeed';
@@ -414,6 +416,11 @@ export default function App() {
       behavior: 'auto',
     });
   }, [activeTab]);
+
+  // Render the fire sounds while the browser is idle so a tap never waits on DSP.
+  useEffect(() => {
+    if (isFireSoundEnabled()) prepareFireSounds(prefersReducedMotion());
+  }, []);
 
   useEffect(() => {
     const tab = tabs.find((item) => item.id === activeTab);

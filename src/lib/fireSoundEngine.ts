@@ -1,4 +1,6 @@
 import type { BurnSpectacleSound } from './fireBurnSpectacle';
+import { renderFire, renderRoomImpulse } from './fireSynth';
+import type { FireSamples, FireSynthOptions } from './fireSynth';
 import {
   BURN_SEQUENCE_DURATION,
   BURN_TIMING,
@@ -174,19 +176,19 @@ const scheduleTone = (
 
 const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S) => {
   const compressor = context.createDynamicsCompressor();
-  compressor.threshold.setValueAtTime(-16, context.currentTime);
-  compressor.knee.setValueAtTime(14, context.currentTime);
-  compressor.ratio.setValueAtTime(5, context.currentTime);
-  compressor.attack.setValueAtTime(0.003, context.currentTime);
-  compressor.release.setValueAtTime(0.16, context.currentTime);
+  compressor.threshold.setValueAtTime(-14, context.currentTime);
+  compressor.knee.setValueAtTime(12, context.currentTime);
+  compressor.ratio.setValueAtTime(4, context.currentTime);
+  compressor.attack.setValueAtTime(0.004, context.currentTime);
+  compressor.release.setValueAtTime(0.18, context.currentTime);
 
   const gain = context.createGain();
-  gain.gain.setValueAtTime(0.78, context.currentTime);
+  gain.gain.setValueAtTime(0.82, context.currentTime);
 
   compressor.connect(gain);
   gain.connect(context.destination);
 
-  const hangMs = Math.ceil(durationS * 1000) + 180;
+  const hangMs = Math.ceil(durationS * 1000) + 320;
   window.setTimeout(() => {
     try {
       compressor.disconnect();
@@ -199,12 +201,180 @@ const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S) 
   return compressor;
 };
 
-const crackleOffsets = (from: number, to: number, step: number) => {
-  const offsets: number[] = [];
-  for (let t = from; t < to; t += step) {
-    offsets.push(t);
+/* ── Procedural fire samples ─────────────────────────────── */
+
+const SAMPLE_RATE = 44100;
+const POOL_SIZE = 2;
+
+let roomImpulse: AudioBuffer | null = null;
+let seedCounter = (Date.now() & 0xffff) + 1;
+const nextSeed = () => {
+  seedCounter = (seedCounter * 1664525 + 1013904223) >>> 0;
+  return seedCounter;
+};
+
+/**
+ * AudioBuffers are not tied to a context, so they can be rendered before the
+ * first user gesture (when no running AudioContext exists yet).
+ */
+const makeAudioBuffer = (samples: FireSamples, sampleRate: number): AudioBuffer | null => {
+  try {
+    const buffer = typeof AudioBuffer === 'function'
+      ? new AudioBuffer({ length: samples.left.length, numberOfChannels: 2, sampleRate })
+      : null;
+    if (buffer) {
+      buffer.copyToChannel(samples.left, 0);
+      buffer.copyToChannel(samples.right, 1);
+      return buffer;
+    }
+  } catch {
+    // fall through to the offline-context path
   }
-  return offsets;
+
+  try {
+    const OfflineCtor = window.OfflineAudioContext
+      ?? (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext;
+    if (!OfflineCtor) return null;
+    const buffer = new OfflineCtor(2, 1, sampleRate).createBuffer(2, samples.left.length, sampleRate);
+    buffer.copyToChannel(samples.left, 0);
+    buffer.copyToChannel(samples.right, 1);
+    return buffer;
+  } catch {
+    return null;
+  }
+};
+
+const renderToBuffer = (options: Omit<FireSynthOptions, 'sampleRate'>) => (
+  makeAudioBuffer(renderFire({ ...options, sampleRate: SAMPLE_RATE }), SAMPLE_RATE)
+);
+
+const getRoomImpulse = () => {
+  if (!roomImpulse) {
+    roomImpulse = makeAudioBuffer(renderRoomImpulse(SAMPLE_RATE), SAMPLE_RATE);
+  }
+  return roomImpulse;
+};
+
+const renderRitualBuffer = (reduceMotion: boolean) => {
+  const clock = getSoundClock(reduceMotion);
+  return renderToBuffer({
+    duration: clock.complete,
+    seed: nextSeed(),
+    ignition: true,
+    phases: { ignite: clock.ignite, burning: clock.burning, carbonizing: clock.carbonizing },
+    peak: 0.92,
+  });
+};
+
+const ritualPool = new Map<boolean, AudioBuffer[]>();
+let refillScheduled = false;
+
+const scheduleIdle = (task: () => void) => {
+  const idle = (window as Window & {
+    requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+  }).requestIdleCallback;
+  if (typeof idle === 'function') {
+    idle(task, { timeout: 1500 });
+  } else if (typeof window.setTimeout === 'function') {
+    window.setTimeout(task, 250);
+  }
+};
+
+/** Keep a couple of freshly rendered rituals ready so a tap never waits on DSP. */
+const refillRitualPool = (reduceMotion: boolean) => {
+  if (typeof window === 'undefined' || refillScheduled) return;
+  refillScheduled = true;
+  scheduleIdle(() => {
+    refillScheduled = false;
+    try {
+      const pool = ritualPool.get(reduceMotion) ?? [];
+      if (pool.length >= POOL_SIZE) return;
+      const buffer = renderRitualBuffer(reduceMotion);
+      if (buffer) {
+        pool.push(buffer);
+        ritualPool.set(reduceMotion, pool);
+      }
+      if (pool.length < POOL_SIZE && buffer) refillRitualPool(reduceMotion);
+    } catch {
+      // Pre-rendering is an optimisation; playback falls back to rendering on demand.
+    }
+  });
+};
+
+const takeRitualBuffer = (reduceMotion: boolean) => {
+  const pool = ritualPool.get(reduceMotion);
+  const ready = pool?.shift() ?? null;
+  refillRitualPool(reduceMotion);
+  return ready ?? renderRitualBuffer(reduceMotion);
+};
+
+/** Pre-render fire sounds while the browser is idle. Safe to call repeatedly. */
+export const prepareFireSounds = (reduceMotion = false) => {
+  if (typeof window === 'undefined') return;
+  try {
+    getRoomImpulse();
+    refillRitualPool(reduceMotion);
+  } catch {
+    // never let warm-up break playback
+  }
+};
+
+/**
+ * Play a rendered buffer with a touch of room: dry signal plus a short
+ * convolution tail so the fire sits in a space instead of inside the speaker.
+ */
+const playBuffer = (
+  context: AudioContext,
+  master: AudioNode,
+  buffer: AudioBuffer,
+  start: number,
+  options: { gain?: number; wet?: number } = {},
+) => {
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+
+  const dry = context.createGain();
+  dry.gain.setValueAtTime(options.gain ?? 1, start);
+  source.connect(dry);
+  dry.connect(master);
+
+  const impulse = getRoomImpulse();
+  if (impulse && (options.wet ?? 0.16) > 0) {
+    const convolver = context.createConvolver();
+    convolver.buffer = impulse;
+    const wet = context.createGain();
+    wet.gain.setValueAtTime((options.wet ?? 0.16) * (options.gain ?? 1), start);
+    source.connect(convolver);
+    convolver.connect(wet);
+    wet.connect(master);
+  }
+
+  source.start(start);
+  return source;
+};
+
+/** A struck-bell tone: inharmonic partials that die at different rates. */
+const scheduleBell = (
+  context: AudioContext,
+  destination: AudioNode,
+  options: { start: number; frequency: number; gain: number; duration: number },
+) => {
+  const partials: Array<[number, number, number]> = [
+    [1, 1, 1],
+    [2.01, 0.34, 0.6],
+    [2.76, 0.22, 0.42],
+    [5.4, 0.08, 0.22],
+  ];
+  partials.forEach(([ratio, level, life]) => {
+    scheduleTone(context, destination, {
+      start: options.start,
+      duration: options.duration * life,
+      frequency: options.frequency * ratio,
+      gain: options.gain * level,
+      type: 'sine',
+      attack: 0.004,
+    });
+  });
 };
 
 const playCoreRitual = (
@@ -212,169 +382,30 @@ const playCoreRitual = (
   master: AudioNode,
   start: number,
   clock: SoundClock,
+  reduceMotion: boolean,
 ) => {
   const dur = (seconds: number) => scaledDuration(seconds, clock.factor);
-  const at = (seconds: number) => start + seconds * clock.factor;
 
-  // ── Ignite: ボッ + whoosh ────────────────────────────────
-  scheduleNoise(context, master, {
-    start,
-    duration: dur(0.28),
-    gain: 0.46,
-    frequency: 140,
-    q: 0.55,
-    type: 'lowpass',
-  });
-  scheduleTone(context, master, {
-    start,
-    duration: dur(0.22),
-    frequency: 92,
-    endFrequency: 42,
-    gain: 0.24,
-    type: 'triangle',
-  });
-  scheduleTone(context, master, {
-    start: at(0.02),
-    duration: dur(0.16),
-    frequency: 58,
-    endFrequency: 32,
-    gain: 0.2,
-    type: 'sine',
-  });
-  scheduleNoise(context, master, {
-    start: at(0.04),
-    duration: dur(0.2),
-    gain: 0.18,
-    frequency: 2400,
-    q: 0.7,
-    type: 'highpass',
-    pan: -0.35,
-  });
-  scheduleNoise(context, master, {
-    start: at(0.07),
-    duration: dur(0.12),
-    gain: 0.22,
-    frequency: 1900,
-    q: 7,
-    type: 'bandpass',
-    pan: 0.4,
-  });
+  // Roar + crackle + ignition + cooling: rendered, not looped.
+  const fire = takeRitualBuffer(reduceMotion);
+  if (fire) {
+    playBuffer(context, master, fire, start, { gain: 1, wet: 0.16 });
+  }
 
-  // ── Burning: roar + stereo パチパチ ──────────────────────
-  scheduleNoise(context, master, {
-    start: start + clock.ignite,
-    duration: clock.burning - clock.ignite,
-    gain: 0.14,
-    frequency: 180,
-    q: 0.45,
-    type: 'lowpass',
-  });
-  scheduleTone(context, master, {
-    start: start + clock.ignite,
-    duration: clock.burning - clock.ignite + dur(0.08),
-    frequency: 52,
-    endFrequency: 38,
-    gain: 0.1,
-    type: 'triangle',
-    attack: dur(0.08),
-  });
-
-  crackleOffsets(0.16 * clock.factor, clock.ignite, 0.09).forEach((offset, index) => {
-    scheduleNoise(context, master, {
-      start: start + offset,
-      duration: dur(0.055 + (index % 3) * 0.008),
-      gain: 0.2 - index * 0.018,
-      frequency: 1700 + index * 220,
-      q: 6.5,
-      type: 'bandpass',
-      pan: index % 2 === 0 ? -0.45 : 0.42,
-    });
-  });
-
-  crackleOffsets(clock.ignite + 0.04 * clock.factor, clock.burning - 0.04 * clock.factor, 0.11)
-    .forEach((offset, index) => {
-      scheduleNoise(context, master, {
-        start: start + offset,
-        duration: dur(0.06 + (index % 4) * 0.006),
-        gain: 0.17 - (index % 5) * 0.012,
-        frequency: 1500 + (index % 6) * 280,
-        q: 6,
-        type: 'bandpass',
-        pan: index % 2 === 0 ? -0.55 : 0.5,
-      });
-    });
-
-  // ── Carbonizing: サァ, crackle thins out ───────────────────
-  scheduleNoise(context, master, {
-    start: start + clock.burning,
-    duration: clock.carbonizing - clock.burning + dur(0.18),
-    gain: 0.11,
-    frequency: 760,
-    q: 0.4,
-    type: 'highpass',
-  });
-  scheduleTone(context, master, {
-    start: start + clock.burning,
-    duration: dur(0.42),
-    frequency: 70,
-    endFrequency: 36,
-    gain: 0.08,
-    type: 'sine',
-    attack: dur(0.05),
-  });
-  [0.08, 0.22, 0.38].forEach((offset, index) => {
-    scheduleNoise(context, master, {
-      start: start + clock.burning + offset * clock.factor,
-      duration: dur(0.07),
-      gain: 0.1 - index * 0.02,
-      frequency: 1200 + index * 180,
-      q: 5,
-      type: 'bandpass',
-      pan: index === 1 ? 0.3 : -0.25,
-    });
-  });
-
-  // ── Complete: 解放の和音 ────────────────────────────────
+  // ── Complete: 解放 — a warm struck-bell arpeggio over the dying embers ──
   const reward = start + clock.carbonizing;
-  scheduleTone(context, master, {
-    start: reward,
-    duration: dur(0.28),
-    frequency: 523.25,
-    endFrequency: 659.25,
-    gain: 0.09,
-    type: 'sine',
-  });
-  scheduleTone(context, master, {
-    start: reward + 0.06 * clock.factor,
-    duration: dur(0.32),
-    frequency: 659.25,
-    endFrequency: 783.99,
-    gain: 0.075,
-    type: 'sine',
-  });
-  scheduleTone(context, master, {
-    start: reward + 0.14 * clock.factor,
-    duration: dur(0.38),
-    frequency: 783.99,
-    endFrequency: 1046.5,
-    gain: 0.07,
-    type: 'sine',
-  });
-  scheduleTone(context, master, {
-    start: reward + 0.22 * clock.factor,
-    duration: dur(0.42),
-    frequency: 1046.5,
-    endFrequency: 1318.5,
-    gain: 0.05,
-    type: 'sine',
-  });
-  scheduleNoise(context, master, {
-    start: reward,
-    duration: dur(0.2),
-    gain: 0.08,
-    frequency: 2600,
-    q: 0.6,
-    type: 'highpass',
+  [
+    { at: 0, frequency: 523.25, gain: 0.085 },
+    { at: 0.07, frequency: 659.25, gain: 0.075 },
+    { at: 0.15, frequency: 783.99, gain: 0.07 },
+    { at: 0.24, frequency: 1046.5, gain: 0.06 },
+  ].forEach((note) => {
+    scheduleBell(context, master, {
+      start: reward + note.at * clock.factor,
+      frequency: note.frequency,
+      gain: note.gain,
+      duration: dur(0.5),
+    });
   });
 };
 
@@ -456,22 +487,31 @@ const playWithProfile = async (decorate?: SoundDecorator, reduceMotion = false) 
   const clock = getSoundClock(reduceMotion);
   const master = createMaster(context, clock.complete);
   const start = context.currentTime + 0.012;
-  playCoreRitual(context, master, start, clock);
+  playCoreRitual(context, master, start, clock, reduceMotion);
   decorate?.(context, master, start, clock);
   return true;
 };
 
 export const playFireSequence = async (reduceMotion = false) => playWithProfile(undefined, reduceMotion);
 
+/** A match strike: a small fwoomp, a few snaps, a bright ping. */
 export const playSparkSound = async () => {
   const context = await getAudioContext();
   if (!context) return false;
 
-  const master = createMaster(context);
+  const master = createMaster(context, 0.7);
   const start = context.currentTime + 0.01;
-  scheduleNoise(context, master, { start, duration: 0.1, gain: 0.16, frequency: 180, q: 0.7, type: 'lowpass' });
-  scheduleTone(context, master, { start, duration: 0.12, frequency: 740, endFrequency: 1180, gain: 0.05, type: 'sine' });
-  scheduleNoise(context, master, { start: start + 0.04, duration: 0.08, gain: 0.12, frequency: 2100, q: 6, type: 'bandpass', pan: 0.25 });
+  const buffer = renderToBuffer({
+    duration: 0.62,
+    seed: nextSeed(),
+    ignition: true,
+    roar: 0.55,
+    crackle: 1.1,
+    phases: { ignite: 0.12, burning: 0.3, carbonizing: 0.5 },
+    peak: 0.8,
+  });
+  if (buffer) playBuffer(context, master, buffer, start, { wet: 0.12 });
+  scheduleBell(context, master, { start: start + 0.2, frequency: 1318.5, gain: 0.045, duration: 0.4 });
   return true;
 };
 
@@ -479,17 +519,44 @@ export const playSoundPreview = async () => {
   const context = await getAudioContext();
   if (!context) return false;
 
-  const master = createMaster(context);
+  const master = createMaster(context, 0.95);
   const start = context.currentTime + 0.01;
-  scheduleNoise(context, master, { start, duration: 0.16, gain: 0.28, frequency: 150, q: 0.6, type: 'lowpass' });
-  scheduleTone(context, master, { start, duration: 0.14, frequency: 82, endFrequency: 46, gain: 0.16, type: 'triangle' });
-  scheduleNoise(context, master, { start: start + 0.12, duration: 0.07, gain: 0.14, frequency: 1900, q: 6, type: 'bandpass', pan: 0.3 });
-  scheduleTone(context, master, { start: start + 0.22, duration: 0.2, frequency: 880, endFrequency: 1320, gain: 0.06, type: 'sine' });
+  const buffer = renderToBuffer({
+    duration: 0.9,
+    seed: nextSeed(),
+    ignition: true,
+    roar: 0.8,
+    crackle: 1.3,
+    phases: { ignite: 0.2, burning: 0.5, carbonizing: 0.75 },
+    peak: 0.85,
+  });
+  if (buffer) playBuffer(context, master, buffer, start, { wet: 0.15 });
+  scheduleBell(context, master, { start: start + 0.28, frequency: 880, gain: 0.05, duration: 0.5 });
+  return true;
+};
+
+/** Poking the campfire: a flurry of snaps and a brief flare, no ceremony. */
+export const playCampfirePoke = async () => {
+  const context = await getAudioContext();
+  if (!context) return false;
+
+  const master = createMaster(context, 1.1);
+  const start = context.currentTime + 0.01;
+  const buffer = renderToBuffer({
+    duration: 1.05,
+    seed: nextSeed(),
+    roar: 0.7,
+    crackle: 2.3,
+    phases: { ignite: 0.25, burning: 0.6, carbonizing: 1.0 },
+    peak: 0.8,
+  });
+  if (buffer) playBuffer(context, master, buffer, start, { wet: 0.14 });
   return true;
 };
 
 export const warmUpFireSound = async () => {
   const context = await getAudioContext();
+  if (context) prepareFireSounds();
   return Boolean(context);
 };
 
