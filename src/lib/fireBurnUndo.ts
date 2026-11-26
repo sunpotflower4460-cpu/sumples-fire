@@ -21,6 +21,8 @@ export const restoreFireSeedFromUndo = (
   ...snapshot.seed,
   burned: false,
   burnedAt: undefined,
+  // Undone: this completion no longer exists, so neither does its day.
+  burnedLocalDate: undefined,
   completed: false,
   isBurning: false,
   updatedAt: timestamp,

@@ -19,6 +19,11 @@ import { jp } from '../lib/japanesePhraseWrap';
 type BurningRitualProps = {
   seed: FireSeed;
   spectacle?: BurnSpectacle;
+  /**
+   * "試し見" (Fire Task Plus): plays the same visuals for a sample sheet of
+   * paper. It never shows a reward and is never connected to a real task.
+   */
+  preview?: boolean;
 };
 
 const phaseLabels: Record<string, string> = {
@@ -28,7 +33,7 @@ const phaseLabels: Record<string, string> = {
   complete:    '解放',
 };
 
-export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRitualProps) {
+export function BurningRitual({ seed, spectacle = spectacles.normal, preview = false }: BurningRitualProps) {
   const { phase, scope, triggerBurn, shouldReduceMotion } = useBurnSequence();
 
   const variantConfig = specialVariantConfigs[spectacle.type];
@@ -66,6 +71,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         `ritual-phase-${phase}`,
         `spectacle-${spectacle.type}`,
         isSpecial ? 'is-special' : '',
+        preview ? 'is-preview' : '',
       ].join(' ').trim()}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -75,7 +81,12 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
       aria-atomic="true"
       style={flameStyle}
     >
-      <span className="ritual-live-copy">「{seed.title}」を燃やしています。</span>
+      {preview ? (
+        <span className="ritual-live-copy">{spectacle.label}の試し見です。タスクや炭の記録は変わりません。</span>
+      ) : (
+        <span className="ritual-live-copy">「{seed.title}」を燃やしています。</span>
+      )}
+      {preview ? <p className="ritual-preview-tag" aria-hidden="true">試し見</p> : null}
 
       {/* ── SVG filter: turbulence displacement applied to the title wrapper ── */}
       <svg
@@ -255,11 +266,19 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
               animate="visible"
               exit="exit"
             >
-              <div className="ritual-ash-badge">
-                <span className="ritual-ash-points">+{seed.ashPoints}</span>
-                <span className="ritual-ash-unit">炭</span>
-              </div>
-              <p className="ritual-ash-message">{jp(spectacle.message)}</p>
+              {preview ? (
+                <div className="ritual-ash-badge is-preview-badge">
+                  <span className="ritual-ash-unit">試し見</span>
+                </div>
+              ) : (
+                <div className="ritual-ash-badge">
+                  <span className="ritual-ash-points">+{seed.ashPoints}</span>
+                  <span className="ritual-ash-unit">炭</span>
+                </div>
+              )}
+              <p className="ritual-ash-message">
+                {preview ? jp('試し見では、タスクや炭の記録は変わりません。') : jp(spectacle.message)}
+              </p>
             </motion.div>
           ) : (
             <motion.p

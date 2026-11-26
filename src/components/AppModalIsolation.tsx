@@ -5,7 +5,7 @@ type SavedAccessibilityState = {
   inert: boolean;
 };
 
-const MODAL_OVERLAY_SELECTOR = '.sheet-backdrop, .fire-delete-backdrop';
+const MODAL_OVERLAY_SELECTOR = '.sheet-backdrop, .fire-delete-backdrop, .plus-backdrop';
 
 const isElement = (node: Element): node is HTMLElement => node instanceof HTMLElement;
 

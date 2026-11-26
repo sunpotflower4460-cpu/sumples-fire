@@ -3,6 +3,7 @@ import { Preferences } from '@capacitor/preferences';
 import { NativePreferencesDriver } from './nativePreferencesDriver';
 import type { StorageDriver } from './storageDriver';
 import { getWebStorageDriver } from './webLocalStorageDriver';
+import { PLUS_PREFERENCES_KEY } from '../plus/plusConstants';
 
 /** Every durable key the app reads. Native storage preloads exactly these. */
 export const DURABLE_STORAGE_KEYS = [
@@ -10,6 +11,9 @@ export const DURABLE_STORAGE_KEYS = [
   'sumples-fire-seeds-v1',
   'sumples-fire-streak-v1',
   'fire-task-sound-enabled-v1',
+  // Fire Task Plus display preferences (flame choice, scene, ambient mix).
+  // Not an entitlement: the purchase itself is verified by StoreKit.
+  PLUS_PREFERENCES_KEY,
 ] as const;
 
 let nativeDriver: NativePreferencesDriver | null = null;
@@ -47,3 +51,23 @@ export const getAppStorageDriver = (): StorageDriver | undefined => (
 export const onAppStorageWriteFailure = (listener: () => void): (() => void) => (
   nativeDriver ? nativeDriver.onWriteFailure(listener) : () => {}
 );
+
+/**
+ * Write one key and learn whether it was really stored.
+ *
+ * On iOS this resolves only after the native write succeeded. On the web it
+ * reflects whether localStorage accepted the value. Use it for settings the
+ * user explicitly saves, where "saved" must never be claimed on a failure.
+ */
+export const writeDurableConfirmed = async (key: string, value: string): Promise<boolean> => {
+  if (nativeDriver) return nativeDriver.writeConfirmed(key, value);
+
+  const driver = getWebStorageDriver();
+  if (!driver) return false;
+  try {
+    driver.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+};

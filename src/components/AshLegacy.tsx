@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCountUp } from '../hooks/useCountUp';
 import { sortAshRecordsOldestFirst } from '../lib/ashHistory';
 import type { FireSeed } from '../types/fireSeed';
@@ -8,6 +8,8 @@ import { jp } from '../lib/japanesePhraseWrap';
 type AshLegacyProps = {
   seeds: FireSeed[];
   onDelete: (id: string) => void;
+  /** Open and focus one record (used by the monthly calendar). `nonce` re-triggers the same id. */
+  focusRecord?: { id: string; nonce: number } | null;
 };
 
 const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
@@ -32,7 +34,7 @@ function DeleteGlyph() {
   );
 }
 
-export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
+export function AshLegacy({ seeds, onDelete, focusRecord = null }: AshLegacyProps) {
   const [visibleRecordCount, setVisibleRecordCount] = useState(RECORD_PAGE_SIZE);
   const settledTotalAsh = seeds.reduce((sum, seed) => sum + seed.ashPoints, 0);
   // The headline number rolls up to the new score; it settles within 720ms and
@@ -45,6 +47,24 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
   const visibleRecords = newestFirstSeeds.slice(0, visibleRecordCount);
   const remainingRecordCount = Math.max(0, newestFirstSeeds.length - visibleRecords.length);
   const hasExpandedRecords = visibleRecordCount > RECORD_PAGE_SIZE;
+
+  // A record opened from the monthly calendar: reveal enough of the free history
+  // to include it, then move focus there. No record is ever hidden behind Plus.
+  useEffect(() => {
+    if (!focusRecord) return undefined;
+    const index = newestFirstSeeds.findIndex((seed) => seed.id === focusRecord.id);
+    if (index < 0) return undefined;
+
+    setVisibleRecordCount((current) => Math.max(current, Math.ceil((index + 1) / RECORD_PAGE_SIZE) * RECORD_PAGE_SIZE));
+    const timer = window.setTimeout(() => {
+      const target = document.querySelector<HTMLElement>(`[data-ash-record-id="${CSS.escape(focusRecord.id)}"]`);
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: 'center', behavior: 'auto' });
+    }, 60);
+    return () => window.clearTimeout(timer);
+    // newestFirstSeeds only matters for locating the record at request time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRecord?.nonce]);
 
   const handleRecordPage = () => {
     if (remainingRecordCount > 0) {
@@ -123,6 +143,7 @@ export function AshLegacy({ seeds, onDelete }: AshLegacyProps) {
                 role="listitem"
                 tabIndex={-1}
                 data-ash-record-index={index}
+                data-ash-record-id={seed.id}
               >
                 <div className="ash-record-main">
                   <p className="ash-record-title">{jp(seed.title)}</p>

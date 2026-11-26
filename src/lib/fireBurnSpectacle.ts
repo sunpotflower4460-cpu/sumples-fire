@@ -168,11 +168,14 @@ export const spectacles: Record<BurnSpectacleType, BurnSpectacle> = {
   },
 };
 
-const weightedRandom = (weights: [BurnSpectacleType, number][]): BurnSpectacleType => {
+const weightedRandom = (
+  weights: [BurnSpectacleType, number][],
+  random: () => number = Math.random,
+): BurnSpectacleType => {
   const positiveWeights = weights.filter(([, w]) => w > 0);
   if (positiveWeights.length === 0) return weights[0][0];
   const total = positiveWeights.reduce((sum, [, w]) => sum + w, 0);
-  let r = Math.random() * total;
+  let r = random() * total;
   for (const [type, weight] of positiveWeights) {
     if (r < weight) return type;
     r -= weight;
@@ -180,7 +183,15 @@ const weightedRandom = (weights: [BurnSpectacleType, number][]): BurnSpectacleTy
   return positiveWeights[positiveWeights.length - 1][0];
 };
 
-export const selectBurnSpectacle = (difficulty: FireDifficulty, streak: number): BurnSpectacle => {
+/**
+ * The free, automatic flame choice. Behaviour is unchanged; `random` only
+ * makes it testable. Fire Task Plus never alters these weights.
+ */
+export const selectBurnSpectacle = (
+  difficulty: FireDifficulty,
+  streak: number,
+  random: () => number = Math.random,
+): BurnSpectacle => {
   const sb = Math.min(streak * 0.6, 9);
   const isBoss = difficulty === 'boss';
   const isHeavy = difficulty === 'heavy';
@@ -197,6 +208,6 @@ export const selectBurnSpectacle = (difficulty: FireDifficulty, streak: number):
     ['phoenixRise', isBoss ? 2 : 0.4],
   ];
 
-  const selected = weightedRandom(weights);
+  const selected = weightedRandom(weights, random);
   return spectacles[selected];
 };

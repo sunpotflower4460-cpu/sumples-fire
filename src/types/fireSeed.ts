@@ -35,6 +35,12 @@ export type FireSeed = {
   ashPoints: number;
   burned: boolean;
   burnedAt?: string;
+  /**
+   * The local calendar day (YYYY-MM-DD) on which this Fire completed, frozen at
+   * that moment. Monthly review groups by this, so changing the device time
+   * zone later can never move past achievements to another day.
+   */
+  burnedLocalDate?: string;
   isBurning?: boolean;
   completed: boolean;
   createdAt: string;

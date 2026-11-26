@@ -1,4 +1,5 @@
 import { useMilestone } from '../hooks/useMilestone';
+import { CampfireVisual } from './CampfireVisual';
 import type { FireStreakData } from '../lib/fireStreak';
 import {
   getCampfireNextThreshold,
@@ -38,7 +39,6 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
         ? '加熱中'
         : '';
 
-  const emberCount = [2, 4, 6, 8, 10, 14][stage];
   const isStageUp = useMilestone(stage);
   const isStreakUp = useMilestone(streakData.currentStreak);
 
@@ -49,31 +49,7 @@ export function FireCampfire({ ashPoints, streakData, hasPendingTasks }: FireCam
     >
       <div className="campfire-bg-glow" aria-hidden="true" />
 
-      <div className="campfire-visual" aria-hidden="true">
-        <div className="campfire-logs">
-          <div className="campfire-log log-left" />
-          <div className="campfire-log log-right" />
-          <div className="campfire-log log-base" />
-        </div>
-
-        <div className="campfire-flames">
-          <i className="campfire-flame cf-1" />
-          <i className="campfire-flame cf-2" />
-          <i className="campfire-flame cf-3" />
-          {stage >= 2 ? <i className="campfire-flame cf-4" /> : null}
-          {stage >= 3 ? <i className="campfire-flame cf-5" /> : null}
-          {stage >= 4 ? <><i className="campfire-flame cf-6" /><i className="campfire-flame cf-7" /></> : null}
-          {stage >= 5 ? <><i className="campfire-flame cf-8" /><i className="campfire-flame cf-9" /></> : null}
-        </div>
-
-        <div className="campfire-embers">
-          {Array.from({ length: emberCount }, (_, index) => (
-            <i key={index} className={`campfire-ember ce-${index + 1}`} />
-          ))}
-        </div>
-
-        {stage >= 3 ? <div className="campfire-outer-glow" /> : null}
-      </div>
+      <CampfireVisual stage={stage} />
 
       <div className="campfire-info">
         <div className={`campfire-stage-badge ${isStageUp ? 'is-stage-up' : ''}`}>

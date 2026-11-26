@@ -3,6 +3,30 @@ import type { FireDifficulty, FireLevel, FireMatrixQuadrant, FirePriority, FireS
 
 export const nowIso = () => new Date().toISOString();
 
+const LOCAL_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** The device-local calendar day of a moment, as YYYY-MM-DD. */
+export const toLocalDateKey = (date: Date): string => (
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+);
+
+/** True for a real calendar day written as YYYY-MM-DD. */
+export const isValidLocalDateKey = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false;
+  const match = LOCAL_DATE_PATTERN.exec(value);
+  if (!match) return false;
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+};
+
+/** A burnedAt we can trust as a real moment. Never inferred from other fields. */
+export const parseBurnedAt = (value: unknown): Date | null => {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date : null;
+};
+
 export const getQuadrant = (urgency: FireLevel, importance: FireLevel): FireMatrixQuadrant => {
   if (urgency === 'high' && importance === 'high') return 'doNow';
   if (urgency === 'low' && importance === 'high') return 'schedule';
@@ -228,6 +252,8 @@ export const normalizeSeed = (seed: Partial<FireSeed>, index: number, timestamp 
     ashPoints: seed.ashPoints ?? difficultyAshPoints[difficulty],
     burned,
     burnedAt: seed.burnedAt,
+    // Only a burned task has a completion day, and only a well-formed one is kept.
+    burnedLocalDate: burned && isValidLocalDateKey(seed.burnedLocalDate) ? seed.burnedLocalDate : undefined,
     isBurning: seed.isBurning ?? false,
     completed: seed.completed ?? burned,
     createdAt,
@@ -275,6 +301,28 @@ export const burnSeed = (seed: FireSeed, timestamp = nowIso()): FireSeed => ({
   isBurning: false,
   stage: 'flame',
   burnedAt: timestamp,
+  // Frozen now, in the device's time zone at the moment of completion.
+  burnedLocalDate: toLocalDateKey(new Date(timestamp)),
   updatedAt: timestamp,
   ashPoints: seed.ashPoints || difficultyAshPoints[seed.difficulty],
 });
+
+/**
+ * One-time upgrade for records saved before `burnedLocalDate` existed.
+ *
+ * A burned task with a valid `burnedAt` gets its local day computed here, once,
+ * in the device's current time zone, and that value is then stored — so a later
+ * time-zone change cannot move it. A burned task with no valid `burnedAt` is
+ * left alone: its day is unknown and is never guessed from createdAt/updatedAt.
+ */
+export const backfillBurnedLocalDates = (seeds: FireSeed[]): { seeds: FireSeed[]; changed: boolean } => {
+  let changed = false;
+  const next = seeds.map((seed) => {
+    if (!seed.burned || seed.burnedLocalDate) return seed;
+    const burnedAt = parseBurnedAt(seed.burnedAt);
+    if (!burnedAt) return seed;
+    changed = true;
+    return { ...seed, burnedLocalDate: toLocalDateKey(burnedAt) };
+  });
+  return { seeds: changed ? next : seeds, changed };
+};

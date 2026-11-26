@@ -14,4 +14,6 @@
 export interface StorageDriver {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  /** Optional: only needed to roll back a confirmed write that never existed. */
+  removeItem?(key: string): void;
 }

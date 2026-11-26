@@ -89,6 +89,56 @@ export class NativePreferencesDriver implements StorageDriver {
     return this.writeQueue;
   }
 
+  /**
+   * Write one key and report whether native storage actually accepted it.
+   *
+   * `setItem` only guarantees the in-memory copy; its failure surfaces later
+   * through `onWriteFailure`. Settings the user explicitly saves need an
+   * honest answer instead, so this resolves `true` only after the native write
+   * itself succeeded, and `false` (after rolling the cache and mirror back to
+   * the previous value) when it did not. The caller owns the failure message,
+   * so global write-failure listeners are not notified.
+   */
+  async writeConfirmed(key: string, value: string): Promise<boolean> {
+    const previous = this.cache.get(key);
+    this.cache.set(key, value);
+
+    try {
+      this.mirror?.setItem(key, value);
+    } catch {
+      // The mirror is a secondary copy; native storage is authoritative.
+    }
+
+    const settled = this.writeQueue
+      .then(() => this.native.set(key, value))
+      .then(() => true, () => false);
+    // Later writes queue behind this one whether it succeeded or not.
+    this.writeQueue = settled.then(() => undefined);
+
+    const ok = await settled;
+    if (!ok && this.cache.get(key) === value) {
+      if (previous === undefined) {
+        this.cache.delete(key);
+      } else {
+        this.cache.set(key, previous);
+      }
+      this.rollbackMirror(key, previous);
+    }
+    return ok;
+  }
+
+  private rollbackMirror(key: string, previous: string | undefined) {
+    try {
+      if (previous === undefined) {
+        this.mirror?.removeItem?.(key);
+      } else {
+        this.mirror?.setItem(key, previous);
+      }
+    } catch {
+      // best effort
+    }
+  }
+
   onWriteFailure(listener: NativeWriteFailureListener): () => void {
     this.failureListeners.add(listener);
     return () => {
