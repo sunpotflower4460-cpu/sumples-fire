@@ -651,7 +651,7 @@ test.describe('monthly review', () => {
 
     // Delete one record from the free history: the calendar follows, and no copy remains.
     await page.getByRole('button', { name: '「本を返す」を削除' }).click();
-    await page.getByRole('alertdialog').or(page.getByRole('dialog')).getByRole('button', { name: '削除する' }).click();
+    await page.getByRole('alertdialog', { name: 'この炭の記録を削除しますか？' }).getByRole('button', { name: '炭ごと削除' }).click();
     await page.getByRole('button', { name: /月ごとに見る/ }).click();
     const afterDelete = plusDialog(page, '月別ふりかえり');
     await expect(afterDelete.locator('.plus-month-stats')).toContainText('1');
