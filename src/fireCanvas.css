@@ -1,0 +1,66 @@
+/* GPU flame canvases (burning ritual + campfire) */
+.fire-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fire-canvas > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Ritual: flames sit behind the title but above the backdrop glow */
+.burning-ritual .ritual-fire {
+  z-index: 5;
+}
+
+/* The GPU flame replaces the CSS flame row and CSS embers */
+.burning-ritual.has-gl-fire .ritual-flames,
+.burning-ritual.has-gl-fire .ritual-embers {
+  display: none;
+}
+
+/* ── Campfire card ── */
+.fire-campfire {
+  --cf-h: 120px;
+}
+
+.fire-campfire.campfire-stage-3 { --cf-h: 140px; }
+.fire-campfire.campfire-stage-4 { --cf-h: 160px; }
+.fire-campfire.campfire-stage-5 { --cf-h: 180px; }
+
+/* The flame canvas is wider than the visual so embers can drift out and the glow can breathe */
+.campfire-visual .campfire-fire {
+  inset: -16px -36px 0 -36px;
+  z-index: 2;
+}
+
+.fire-campfire.has-gl-fire .campfire-flames,
+.fire-campfire.has-gl-fire .campfire-embers {
+  display: none;
+}
+
+/* Poke target: an invisible button laid over the flame (the visual itself is aria-hidden) */
+.campfire-poke {
+  position: absolute;
+  top: 24px;
+  left: 12%;
+  right: 12%;
+  height: var(--cf-h);
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.campfire-poke:focus-visible {
+  outline: 3px solid var(--color-focus-ring, #ff7528);
+  outline-offset: -3px;
+}

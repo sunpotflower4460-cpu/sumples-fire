@@ -41,6 +41,7 @@ import './accessibilityPolish.css';
 import './dimensionalPolish.css';
 import './tactilePolish.css';
 import './japaneseWrap.css';
+import './fireCanvas.css';
 import './quickViewPolish.css';
 import './colorHarmony.css';
 import './readabilityPolish.css';

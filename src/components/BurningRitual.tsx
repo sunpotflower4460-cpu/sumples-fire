@@ -1,9 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { spectacles } from '../lib/fireBurnSpectacle';
-import { PARTICLE_BURST_DURATION_S } from '../lib/fireAnimationConstants';
+import { BURN_TIMING, PARTICLE_BURST_DURATION_S } from '../lib/fireAnimationConstants';
+import { ritualLook } from '../lib/fireIntensity';
+import { paletteFromColors } from '../lib/fireShader';
+import { FireCanvas } from './FireCanvas';
 import {
   difficultyVariants,
   phaseLabelVariants,
@@ -36,6 +39,20 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
 
   const { particles, burst } = useFireParticles(variantConfig.particleCount);
 
+  // GPU flame; the CSS flame row below is the fallback when WebGL is unavailable.
+  const [glFire, setGlFire] = useState(true);
+  const palette = useMemo(
+    () => paletteFromColors(spectacle.flameColorA, spectacle.flameColorB, spectacle.flameColorC),
+    [spectacle.flameColorA, spectacle.flameColorB, spectacle.flameColorC],
+  );
+  const getLook = useCallback(
+    (seconds: number) => (shouldReduceMotion
+      // Reduced motion: one still frame of the flame at full burn.
+      ? ritualLook(BURN_TIMING.IGNITE_END + 400)
+      : ritualLook(seconds * 1000)),
+    [shouldReduceMotion],
+  );
+
   // Start the burn sequence as soon as the overlay mounts.
   useEffect(() => {
     void triggerBurn();
@@ -66,6 +83,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         `ritual-phase-${phase}`,
         `spectacle-${spectacle.type}`,
         isSpecial ? 'is-special' : '',
+        glFire ? 'has-gl-fire' : '',
       ].join(' ').trim()}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -278,7 +296,25 @@ export function BurningRitual({ seed, spectacle = spectacles.normal }: BurningRi
         </AnimatePresence>
       </div>
 
-      {/* ── CSS-driven flame row ── */}
+      {/* ── GPU flame + physical embers ── */}
+      {glFire ? (
+        <FireCanvas
+          className="ritual-fire"
+          getLook={getLook}
+          palette={palette}
+          height={0.6}
+          base={-0.045}
+          bedHalf={0.62}
+          resolution={0.6}
+          fps={60}
+          still={shouldReduceMotion}
+          pauseWhenHidden={false}
+          maxEmbers={150}
+          onUnsupported={() => setGlFire(false)}
+        />
+      ) : null}
+
+      {/* ── CSS-driven flame row (fallback) ── */}
       <div className="ritual-flames" aria-hidden="true">
         <i /><i /><i /><i /><i /><i />
         <i /><i /><i /><i /><i /><i />
