@@ -66,7 +66,7 @@ body .tab-button:not(.is-active) {
 }
 
 body .tab-button.is-active {
-  color: #ffc08f;
+  color: var(--accent-soft, #ffc08f);
 }
 
 /* Meta chips on cards (priority / weight / reward) */
@@ -107,7 +107,7 @@ body .focus-seed .focus-actions .fire-button {
 
 /* Header: keep scrolled cards from showing through the pinned title */
 body .app-topbar {
-  background: rgba(20, 16, 14, 0.94);
+  background: var(--chrome-top-bg, rgba(20, 16, 14, 0.94));
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   backdrop-filter: blur(16px) saturate(1.2);
 }
@@ -132,7 +132,7 @@ body .card-delete-button svg {
 
 /* Bottom tab bar: opaque enough that scrolled cards don't ghost through the labels */
 body .bottom-tabs {
-  background: rgba(18, 15, 13, 0.95);
+  background: var(--chrome-tabs-bg, rgba(18, 15, 13, 0.95));
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
   backdrop-filter: blur(18px) saturate(1.2);
 }
@@ -146,7 +146,7 @@ body .sheet-close::after {
 
 /* Sheet title band: opaque so the form content never ghosts behind the heading */
 body .sheet-drag-zone {
-  background: #1a1512;
+  background: var(--sheet-bg, #1a1512);
   position: relative;
   z-index: 2;
 }

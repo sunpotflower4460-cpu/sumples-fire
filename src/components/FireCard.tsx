@@ -46,6 +46,8 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
       ref={tiltRef}
       className={`fire-card ${seed.burned ? 'is-burned' : ''} ${seed.isBurning ? 'is-burning' : ''} ${isNew ? 'is-new' : ''}`}
       aria-labelledby={titleId}
+      data-quadrant={seed.quadrant}
+      data-difficulty={seed.difficulty}
       tabIndex={-1}
     >
       <div className="card-header">

@@ -42,6 +42,7 @@ import './dimensionalPolish.css';
 import './tactilePolish.css';
 import './japaneseWrap.css';
 import './quickViewPolish.css';
+import './colorHarmony.css';
 import './readabilityPolish.css';
 
 createRoot(document.getElementById('root')!).render(

@@ -22,7 +22,7 @@ describe('final readability pass', () => {
   it('keeps pinned chrome opaque enough that scrolled content does not ghost through', () => {
     expect(css).toMatch(/\.app-topbar\s*\{[^}]*rgba\(20, 16, 14, 0\.9\d\)/);
     expect(css).toMatch(/\.bottom-tabs\s*\{[^}]*rgba\(18, 15, 13, 0\.9\d\)/);
-    expect(css).toMatch(/\.sheet-drag-zone\s*\{[^}]*background: #1a1512/);
+    expect(css).toMatch(/\.sheet-drag-zone\s*\{[^}]*background: var\(--sheet-bg, #1a1512\)/);
   });
 
   it('does not leave inactive tabs dimmed by opacity', () => {

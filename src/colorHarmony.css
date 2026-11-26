@@ -1,0 +1,255 @@
+/* ══════════════════════════════════════════════════════════
+   Color harmony: 夜の焚き火
+   One palette, four jobs — so the app is no longer a single brown:
+   1. Backdrop: cool night sky above, warm embers below
+   2. Screens: 今日 = ember, 炭 = ash gold on slate, 設定 = calm teal
+   3. Quadrants: 今すぐ=ember red / 大事=amber / 先に=blue flame / あとで=lilac
+   4. Layers: cool panels hold warm task cards
+   Text colors stay light, so contrast from readabilityPolish.css is preserved.
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Quadrant hues (rgb triplets so they can be tinted with alpha) */
+  --q-doNow-rgb: 255, 122, 77;
+  --q-schedule-rgb: 244, 189, 74;
+  --q-quickBurn-rgb: 92, 200, 230;
+  --q-backlog-rgb: 176, 162, 230;
+
+  /* Difficulty hues (ash history) */
+  --d-small-rgb: 127, 180, 232;
+  --d-normal-rgb: 111, 208, 168;
+  --d-heavy-rgb: 244, 178, 74;
+  --d-boss-rgb: 255, 140, 126;
+
+  /* 今日 (default) */
+  --accent: #ff9a5c;
+  --accent-soft: #ffc08f;
+  --accent-rgb: 255, 154, 92;
+  --sky: #0a0d15;
+  --mid: #121015;
+  --ground: #1e110b;
+  --glow-top: rgba(96, 124, 196, 0.17);
+  --glow-bottom: rgba(255, 106, 40, 0.22);
+  --panel-bg: rgba(26, 23, 29, 0.78);
+  --panel-border: rgba(255, 160, 110, 0.15);
+  --card-bg: rgba(46, 34, 28, 0.94);
+  --chrome-bg: rgba(14, 18, 30, 0.95);
+  --sheet-bg: #1b1613;
+}
+
+html[data-screen="ash"] {
+  --accent: #e8c867;
+  --accent-soft: #f4de9c;
+  --accent-rgb: 232, 200, 103;
+  --sky: #090d12;
+  --mid: #0f1318;
+  --ground: #17130f;
+  --glow-top: rgba(110, 152, 205, 0.16);
+  --glow-bottom: rgba(232, 200, 103, 0.12);
+  --panel-bg: rgba(20, 25, 33, 0.84);
+  --panel-border: rgba(150, 176, 212, 0.17);
+  --card-bg: rgba(31, 40, 52, 0.94);
+  --chrome-bg: rgba(13, 18, 25, 0.95);
+}
+
+html[data-screen="info"] {
+  --accent: #5fd6c6;
+  --accent-soft: #94eadd;
+  --accent-rgb: 95, 214, 198;
+  --sky: #091114;
+  --mid: #0d1517;
+  --ground: #101a1a;
+  --glow-top: rgba(76, 190, 180, 0.15);
+  --glow-bottom: rgba(60, 150, 140, 0.13);
+  --panel-bg: rgba(18, 29, 32, 0.85);
+  --panel-border: rgba(100, 212, 196, 0.17);
+  --card-bg: rgba(26, 42, 45, 0.94);
+  --chrome-bg: rgba(12, 20, 23, 0.95);
+}
+
+/* ── 1. Backdrop ── */
+html {
+  background-color: var(--mid);
+}
+
+html body {
+  background-color: var(--mid);
+  background-image:
+    radial-gradient(120% 52% at 50% -8%, var(--glow-top), transparent 62%),
+    radial-gradient(110% 48% at 50% 112%, var(--glow-bottom), transparent 66%),
+    linear-gradient(180deg, var(--sky) 0%, var(--mid) 46%, var(--ground) 100%);
+  background-attachment: fixed;
+}
+
+/* ── 2. Screen accents ── */
+html body .eyebrow,
+html body .app-kicker {
+  color: var(--accent);
+}
+
+html body .tab-button.is-active {
+  color: var(--accent-soft);
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.32);
+}
+
+/* Header melts into the sky instead of sitting on it as a slab */
+html body .app-topbar {
+  --chrome-top-bg: linear-gradient(180deg, var(--chrome-bg) 0%, var(--chrome-bg) 74%, rgba(0, 0, 0, 0) 100%);
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+html body .bottom-tabs {
+  --chrome-tabs-bg: var(--chrome-bg);
+  border-color: rgba(var(--accent-rgb), 0.22);
+}
+
+html body .toast {
+  border-left: 3px solid #f2c84b;
+}
+
+/* ── 3. Quadrant hues ── */
+[data-quadrant="doNow"],
+.matrix-cell.matrix-doNow { --q-rgb: var(--q-doNow-rgb); }
+[data-quadrant="schedule"],
+.matrix-cell.matrix-schedule { --q-rgb: var(--q-schedule-rgb); }
+[data-quadrant="quickBurn"],
+.matrix-cell.matrix-quickBurn { --q-rgb: var(--q-quickBurn-rgb); }
+[data-quadrant="backlog"],
+.matrix-cell.matrix-backlog { --q-rgb: var(--q-backlog-rgb); }
+
+/* Queue cards: warm card with a quadrant-colored spine */
+html body .fire-card:not(.is-burned)[data-quadrant] {
+  background:
+    linear-gradient(90deg, rgba(var(--q-rgb), 0.12), rgba(var(--q-rgb), 0) 64%),
+    var(--card-bg);
+  border-color: rgba(var(--q-rgb), 0.28);
+  box-shadow:
+    inset 4px 0 0 rgba(var(--q-rgb), 0.92),
+    0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Quadrant chip on cards + focus card */
+html body .fire-card[data-quadrant] .card-quick-meta > :first-child,
+html body .focus-seed[data-quadrant] .focus-meta > :first-child {
+  color: rgb(var(--q-rgb));
+  background: rgba(var(--q-rgb), 0.14);
+  border-color: rgba(var(--q-rgb), 0.46);
+  font-weight: 800;
+}
+
+/* Reward chip: gold, like the ash points it turns into */
+html body .fire-card[data-quadrant] .card-quick-meta > :last-child,
+html body .focus-seed[data-quadrant] .focus-meta > :last-child {
+  color: #f6d466;
+  background: rgba(242, 200, 75, 0.1);
+  border-color: rgba(242, 200, 75, 0.36);
+}
+
+/* Focus card: the day's main fire glows in its quadrant color */
+html body .focus-seed[data-quadrant] {
+  background:
+    radial-gradient(circle at 92% -8%, rgba(var(--q-rgb), 0.32), transparent 240px),
+    linear-gradient(165deg, rgba(var(--q-rgb), 0.1), rgba(var(--q-rgb), 0) 58%),
+    rgba(37, 28, 24, 0.97);
+  border-color: rgba(var(--q-rgb), 0.38);
+  box-shadow: 0 20px 52px rgba(var(--q-rgb), 0.14), 0 14px 34px rgba(0, 0, 0, 0.38);
+}
+
+html body .focus-seed[data-quadrant] .eyebrow {
+  color: rgb(var(--q-rgb));
+}
+
+/* Quadrant filter chips */
+html body .matrix-filter-shell .matrix-summary .matrix-cell[class*="matrix-"] {
+  border-color: rgba(var(--q-rgb), 0.3);
+  background: rgba(var(--q-rgb), 0.07);
+}
+
+html body .matrix-filter-shell .matrix-summary .matrix-cell[class*="matrix-"]::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgb(var(--q-rgb));
+  box-shadow: 0 0 8px rgba(var(--q-rgb), 0.55);
+}
+
+html body .matrix-filter-shell .matrix-summary .matrix-cell[aria-pressed="true"] {
+  border-color: rgba(var(--q-rgb), 0.7);
+  background: rgba(var(--q-rgb), 0.2);
+}
+
+html body .matrix-filter-shell .matrix-summary .matrix-cell[aria-pressed="true"] > span,
+html body .matrix-filter-shell .matrix-summary .matrix-cell[aria-pressed="true"] > strong {
+  color: rgb(var(--q-rgb));
+}
+
+/* ── 4. Layers: cool panels, warm cards ── */
+html body .panel.app-panel,
+html body .task-queue-panel,
+html body .progress-disclosure {
+  background: var(--panel-bg);
+  border-color: var(--panel-border);
+}
+
+/* "4象限の結果" in the add sheet speaks in the same quadrant colors */
+html body .matrix-result-card.matrix-result-schedule {
+  background: linear-gradient(135deg, #4a3410, #8a6212);
+}
+
+html body .matrix-result-card.matrix-result-quickBurn {
+  background: linear-gradient(135deg, #0f3a47, #1b6a80);
+}
+
+html body .matrix-result-card.matrix-result-backlog {
+  background: linear-gradient(135deg, #2c2650, #4b4290);
+}
+
+/* ── 炭 screen: slate cards with a difficulty-colored spine ── */
+html[data-screen="ash"] body .ash-record-card {
+  background: var(--card-bg);
+  border-color: rgba(150, 176, 212, 0.2);
+}
+
+.ash-record-card.is-small { --d-rgb: var(--d-small-rgb); }
+.ash-record-card.is-normal { --d-rgb: var(--d-normal-rgb); }
+.ash-record-card.is-heavy { --d-rgb: var(--d-heavy-rgb); }
+.ash-record-card.is-boss { --d-rgb: var(--d-boss-rgb); }
+
+html body .ash-record-card[class*="is-"] {
+  box-shadow: inset 4px 0 0 rgba(var(--d-rgb), 0.9), 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+html body .ash-record-card .ash-record-difficulty {
+  color: rgb(var(--d-rgb));
+  background: rgba(var(--d-rgb), 0.13);
+  border-color: rgba(var(--d-rgb), 0.45);
+  font-weight: 800;
+}
+
+html body .ash-legacy-header {
+  border-color: rgba(var(--accent-rgb), 0.28);
+}
+
+/* ── 設定 screen: calm teal ── */
+html body .comfort-settings-card,
+html body .settings-disclosure,
+html body .settings-links {
+  background: var(--card-bg);
+  border-color: rgba(var(--accent-rgb), 0.2);
+}
+
+html body .sound-pill.is-on {
+  color: var(--accent-soft);
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.5);
+  box-shadow: 0 0 22px rgba(var(--accent-rgb), 0.22);
+}
+
+html body .ash-record-card .ash-record-date {
+  color: rgba(245, 232, 211, 0.8);
+  font-size: 0.78rem;
+}

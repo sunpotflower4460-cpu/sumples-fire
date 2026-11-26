@@ -418,6 +418,7 @@ export default function App() {
   useEffect(() => {
     const tab = tabs.find((item) => item.id === activeTab);
     document.title = tab ? `${tab.label} — Fire Task` : 'Fire Task';
+    document.documentElement.dataset.screen = activeTab;
     previousTabIndexRef.current = Math.max(0, tabs.findIndex((item) => item.id === activeTab));
   }, [activeTab]);
 
@@ -543,7 +544,7 @@ export default function App() {
             ) : null}
 
             {focusSeed ? (
-              <section ref={focusSeedTiltRef} className="focus-seed" aria-label="今日の火種">
+              <section ref={focusSeedTiltRef} className="focus-seed" aria-label="今日の火種" data-quadrant={focusSeed.quadrant} data-difficulty={focusSeed.difficulty}>
                 <div className="section-heading">
                   <p className="eyebrow">今日の火種</p>
                   <h2>{jp(focusSeed.title)}</h2>
