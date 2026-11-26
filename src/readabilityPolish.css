@@ -1,0 +1,156 @@
+/* ══════════════════════════════════════════════════════════
+   Final readability pass (imported last)
+   - Secondary text meets WCAG AA (4.5:1) on the dark canvas
+   - Smallest text is 12px; chips / hints are 13px
+   - Pinned header no longer lets scrolled content show through
+   - Delete buttons use the dark surface instead of the legacy light one
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  --readable-text: #f5e8d3;
+  --readable-text-soft: rgba(245, 232, 211, 0.82);
+  --readable-text-muted: rgba(245, 232, 211, 0.72);
+  --readable-accent: #f39a5c;
+  --readable-gold: #e8c050;
+  --color-text-muted: rgba(245, 232, 211, 0.72);
+}
+
+/* Labels, eyebrows and kickers: lighter ember instead of the dark rust */
+body .app-kicker,
+body .eyebrow {
+  color: var(--readable-accent);
+  font-size: 0.78rem;
+}
+
+body .ash-legacy-total-label,
+body .ash-mosaic-label,
+body .campfire-next-hint {
+  color: rgba(232, 192, 80, 0.88);
+  font-size: 0.78rem;
+}
+
+body .ash-legacy .eyebrow,
+body .ash-records-heading .eyebrow {
+  color: var(--readable-gold);
+}
+
+/* Secondary descriptions */
+body .form-helper,
+body .task-tuning-default-note,
+body .choice-button small,
+body .choice-section legend small,
+body .optional-label,
+body .field-meta,
+body .card-footer time,
+body .card-footer small {
+  color: var(--readable-text-muted);
+}
+
+body .choice-button small {
+  font-size: 0.78rem;
+}
+
+body input::placeholder,
+body textarea::placeholder {
+  color: rgba(245, 232, 211, 0.5);
+}
+
+/* Bottom tabs: inactive tabs were ~2.4:1 */
+body .tab-button {
+  font-size: 0.76rem;
+}
+
+body .tab-button:not(.is-active) {
+  color: var(--readable-text-muted);
+  opacity: 1;
+}
+
+body .tab-button.is-active {
+  color: #ffc08f;
+}
+
+/* Meta chips on cards (priority / weight / reward) */
+body .card-quick-meta > *,
+body .focus-seed .focus-meta > *,
+body .focus-seed .focus-chips > * {
+  color: var(--readable-text-soft);
+  font-size: 0.82rem;
+}
+
+body .focus-next-action span,
+body .next-action span {
+  color: var(--readable-accent);
+  font-size: 0.8rem;
+}
+
+/* Optional sections must not look disabled */
+body .advanced-fields-summary,
+body .advanced-fields-summary > span,
+body .task-tuning-summary-copy strong {
+  color: var(--readable-text);
+}
+
+body .advanced-fields-summary > small {
+  color: var(--readable-text-muted);
+}
+
+/* Primary action buttons: white label on a deeper ember (≥4.5:1) */
+body .fire-button,
+body .primary-button {
+  background-image: linear-gradient(135deg, #cf4a1b 0%, #a82812 100%);
+  color: #fffdf9;
+}
+
+body .focus-seed .focus-actions .fire-button {
+  font-weight: 800;
+}
+
+/* Header: keep scrolled cards from showing through the pinned title */
+body .app-topbar {
+  background: rgba(20, 16, 14, 0.94);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+
+/* Delete button: dark surface, readable icon */
+body .card-delete-button,
+body .card-delete-button.subtle-danger {
+  background: rgba(245, 232, 211, 0.06);
+  border: 1px solid rgba(245, 232, 211, 0.16);
+  color: #ff9d8c;
+}
+
+body .card-delete-button:hover:not(:disabled) {
+  background: rgba(255, 120, 100, 0.14);
+  border-color: rgba(255, 157, 140, 0.45);
+}
+
+body .card-delete-button svg {
+  color: #ff9d8c;
+  stroke: currentColor;
+}
+
+/* Bottom tab bar: opaque enough that scrolled cards don't ghost through the labels */
+body .bottom-tabs {
+  background: rgba(18, 15, 13, 0.95);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+/* Sheet / dialog close button */
+body .sheet-close,
+body .sheet-close::before,
+body .sheet-close::after {
+  color: var(--readable-text-soft);
+}
+
+/* Sheet title band: opaque so the form content never ghosts behind the heading */
+body .sheet-drag-zone {
+  background: #1a1512;
+  position: relative;
+  z-index: 2;
+}
+
+body .sheet-header .eyebrow {
+  color: var(--readable-gold);
+}
