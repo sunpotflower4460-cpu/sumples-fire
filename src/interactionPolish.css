@@ -267,65 +267,63 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .choice-fieldset > legend,
+.choice-fieldset > legend,
   .form-section-intro strong,
   .comfort-setting-copy span,
   .storage-note b {
     color: #fff1e7;
   }
 
-  .optional-label,
+.optional-label,
   .form-section-intro p,
   .comfort-setting-copy p,
   .storage-note small {
     color: rgba(255, 239, 227, 0.56);
   }
 
-  .fast-matrix-picker,
+.fast-matrix-picker,
   .comfort-settings-card,
   .storage-note {
     border-color: rgba(255, 238, 224, 0.09);
     background: rgba(255, 238, 224, 0.035);
   }
 
-  .choice-button {
+.choice-button {
     border-color: rgba(255, 238, 224, 0.09);
     background: rgba(255, 238, 224, 0.045);
   }
 
-  .choice-button:hover:not(:disabled) {
+.choice-button:hover:not(:disabled) {
     border-color: rgba(255, 238, 224, 0.15);
     background: rgba(255, 238, 224, 0.065);
   }
 
-  .choice-button.is-selected {
+.choice-button.is-selected {
     border-color: rgba(255, 129, 65, 0.25);
     background: rgba(255, 111, 48, 0.1);
   }
 
-  .choice-button.is-selected b,
+.choice-button.is-selected b,
   .sound-pill.is-on {
     color: #ffad78;
   }
 
-  .sound-pill {
+.sound-pill {
     border-color: rgba(255, 238, 224, 0.1);
     background: rgba(255, 238, 224, 0.045);
     color: rgba(255, 239, 227, 0.62);
   }
 
-  .sound-pill.is-on {
+.sound-pill.is-on {
     border-color: rgba(255, 129, 65, 0.24);
     background: rgba(255, 111, 48, 0.1);
   }
 
-  .form-sticky-submit {
+.form-sticky-submit {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(18, 15, 14, 0.92);
     box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.18);
   }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .form-sticky-submit {

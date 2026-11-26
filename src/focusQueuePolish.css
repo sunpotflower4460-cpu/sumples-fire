@@ -98,32 +98,30 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .task-queue-panel .matrix-filter-shell {
+.task-queue-panel .matrix-filter-shell {
     border-color: rgba(255, 238, 224, 0.065);
     background: rgba(255, 238, 224, 0.02);
   }
 
-  .task-queue-panel .matrix-filter-shell .matrix-cell {
+.task-queue-panel .matrix-filter-shell .matrix-cell {
     background: rgba(255, 238, 224, 0.035);
   }
 
-  .task-queue-more {
+.task-queue-more {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(255, 238, 224, 0.03);
     color: rgba(255, 238, 224, 0.66);
   }
 
-  .task-queue-more:hover {
+.task-queue-more:hover {
     border-color: rgba(255, 173, 120, 0.16);
     background: rgba(255, 173, 120, 0.055);
     color: #ffad78;
   }
 
-  .queue-empty-state {
+.queue-empty-state {
     background: transparent;
   }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .task-queue-more {

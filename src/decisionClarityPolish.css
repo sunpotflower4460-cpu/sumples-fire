@@ -193,41 +193,39 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .matrix-filter-shell {
+.matrix-filter-shell {
     border-color: rgba(255, 238, 224, 0.09);
     background: rgba(255, 238, 224, 0.025);
   }
 
-  .matrix-filter-shell .matrix-cell {
+.matrix-filter-shell .matrix-cell {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(255, 238, 224, 0.04);
   }
 
-  .matrix-filter-shell .matrix-cell > span {
+.matrix-filter-shell .matrix-cell > span {
     color: rgba(255, 239, 227, 0.68);
   }
 
-  .matrix-filter-shell .matrix-cell > strong {
+.matrix-filter-shell .matrix-cell > strong {
     color: #fff2e8;
   }
 
-  .matrix-filter-shell .matrix-cell[aria-pressed='true'] {
+.matrix-filter-shell .matrix-cell[aria-pressed='true'] {
     border-color: rgba(255, 129, 65, 0.26);
     background: rgba(255, 111, 48, 0.1);
   }
 
-  .matrix-filter-shell .matrix-cell[aria-pressed='true'] > span,
+.matrix-filter-shell .matrix-cell[aria-pressed='true'] > span,
   .matrix-filter-shell .matrix-cell[aria-pressed='true'] > strong {
     color: #ffb184;
   }
 
-  .matrix-reset-button {
+.matrix-reset-button {
     border-color: rgba(255, 238, 224, 0.09);
     background: rgba(255, 238, 224, 0.045);
     color: rgba(255, 239, 227, 0.68);
   }
-}
 
 @media (forced-colors: active) {
   .matrix-filter-shell,

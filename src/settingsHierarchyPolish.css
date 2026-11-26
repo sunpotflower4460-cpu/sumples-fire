@@ -246,27 +246,25 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .settings-disclosure,
+.settings-disclosure,
   .settings-links {
     border-color: rgba(255, 238, 224, 0.09);
     background: rgba(255, 238, 224, 0.035);
   }
 
-  .settings-disclosure > summary > i,
+.settings-disclosure > summary > i,
   .settings-steps li::before {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(255, 238, 224, 0.045);
   }
 
-  .settings-steps li::before {
+.settings-steps li::before {
     color: #ffad78;
   }
 
-  .settings-disclosure[open] > summary > i {
+.settings-disclosure[open] > summary > i {
     background: rgba(255, 111, 48, 0.1);
   }
-}
 
 @media (forced-colors: active) {
   .settings-disclosure,

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -6,14 +6,22 @@ describe('PWA browser chrome metadata', () => {
   const html = readFileSync(resolve(__dirname, '../index.html'), 'utf-8');
   const manifest = readFileSync(resolve(__dirname, '../public/manifest.webmanifest'), 'utf-8');
 
-  it('declares light and dark color schemes with adaptive theme colors', () => {
-    expect(html).toContain('<meta name="color-scheme" content="light dark">');
-    expect(html).toContain('content="#faf6f0" media="(prefers-color-scheme: light)"');
-    expect(html).toContain('content="#12100e" media="(prefers-color-scheme: dark)"');
+  it('declares a single dark color scheme so system chrome matches the app canvas', () => {
+    expect(html).toContain('<meta name="color-scheme" content="dark">');
+    expect(html).toContain('<meta name="theme-color" content="#0a0a0a">');
+    expect(html).not.toContain('prefers-color-scheme');
   });
 
-  it('uses the current canvas instead of the legacy launch background', () => {
-    expect(manifest).toContain('"background_color": "#f7f2eb"');
-    expect(manifest).not.toContain('"background_color": "#fff7ea"');
+  it('uses the dark canvas for the manifest launch colors', () => {
+    expect(manifest).toContain('"background_color": "#0a0a0a"');
+    expect(manifest).toContain('"theme_color": "#0a0a0a"');
+  });
+
+  it('never branches on the OS color scheme in app styles (the app is dark-only)', () => {
+    const srcDir = resolve(__dirname);
+    const offenders = readdirSync(srcDir)
+      .filter((file) => file.endsWith('.css'))
+      .filter((file) => readFileSync(resolve(srcDir, file), 'utf-8').includes('prefers-color-scheme'));
+    expect(offenders).toEqual([]);
   });
 });

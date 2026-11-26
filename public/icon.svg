@@ -1,9 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">Sumples Fire icon</title>
-  <desc id="desc">A warm flame mark for Sumples Fire.</desc>
-  <rect width="512" height="512" rx="112" fill="#fff7ea"/>
-  <circle cx="256" cy="266" r="172" fill="#2c1710" opacity="0.08"/>
-  <path d="M272 84c25 60 2 95-31 132-30 34-57 70-57 124 0 68 51 118 120 118 70 0 124-51 124-124 0-85-68-133-156-250Z" fill="#ce321d"/>
-  <path d="M250 212c18 37 0 61-22 86-18 20-30 42-30 74 0 45 35 78 82 78 44 0 80-33 80-80 0-55-45-89-110-158Z" fill="#f26f2f"/>
-  <path d="M268 304c10 22 0 37-13 51-10 12-18 24-18 42 0 27 20 46 47 46 26 0 47-20 47-47 0-32-25-52-63-92Z" fill="#ffcf69"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title"><title id="title">Fire Task icon</title>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="62%" r="75%">
+      <stop offset="0" stop-color="#3a1e12"/>
+      <stop offset="0.55" stop-color="#1a0f0b"/>
+      <stop offset="1" stop-color="#0a0706"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="60%" r="50%">
+      <stop offset="0" stop-color="#ff7a1f" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#ff6b00" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ff6b00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="0.2" y1="1" x2="0.75" y2="0">
+      <stop offset="0" stop-color="#c9321d"/>
+      <stop offset="0.55" stop-color="#f26a1f"/>
+      <stop offset="1" stop-color="#ffb347"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#fff3c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <g transform="translate(512 528) scale(30.5) translate(-12 -12.4)">
+    <path d="M13.4 2.8c.7 3.6-2.5 4.7-1.2 7.2.6 1.1 1.7 1.6 2.6 1.2 1.2-.5 1.5-2.1 1.2-3.8 2.6 2 4.1 4.5 4.1 7.2A8.1 8.1 0 0 1 12 22a8.1 8.1 0 0 1-8.1-7.4c0-3.8 2.2-6.5 5.8-9.1-.1 2.2.2 3.7 1.2 4.4.2-2.8 1-5.1 2.5-7.1Z" fill="url(#flame)"/>
+    <path d="M12.2 13.1c2 1.7 2.9 3.1 2.9 4.4a3.1 3.1 0 0 1-6.2 0c0-1.3 1.1-2.7 3.3-4.4Z" fill="url(#core)"/>
+  </g>
 </svg>

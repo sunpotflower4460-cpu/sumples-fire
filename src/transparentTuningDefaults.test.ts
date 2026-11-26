@@ -25,7 +25,6 @@ describe('transparent task tuning defaults', () => {
 
   it('keeps the disclosure note quiet and accessible in alternate contrast modes', () => {
     expect(cssSource).toContain('.task-tuning-default-note');
-    expect(cssSource).toContain('@media (prefers-color-scheme: dark)');
     expect(cssSource).toContain('@media (forced-colors: active)');
   });
 });

@@ -55,12 +55,10 @@
   transform: translate3d(0, calc(var(--scroll-depth) * 26px), 0);
 }
 
-@media (prefers-color-scheme: dark) {
-  .app-topbar {
+.app-topbar {
     border-bottom-color: rgba(255, 236, 222, calc(0.08 * var(--scroll-depth)));
     box-shadow: 0 14px 30px -18px rgba(0, 0, 0, calc(0.8 * var(--scroll-depth)));
   }
-}
 
 /* ── Task cards follow the pointer ──
    The queue entrance also re-declares campfire.css's pending pulse, because
@@ -154,7 +152,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
+@media (hover: hover) and (pointer: fine) {
   .fire-card:not(.is-burning)::after {
     background: radial-gradient(
       22rem circle at var(--glare-x, 50%) var(--glare-y, 50%),

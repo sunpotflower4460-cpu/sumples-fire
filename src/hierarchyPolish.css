@@ -394,33 +394,27 @@ button.matrix-cell {
 }
 
 /* ── Dark mode parity ──────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  .all-clear-card,
+.all-clear-card,
   .progress-disclosure {
     border-color: rgba(255, 238, 224, 0.1);
     background: rgba(26, 21, 19, 0.78);
   }
-
-  .all-clear-card p,
+.all-clear-card p,
   .task-queue-count,
   .progress-summary-meta {
     color: rgba(255, 239, 227, 0.58);
   }
-
-  .all-clear-mark,
+.all-clear-mark,
   .progress-summary-meta span,
   .progress-summary-chevron {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(255, 238, 224, 0.045);
   }
-
-  .matrix-cell[aria-pressed='true'] {
+.matrix-cell[aria-pressed='true'] {
     border-color: rgba(255, 129, 65, 0.28);
     background: rgba(255, 111, 48, 0.09);
   }
-
-  .matrix-cell[aria-pressed='true'] strong,
+.matrix-cell[aria-pressed='true'] strong,
   .matrix-cell[aria-pressed='true'] > span {
     color: #ffad78;
   }
-}

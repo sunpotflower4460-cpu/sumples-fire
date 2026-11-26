@@ -761,8 +761,7 @@ input[aria-invalid='true'] {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+:root {
     --wc-canvas: #0d0b0a;
     --wc-canvas-deep: #090807;
     --wc-surface: rgba(31, 27, 24, 0.84);
@@ -777,23 +776,23 @@ input[aria-invalid='true'] {
     --wc-shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.55);
   }
 
-  html,
+html,
   body {
     background: #0d0b0a;
   }
 
-  body {
+body {
     background:
       radial-gradient(circle at 50% -18%, rgba(246, 179, 77, 0.08), transparent 32rem),
       radial-gradient(circle at 100% 12%, rgba(232, 90, 36, 0.07), transparent 30rem),
       linear-gradient(180deg, #12100e 0%, #0d0b0a 70%, #090807 130%);
   }
 
-  .app-topbar {
+.app-topbar {
     background: linear-gradient(180deg, rgba(18, 16, 14, 0.95), rgba(18, 16, 14, 0.72) 72%, rgba(18, 16, 14, 0));
   }
 
-  .brand-hero,
+.brand-hero,
   .focus-seed,
   .panel,
   .fire-card,
@@ -804,11 +803,11 @@ input[aria-invalid='true'] {
     color: var(--wc-ink);
   }
 
-  .brand-mark {
+.brand-mark {
     background: linear-gradient(145deg, rgba(46, 37, 31, 0.98), rgba(55, 36, 29, 0.95));
   }
 
-  input,
+input,
   select,
   textarea,
   .fire-delete-cancel {
@@ -816,22 +815,21 @@ input[aria-invalid='true'] {
     color: var(--wc-ink);
   }
 
-  .bottom-tabs {
+.bottom-tabs {
     background: rgba(28, 24, 21, 0.86);
   }
 
-  .record-sheet,
+.record-sheet,
   .sheet-drag-zone,
   .fire-delete-modal {
     background: rgba(25, 22, 20, 0.98);
   }
 
-  .focus-next-action,
+.focus-next-action,
   .next-action,
   .quadrant-filter-bar {
     color: var(--wc-ink);
   }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,

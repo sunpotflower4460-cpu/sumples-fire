@@ -27,7 +27,6 @@ describe('capture noise reduction', () => {
   it('visually escalates only when the title is very close to its limit', () => {
     expect(formSource).toContain("titleRemaining <= 5 ? ' is-near-limit' : ''");
     expect(cssSource).toContain('.char-count.is-near-limit');
-    expect(cssSource).toContain('@media (prefers-color-scheme: dark)');
     expect(cssSource).toContain('@media (forced-colors: active)');
   });
 });

@@ -85,6 +85,10 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
             <strong>タスク内容を外部送信しません</strong>
             <p>{jp('入力したタスクを運営者のサーバーへ送信する機能はありません。')}</p>
           </div>
+          <div>
+            <strong>アプリを削除するとデータも消えます</strong>
+            <p>{jp('端末内のみに保存しているため、削除後は復元できません。')}</p>
+          </div>
         </div>
       </details>
 

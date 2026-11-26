@@ -58,11 +58,9 @@
 .ambient-embers i:nth-child(11) { --x: 68%; --size: 2px; }
 .ambient-embers i:nth-child(12) { --x: 90%; --size: 5px; }
 
-@media (prefers-color-scheme: dark) {
-  .ambient-embers i {
+.ambient-embers i {
     background: radial-gradient(circle, rgba(255, 224, 170, 0.9), rgba(232, 90, 36, 0.6) 60%, transparent 72%);
   }
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .ambient-embers i {

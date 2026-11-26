@@ -144,17 +144,15 @@ html {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .rank-stat-card > span {
+.rank-stat-card > span {
     color: #ffad78;
   }
 
-  .matrix-cell:disabled {
+.matrix-cell:disabled {
     opacity: 0.78;
   }
-}
 
-@media (prefers-color-scheme: dark) and (prefers-contrast: more) {
+@media (prefers-contrast: more) {
   :root {
     --wc-muted: #d2c1b6;
     --wc-hairline: rgba(255, 238, 224, 0.2);

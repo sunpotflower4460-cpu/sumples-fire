@@ -44,12 +44,10 @@
   transform: scale(0.98);
 }
 
-@media (prefers-color-scheme: dark) {
-  .choice-button:hover {
+.choice-button:hover {
     border-color: rgba(255, 238, 224, 0.15);
     background: rgba(255, 238, 224, 0.065);
   }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .choice-button {

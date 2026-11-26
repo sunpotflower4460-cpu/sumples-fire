@@ -44,10 +44,9 @@ describe('restored draft disclosure UX', () => {
     expect(formSource.match(/markDraftAsEdited\(\);/g)?.length).toBeGreaterThanOrEqual(7);
   });
 
-  it('keeps restoration cues quiet in light, dark, and forced-color modes', () => {
+  it('keeps restoration cues quiet in dark and forced-color modes', () => {
     expect(cssSource).toContain('.draft-restored-status');
     expect(cssSource).toContain('.advanced-fields-summary > small.has-content');
-    expect(cssSource).toContain('@media (prefers-color-scheme: dark)');
     expect(cssSource).toContain('@media (forced-colors: active)');
   });
 });

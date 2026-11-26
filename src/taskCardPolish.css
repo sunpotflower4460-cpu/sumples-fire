@@ -155,25 +155,23 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .card-details > summary,
+.card-details > summary,
   .card-detail-list dt {
     color: rgba(255, 239, 227, 0.58);
   }
 
-  .card-quick-meta span,
+.card-quick-meta span,
   .card-detail-list > div,
   .card-details .card-body {
     border-color: rgba(255, 238, 224, 0.08);
     background: rgba(255, 238, 224, 0.045);
   }
 
-  .card-quick-meta span,
+.card-quick-meta span,
   .card-details .card-body {
     color: rgba(255, 239, 227, 0.72);
   }
 
-  .card-detail-list dd {
+.card-detail-list dd {
     color: #fff2e8;
   }
-}
