@@ -1,4 +1,5 @@
 import { FireComfortSettings } from './FireComfortSettings';
+import { PlusSettingsCard } from '../plus/ui/PlusSettingsCard';
 import { jp } from '../lib/japanesePhraseWrap';
 
 type FireSettingsPanelProps = {
@@ -41,6 +42,8 @@ export function FireSettingsPanel({ totalTasks }: FireSettingsPanelProps) {
         </div>
         <FireComfortSettings totalTasks={totalTasks} />
       </section>
+
+      <PlusSettingsCard />
 
       <details className="settings-disclosure settings-guide">
         <summary>

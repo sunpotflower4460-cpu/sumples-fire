@@ -12,7 +12,7 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 
 ## Plus v1.1 の設計
 
-買い切りPlusの機能・画面・実装引き継ぎは [docs/plus/README.md](docs/plus/README.md) にまとめています。今回の追加は設計資料のみで、課金機能は未実装です。v1.0は完全無料のまま維持します。実装開始時は、提出準備PR [#122](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/122) の最新状態と保存方式の変更も確認してください。
+買い切りPlusの機能・画面・実装引き継ぎは [docs/plus/README.md](docs/plus/README.md) にまとめています。v1.1ブランチ `claude/plus-v1.1-pufig7` に実装済みですが（[実装メモ](docs/plus/IMPLEMENTATION_NOTES.md)）、実機のSandbox・商品登録は未実施です。v1.0は完全無料のまま維持します。実装開始時は、提出準備PR [#122](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/122) の最新状態と保存方式の変更も確認してください。
 
 ## 主な機能
 

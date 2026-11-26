@@ -6,8 +6,8 @@ describe('modal background isolation', () => {
   const isolationSource = readFileSync(resolve(__dirname, 'components/AppModalIsolation.tsx'), 'utf-8');
   const mainSource = readFileSync(resolve(__dirname, 'main.tsx'), 'utf-8');
 
-  it('recognizes both in-shell modal overlay types', () => {
-    expect(isolationSource).toContain("'.sheet-backdrop, .fire-delete-backdrop'");
+  it('recognizes every in-shell modal overlay type (task sheet, delete confirmation, Plus)', () => {
+    expect(isolationSource).toContain("'.sheet-backdrop, .fire-delete-backdrop, .plus-backdrop'");
     expect(isolationSource).toContain('child.matches(MODAL_OVERLAY_SELECTOR)');
   });
 

@@ -14,6 +14,10 @@ export class WebLocalStorageDriver implements StorageDriver {
   setItem(key: string, value: string): void {
     window.localStorage.setItem(key, value);
   }
+
+  removeItem(key: string): void {
+    window.localStorage.removeItem(key);
+  }
 }
 
 /**

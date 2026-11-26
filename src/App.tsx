@@ -9,6 +9,9 @@ import { FireForm } from './components/FireForm';
 import { FireSettingsPanel } from './components/FireSettingsPanel';
 import { FireStats } from './components/FireStats';
 import { ScreenLayer } from './components/ScreenLayer';
+import { PlusHost } from './plus/ui/PlusHost';
+import { ScenePanel } from './plus/ui/ScenePanel';
+import { SHOW_ASH_RECORD_EVENT } from './plus/ui/MonthlyScreen';
 import { useFocusTrap } from './hooks/useFocusTrap';
 import { useMilestone } from './hooks/useMilestone';
 import { usePointerTilt } from './hooks/usePointerTilt';
@@ -139,6 +142,7 @@ export default function App() {
   const [queueVisibleCount, setQueueVisibleCount] = useState(QUEUE_PAGE_SIZE);
   const [newSeedId, setNewSeedId] = useState<string | null>(null);
   const [pendingDeleteSeed, setPendingDeleteSeed] = useState<FireSeed | null>(null);
+  const [ashFocusRecord, setAshFocusRecord] = useState<{ id: string; nonce: number } | null>(null);
   const appShellRef = useRef<HTMLElement | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const floatingActionRef = useRef<HTMLButtonElement | null>(null);
@@ -418,6 +422,20 @@ export default function App() {
 
     burnTask(id);
   };
+
+  // The monthly calendar (Plus) can open one record in the free ash history.
+  useEffect(() => {
+    const handleShowRecord = (event: Event) => {
+      const id = (event as CustomEvent<{ id?: string }>).detail?.id;
+      if (!id) return;
+      navigateToTab('ash', true);
+      setAshFocusRecord((current) => ({ id, nonce: (current?.nonce ?? 0) + 1 }));
+    };
+    window.addEventListener(SHOW_ASH_RECORD_EVENT, handleShowRecord);
+    return () => window.removeEventListener(SHOW_ASH_RECORD_EVENT, handleShowRecord);
+    // navigateToTab only reads refs and the active tab at call time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   useLayoutEffect(() => {
     window.scrollTo({
@@ -725,7 +743,8 @@ export default function App() {
               <p className="eyebrow">ASH ARCHIVE</p>
               <h2 id="ash-screen-heading">炭の記録</h2>
             </div>
-            <AshLegacy seeds={burnedTasks} onDelete={requestDelete} />
+            <ScenePanel ashPoints={stats.totalAshPoints} />
+            <AshLegacy seeds={burnedTasks} onDelete={requestDelete} focusRecord={ashFocusRecord} />
           </section>
           </ScreenLayer>
         ) : null}
@@ -837,6 +856,8 @@ export default function App() {
       {pendingDeleteSeed ? (
         <FireDeleteModal seed={pendingDeleteSeed} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} />
       ) : null}
+
+      <PlusHost seeds={allSeeds} />
 
       {burningTask ? <BurningRitual seed={burningTask} spectacle={burningSpectacle ?? undefined} /> : null}
     </main>

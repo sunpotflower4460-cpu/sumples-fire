@@ -17,6 +17,8 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		A1F1E0012F00000000000001 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1F1E0022F00000000000001 /* PrivacyInfo.xcprivacy */; };
 		10EF9688E6974A6194E18258 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7981E7C11C42EABC51EC86 /* SceneDelegate.swift */; };
+		B2C3D4E5F6A7B8C9D0E1F202 /* FireBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F201 /* FireBridgeViewController.swift */; };
+		B2C3D4E5F6A7B8C9D0E1F204 /* PlusStorePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F203 /* PlusStorePlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		A1F1E0022F00000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		8C7981E7C11C42EABC51EC86 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F201 /* FireBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireBridgeViewController.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F203 /* PlusStorePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusStorePlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +80,8 @@
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				8C7981E7C11C42EABC51EC86 /* SceneDelegate.swift */,
+				B2C3D4E5F6A7B8C9D0E1F201 /* FireBridgeViewController.swift */,
+				B2C3D4E5F6A7B8C9D0E1F203 /* PlusStorePlugin.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -165,6 +171,8 @@
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				10EF9688E6974A6194E18258 /* SceneDelegate.swift in Sources */,
+				B2C3D4E5F6A7B8C9D0E1F202 /* FireBridgeViewController.swift in Sources */,
+				B2C3D4E5F6A7B8C9D0E1F204 /* PlusStorePlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

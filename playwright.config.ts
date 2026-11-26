@@ -2,6 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Release smoke tests. They drive the same bundle that ships inside the iOS
 // app (`vite build --mode capacitor`) in WebKit, the engine behind WKWebView.
+//
+// The one difference: this build sets VITE_PLUS_STORE_MOCK=1 so purchase flows
+// can be scripted (there is no App Store in a browser). It is written to its own
+// folder, `dist-e2e`, so it can never be mistaken for — or synced into — the
+// release `dist`. `npm run build:ios` checks that release bundles contain none of it.
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -31,7 +36,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npx vite build --mode capacitor && npx vite preview --mode capacitor --port 4319 --strictPort',
+    command: 'VITE_PLUS_STORE_MOCK=1 npx vite build --mode capacitor --outDir dist-e2e && npx vite preview --mode capacitor --outDir dist-e2e --port 4319 --strictPort',
     url: 'http://localhost:4319',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

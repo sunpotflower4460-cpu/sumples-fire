@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:ios": "tsc -b && vite build --mode capacitor",
+    "build": "tsc -b && vite build && node scripts/check-release-bundle.mjs",
+    "build:ios": "tsc -b && vite build --mode capacitor && node scripts/check-release-bundle.mjs",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
@@ -14,7 +14,8 @@
     "ios:sync": "npm run build:ios && npx cap sync ios",
     "ios:open": "npx cap open ios",
     "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "check:bundle": "node scripts/check-release-bundle.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.2",

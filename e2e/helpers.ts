@@ -18,8 +18,12 @@ export async function freshStart(page: Page) {
 
 export async function addTask(page: Page, title: string, nextAction = '') {
   const firstTask = page.getByRole('button', { name: '最初のタスクを書く' });
+  const nextWood = page.getByRole('button', { name: '次の薪をくべる' });
   if (await firstTask.isVisible()) {
     await firstTask.click();
+  } else if (await nextWood.isVisible()) {
+    // "ALL CLEAR" state: every task is already burned.
+    await nextWood.click();
   } else {
     await page.getByRole('button', { name: '燃やしたいタスクを書く' }).click();
   }

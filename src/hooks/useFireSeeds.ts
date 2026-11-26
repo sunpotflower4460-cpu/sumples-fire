@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { burnSeed, createStarterSeeds, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
+import { backfillBurnedLocalDates, burnSeed, createStarterSeeds, derivePriority, getFireSeedStats, getFocusSeed, getQuadrant, markSeedBurning, nowIso, sortFireTasks } from '../lib/fireSeedModel';
 import { getBurnSequenceDuration } from '../lib/fireAnimationConstants';
 import { createFireBurnUndoSnapshot, restoreFireSeedFromUndo } from '../lib/fireBurnUndo';
 import type { FireBurnUndoSnapshot } from '../lib/fireBurnUndo';
 import { loadStoredSeeds, saveStoredSeeds } from '../lib/fireSeedStorage';
-import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import { getEffectiveFireStreak, loadFireStreak, recordBurnForStreak, saveFireStreak } from '../lib/fireStreak';
 import { playSparkSound, playSpectacleSequence } from '../lib/fireSoundEngine';
 import { isFireSoundEnabled } from '../lib/fireSoundSettings';
 import { getAppStorageDriver, onAppStorageWriteFailure } from '../lib/appStorage';
+import { resolveBurnSpectacle } from '../plus/flameChoice';
+import { isPlusEntitledNow, plusStore } from '../plus/plusStore';
 import type { FireSeed, NewFireSeedInput } from '../types/fireSeed';
 import { difficultyAshPoints } from '../types/fireSeed';
 
@@ -42,12 +43,26 @@ export function useFireSeeds() {
   const activeBurnIdRef = useRef<string | null>(null);
   const calendarDayKeyRef = useRef(getLocalDayKey());
   const [calendarRevision, setCalendarRevision] = useState(0);
-  const [seeds, setSeeds] = useState<FireSeed[]>(() => sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
+  // Records from before completion days were stored get theirs once, here, and
+  // the upgrade is saved below. Undated records stay undated (never guessed).
+  const migrationRef = useRef<{ seeds: FireSeed[]; changed: boolean } | null>(null);
+  if (migrationRef.current === null) {
+    migrationRef.current = backfillBurnedLocalDates(sortFireTasks(loadStoredSeeds(storageDriverRef.current)));
+  }
+  const [seeds, setSeeds] = useState<FireSeed[]>(() => migrationRef.current!.seeds);
   const [notice, setNotice] = useState('');
   const [streakData, setStreakData] = useState(() => loadFireStreak());
   const [burningSpectacle, setBurningSpectacle] = useState<BurnSpectacle | null>(null);
   const [burnCompletion, setBurnCompletion] = useState<BurnCompletion | null>(null);
   const [undoBurnSnapshot, setUndoBurnSnapshot] = useState<FireBurnUndoSnapshot | null>(null);
+
+  // Persist the one-time upgrade. A failed write is simply retried next launch.
+  useEffect(() => {
+    if (migrationRef.current?.changed) {
+      saveStoredSeeds(storageDriverRef.current, migrationRef.current.seeds);
+      migrationRef.current = { ...migrationRef.current, changed: false };
+    }
+  }, []);
 
   useEffect(() => {
     // Actionable Fire feedback must stay stable for as long as its Undo action
@@ -210,7 +225,16 @@ export function useFireSeeds() {
     clearUndoBurn();
     setBurnCompletion(null);
     const undoSnapshot = createFireBurnUndoSnapshot(target, streakData);
-    const spectacle = selectBurnSpectacle(target.difficulty, streakData.currentStreak);
+    // The flame is decided exactly once, here. The animation and the sound both
+    // receive this same value, and ash/rank/growth/streak never read it.
+    // Without a verified Plus entitlement this is the free automatic choice.
+    const { spectacle } = resolveBurnSpectacle({
+      preferences: plusStore.getState().preferences,
+      entitled: isPlusEntitledNow(),
+      difficulty: target.difficulty,
+      streak: streakData.currentStreak,
+    });
+    plusStore.recordRealFlame(spectacle.type);
     const burningSeeds = seeds.map((seed) => (seed.id === id ? markSeedBurning(seed) : seed));
     setBurningSpectacle(spectacle);
     const reduceMotion = prefersReducedMotion();
