@@ -601,6 +601,7 @@ export default function App() {
                   </span>
                 </div>
 
+                {matrixItems.filter((item) => item.count > 0).length > 1 || quadrantFilter ? (
                 <section className="matrix-filter-shell" aria-label="次のタスクを4象限で絞り込む">
                   <div className="matrix-filter-heading">
                     <div>
@@ -630,6 +631,7 @@ export default function App() {
                     ))}
                   </div>
                 </section>
+                ) : null}
 
                 <div id="up-next-list" className="cards-stack">
                   {filteredQueueTasks.length > 0 ? (

@@ -50,7 +50,9 @@ export function FireCard({ seed, onFire, onDelete, isNew }: FireCardProps) {
     >
       <div className="card-header">
         <div>
-          <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
+          {seed.burned || seed.category !== 'task' ? (
+            <p className="eyebrow">{seed.burned ? '炭になったタスク' : categoryLabels[seed.category]}</p>
+          ) : null}
           <h3 id={titleId}>{jp(seed.title)}</h3>
         </div>
         {seed.burned ? <span className="priority">+{seed.ashPoints} 炭</span> : null}
