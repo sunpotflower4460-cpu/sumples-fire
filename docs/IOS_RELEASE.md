@@ -5,6 +5,8 @@ Web（Vite + React）を Capacitor 8.5 で iOS アプリとして配布します
 
 最終更新: 2026-09-24（Xcode 26.2 / iOS 26.2 SDK で検証）
 
+> **v1.1（Plus）の追加:** `npm run build` / `build:ios` は最後に `scripts/check-release-bundle.mjs` を実行し、開発用の模擬購入がバンドルに混入していないこと、StoreKit ブリッジ（`PlusStore`）が含まれることを検査します。ネイティブ側は `PlusStorePlugin.swift` / `FireBridgeViewController.swift`（pbxprojに登録済み）で、Xcodeでのコンパイルは未確認です。StoreKitのテストは [docs/plus/STOREKIT_TESTING.md](plus/STOREKIT_TESTING.md)。
+
 ---
 
 ## 1. ビルドと同期
