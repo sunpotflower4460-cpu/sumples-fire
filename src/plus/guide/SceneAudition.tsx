@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { hasAmbientSound } from '../ambientOptions';
-import { ambientPlayer } from '../ambientPlayer';
+import { hasAmbientSound, type AmbientMix } from '../ambientOptions';
 import { SCENES, SCENE_IDS, type SceneId } from '../scenes';
 import { useAmbientStatus } from '../ui/useAmbientStatus';
 import styles from './showcase.module.css';
 
-export function SceneAudition({ pauseVideo }: { pauseVideo: () => void }) {
+type SceneAuditionProps = {
+  playSound: (mix: AmbientMix) => Promise<boolean | undefined>;
+  stopSound: () => void;
+};
+
+export function SceneAudition({ playSound, stopSound }: SceneAuditionProps) {
   const [sceneId, setSceneId] = useState<SceneId>('aurora');
   const [errorScene, setErrorScene] = useState<SceneId | null>(null);
   const status = useAmbientStatus();
@@ -13,12 +17,11 @@ export function SceneAudition({ pauseVideo }: { pauseVideo: () => void }) {
   const hasSound = hasAmbientSound(scene.preset);
   const toggle = async () => {
     if (status !== 'stopped') {
-      ambientPlayer.stop();
+      stopSound();
       return;
     }
-    pauseVideo();
     setErrorScene(null);
-    if (!await ambientPlayer.start(scene.preset)) setErrorScene(sceneId);
+    if (await playSound(scene.preset) === false) setErrorScene(sceneId);
   };
 
   return (
@@ -36,7 +39,7 @@ export function SceneAudition({ pauseVideo }: { pauseVideo: () => void }) {
       <div className={styles.scenes} role="group" aria-label="試し見する焚き火の景色">
         {SCENE_IDS.map((id) => (
           <button type="button" key={id} aria-pressed={id === sceneId}
-            onClick={() => { ambientPlayer.stop(); setErrorScene(null); setSceneId(id); }}>
+            onClick={() => { stopSound(); setErrorScene(null); setSceneId(id); }}>
             {SCENES[id].artwork
               ? <img src={SCENES[id].artwork} alt="" loading="lazy" />
               : <span aria-hidden="true" className={styles.night} />}

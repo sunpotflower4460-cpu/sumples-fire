@@ -131,7 +131,7 @@ test.describe('Plus introduction and purchase states', () => {
     const link = page.getByRole('button', { name: '紹介ページを見る', exact: true });
     await link.click();
     const guide = plusDialog(page, 'Fire Task Plusの紹介');
-    await expect(guide.getByRole('heading', { name: '22種類の炎を見比べる。' })).toBeVisible();
+    await expect(guide.getByRole('heading', { name: '22種類の炎を見比べる' })).toBeVisible();
     await guide.getByRole('button', { name: '閉じる', exact: true }).click();
     await expect(link).toBeFocused();
 

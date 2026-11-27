@@ -1,5 +1,6 @@
-import { useEffect, useRef, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, type MouseEvent } from 'react';
 import { ambientPlayer } from '../ambientPlayer';
+import type { AmbientMix } from '../ambientOptions';
 import { FlameComparison } from './FlameComparison';
 import { SceneAudition } from './SceneAudition';
 import styles from './showcase.module.css';
@@ -36,11 +37,23 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
   const root = useRef<HTMLElement>(null);
   const tour = useRef<HTMLVideoElement>(null);
   const film = useRef<HTMLVideoElement>(null);
+  const audioRequest = useRef(0);
+  const stopSound = useCallback(() => {
+    audioRequest.current += 1;
+    ambientPlayer.stop();
+  }, []);
+  const playSound = async (mix: AmbientMix) => {
+    const request = ++audioRequest.current;
+    film.current?.pause();
+    tour.current?.pause();
+    const started = await ambientPlayer.start(mix);
+    return request === audioRequest.current ? started : undefined;
+  };
 
   useEffect(() => {
     if (!embedded && window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
     const videos = root.current?.querySelectorAll('video');
-    const stop = () => { videos?.forEach((v) => v.pause()); ambientPlayer.stop(); };
+    const stop = () => { videos?.forEach((v) => v.pause()); stopSound(); };
     const onHide = () => { if (document.hidden) stop(); };
     document.addEventListener('visibilitychange', onHide);
     window.addEventListener('pagehide', stop);
@@ -49,7 +62,7 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
       window.removeEventListener('pagehide', stop);
       stop();
     };
-  }, [embedded]);
+  }, [embedded, stopSound]);
 
   const jump = (event: MouseEvent<HTMLElement>) => {
     if (!embedded || !(event.target instanceof Element)) return;
@@ -76,7 +89,7 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
       onPlayCapture={(event) => {
         if (event.target !== tour.current) tour.current?.pause();
         if (event.target !== film.current) film.current?.pause();
-        ambientPlayer.stop();
+        stopSound();
       }}>
       {!embedded && <a className={styles.skip} href="#flames">炎の比較へ</a>}
       <header className={styles.mast}>
@@ -91,8 +104,8 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
       <section id="flames" tabIndex={-1} className={styles.hero} aria-labelledby="guide-flames">
         <div className={styles.wrap}>
           <p className={styles.kicker}>おまかせの炎9種類・Plus専用13種類</p>
-          <h1 id="guide-flames">22種類の炎を見比べる。</h1>
-          <p className={styles.lead}>細く立つ灯籠の火と、炭に沿って広がる熔岩の火。左右の炎を選ぶと、同じ大きさで火の姿と揺れ方を比べられます。</p>
+          <h1 id="guide-flames">22種類の炎を見比べる</h1>
+          <p className={styles.lead}>左右の炎を選んで、火の形と揺れ方を比べられます。</p>
           <FlameComparison embedded={embedded} />
           <p className={styles.lead}>無料版では9種類の炎が自動で現れます。Plusでは専用の13種類を含む全22種類から、毎回使う炎やお気に入りを選べます。</p>
         </div>
@@ -143,7 +156,7 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
         <div className={styles.wrap}>
           <p className={styles.kicker}>9種類の景色・6種類の環境音</p><h2 id="guide-scenes">景色を見て、音を聴く。</h2>
           <p className={styles.lead}>景色を選んで、初期設定の音を聴けます。Plusでは火の音や波音の音量を、景色ごとに調整できます。</p>
-          <SceneAudition pauseVideo={() => { film.current?.pause(); tour.current?.pause(); }} />
+          <SceneAudition playSound={playSound} stopSound={stopSound} />
           <details className={styles.disclosure}>
             <summary>音量を調整する画面を見る</summary>
             <Screen image={audioPanel} caption="夕凪の入り江" alt="波音の音量を76パーセントに調整している画面" />

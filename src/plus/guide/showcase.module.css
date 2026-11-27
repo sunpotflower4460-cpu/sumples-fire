@@ -163,6 +163,12 @@
 .scenes button > span:last-child { padding: .35rem .15rem; font-size: .8rem; }
 .footer { padding-block: 1.3rem max(1.3rem, env(safe-area-inset-bottom)); }
 .footer p { font-size: .85rem; }
+@container showcase (max-width: 22rem) {
+  .mast nav { inline-size: 100%; justify-content: space-between; gap: 0 .25rem; }
+  .mast nav a { font-size: .875rem; }
+  .hero { padding-block-start: 1.1rem; }
+  .page .hero h1 { font-size: 1.65rem; }
+}
 @container showcase (min-width: 32rem) {
   .screens, .movies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stages { grid-template-columns: repeat(3, minmax(0, 1fr)); }
