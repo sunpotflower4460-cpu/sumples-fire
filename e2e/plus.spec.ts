@@ -542,6 +542,11 @@ test.describe('scenes and ambient sound', () => {
     await editor.getByLabel('波音', { exact: true }).fill('41');
     await editor.getByLabel('火の音').fill('60');
     await editor.getByLabel('夜の風').fill('25');
+    await editor.getByRole('radio', { name: '景色', exact: true }).check();
+    await editor.getByRole('radio', { name: '星明かりの湖' }).check();
+    await editor.getByRole('radio', { name: '夕凪の入り江' }).check();
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
+    await expect(editor.getByLabel('波音', { exact: true })).toHaveValue('41');
 
     await page.evaluate((key) => {
       const original = Storage.prototype.setItem;

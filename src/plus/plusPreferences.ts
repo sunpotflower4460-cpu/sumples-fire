@@ -3,12 +3,19 @@ import type { AmbientMix } from './ambientOptions';
 import { isFlameId } from './flames';
 import type { FlameId } from './flames';
 import { PLUS_PREFERENCES_KEY } from './plusConstants';
-import { isSceneId } from './scenes';
+import { isSceneId, SCENE_IDS, SCENES } from './scenes';
 import type { SceneId } from './scenes';
 
 export { PLUS_PREFERENCES_KEY };
 
 export type FlameMode = 'auto' | 'fixed' | 'favorites';
+type SceneSettings = {
+  scene: SceneId;
+  mix: AmbientMix;
+  /** Sound settings for the other scenes. The active scene is stored in mix. */
+  sceneMixes: Partial<Record<SceneId, AmbientMix>>;
+};
+
 export type PlusPreferences = {
   version: 1;
   flameMode: FlameMode;
@@ -18,9 +25,7 @@ export type PlusPreferences = {
   favoriteFlames: FlameId[];
   /** The flame shown by the last *real* Fire, so favourites do not repeat it. */
   lastRealFlame: FlameId | null;
-  scene: SceneId;
-  mix: AmbientMix;
-};
+} & SceneSettings;
 
 export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   version: 1,
@@ -30,6 +35,7 @@ export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   lastRealFlame: null,
   scene: 'night',
   mix: makeAmbientMix(),
+  sceneMixes: {},
 };
 
 export const clampVolume = (value: unknown): number => {
@@ -41,6 +47,28 @@ const isRecord = (value: unknown): value is Record<string, unknown> => (
   typeof value === 'object' && value !== null && !Array.isArray(value)
 );
 
+const normalizeMix = (source: unknown) => {
+  const values = isRecord(source) ? source : {};
+  const mix = makeAmbientMix();
+  for (const layer of AMBIENT_LAYERS) mix[layer] = clampVolume(values[layer]);
+  return mix;
+};
+
+export const sceneSettingsOf = ({ scene, mix, sceneMixes }: SceneSettings): SceneSettings => (
+  { scene, mix, sceneMixes }
+);
+
+/** Switch scenes without losing the draft mix, including intentional silence. */
+export const switchScene = (settings: SceneSettings, scene: SceneId): SceneSettings => {
+  if (scene === settings.scene) return settings;
+  const { [scene]: previousMix, ...sceneMixes } = settings.sceneMixes;
+  return {
+    scene,
+    mix: previousMix ?? { ...SCENES[scene].preset },
+    sceneMixes: { ...sceneMixes, [settings.scene]: settings.mix },
+  };
+};
+
 /**
  * Turn anything read from storage into valid preferences.
  *
@@ -49,7 +77,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> => (
  * scene instead of throwing or leaving the app in a half-applied state.
  */
 export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
-  if (!isRecord(raw)) return { ...DEFAULT_PLUS_PREFERENCES, favoriteFlames: [], mix: { ...DEFAULT_PLUS_PREFERENCES.mix } };
+  if (!isRecord(raw)) {
+    return { ...DEFAULT_PLUS_PREFERENCES, favoriteFlames: [], mix: makeAmbientMix(), sceneMixes: {} };
+  }
 
   const favorites: FlameId[] = [];
   if (Array.isArray(raw.favoriteFlames)) {
@@ -65,9 +95,14 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
   if (raw.flameMode === 'fixed' && hasValidFixed) flameMode = 'fixed';
   if (raw.flameMode === 'favorites' && favorites.length > 0) flameMode = 'favorites';
 
-  const sourceMix = isRecord(raw.mix) ? raw.mix : {};
-  const mix = makeAmbientMix();
-  for (const layer of AMBIENT_LAYERS) mix[layer] = clampVolume(sourceMix[layer]);
+  const scene = isSceneId(raw.scene) ? raw.scene : 'night';
+  const sourceSceneMixes = isRecord(raw.sceneMixes) ? raw.sceneMixes : {};
+  const sceneMixes: SceneSettings['sceneMixes'] = {};
+  for (const id of SCENE_IDS) {
+    if (id !== scene && isRecord(sourceSceneMixes[id])) {
+      sceneMixes[id] = normalizeMix(sourceSceneMixes[id]);
+    }
+  }
 
   return {
     version: 1,
@@ -75,8 +110,9 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
     fixedFlame,
     favoriteFlames: favorites,
     lastRealFlame: isFlameId(raw.lastRealFlame) ? raw.lastRealFlame : null,
-    scene: isSceneId(raw.scene) ? raw.scene : 'night',
-    mix,
+    scene,
+    mix: normalizeMix(raw.mix),
+    sceneMixes,
   };
 };
 

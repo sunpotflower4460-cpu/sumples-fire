@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { FlameArtwork } from '../../components/FlameArtwork';
 import { COPY } from '../plusCopy';
+import { sceneSettingsOf } from '../plusPreferences';
 import { plusStore } from '../plusStore';
 import type { PlusRoute } from '../plusStore';
 import { usePlus } from '../usePlus';
@@ -59,7 +60,7 @@ export function PlusIntroScreen() {
       ...(flameDraft
         ? { flameMode: flameDraft.flameMode, fixedFlame: flameDraft.fixedFlame, favoriteFlames: flameDraft.favoriteFlames }
         : {}),
-      ...(sceneDraft ? { scene: sceneDraft.scene, mix: sceneDraft.mix } : {}),
+      ...(sceneDraft ? sceneSettingsOf(sceneDraft) : {}),
     };
     const result = await plusStore.savePreferences(changes);
     if (result.ok) {

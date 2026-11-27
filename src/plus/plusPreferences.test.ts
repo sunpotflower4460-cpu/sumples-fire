@@ -10,6 +10,7 @@ import {
   normalizePlusPreferences,
   parsePlusPreferences,
   serializePlusPreferences,
+  switchScene,
   validatePlusPreferences,
 } from './plusPreferences';
 import { SCENE_IDS, SCENES } from './scenes';
@@ -49,6 +50,18 @@ describe('plus preferences storage', () => {
     });
     expect(preferences).toMatchObject({ favoriteFlames: ['cherry', 'aurora'], scene: 'coast', mix: { waves: 40, stream: 22, insects: 15 } });
     expect(parsePlusPreferences(serializePlusPreferences(preferences))).toEqual(preferences);
+  });
+
+  it('recalls scene-specific mixes across switches and a restart, including explicit silence', () => {
+    const legacy = normalizePlusPreferences({ scene: 'coast', mix: { waves: 41 } });
+    expect(legacy.sceneMixes).toEqual({});
+    const brook = switchScene(legacy, 'brook');
+    expect(brook.mix).toEqual(SCENES.brook.preset);
+
+    const coast = switchScene({ ...brook, mix: makeAmbientMix() }, 'coast');
+    expect(coast.mix.waves).toBe(41);
+    const reloaded = parsePlusPreferences(serializePlusPreferences({ ...legacy, ...coast }));
+    expect(switchScene(reloaded, 'brook').mix).toEqual(makeAmbientMix());
   });
 
   it('a removed or unknown flame id degrades to おまかせ instead of breaking', () => {

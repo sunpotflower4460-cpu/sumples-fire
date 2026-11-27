@@ -10,6 +10,7 @@ import {
 import type { AmbientLayerId, AmbientMix } from '../ambientOptions';
 import { ambientPlayer } from '../ambientPlayer';
 import { COPY } from '../plusCopy';
+import { sceneSettingsOf, switchScene } from '../plusPreferences';
 import type { PlusPreferences } from '../plusPreferences';
 import { plusStore } from '../plusStore';
 import { SCENE_IDS, SCENES } from '../scenes';
@@ -56,7 +57,7 @@ export function SceneEditorScreen({ ashPoints }: { ashPoints: number }) {
   };
 
   const chooseScene = (id: SceneId) => {
-    setDraft({ ...draft, scene: id, mix: { ...SCENES[id].preset } });
+    setDraft({ ...draft, ...switchScene(draft, id) });
   };
 
   const choosePreset = (id: string) => {
@@ -77,7 +78,7 @@ export function SceneEditorScreen({ ashPoints }: { ashPoints: number }) {
   const handleSave = async () => {
     if (saving) return;
     setSaveStatus('saving');
-    const result = await plusStore.savePreferences({ scene: draft.scene, mix: draft.mix });
+    const result = await plusStore.savePreferences(sceneSettingsOf(draft));
     setSaveStatus(result.ok ? 'saved' : 'failed');
   };
 
@@ -161,7 +162,7 @@ export function SceneEditorScreen({ ashPoints }: { ashPoints: number }) {
               </label>
             ))}
           </fieldset>
-          <p className="plus-help" id={`${headingId}-scene-help`}>景色を選び直すと、その景色に合う音量に切り替わります。</p>
+          <p className="plus-help" id={`${headingId}-scene-help`}>保存すると、調整した音量を景色ごとに呼び出せます。</p>
         </>
       ) : (
         <section className="plus-audio-card" aria-labelledby={`${headingId}-sounds`}>
