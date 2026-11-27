@@ -8,6 +8,7 @@
   position: fixed;
   inset: 0;
   z-index: 200;
+  background: #0b0a0d;
   display: grid;
   grid-template-rows: minmax(0, 46%) minmax(0, 1fr);
   place-items: start center;
@@ -32,7 +33,7 @@
   z-index: 6;
   grid-row: 1;
   place-self: end center;
-  width: min(74vw, 36vh, 21rem);
+  width: min(86vw, 42vh, 23rem);
   isolation: isolate;
 }
 
