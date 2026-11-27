@@ -15,6 +15,7 @@ import {
 import type { FireSeed } from '../types/fireSeed';
 import { useBurnSequence, useFireParticles } from '../hooks/useBurnSequence';
 import { jp } from '../lib/japanesePhraseWrap';
+import { CombustionFlame } from './CombustionFlame';
 import { FlameArtwork } from './FlameArtwork';
 import { flameIllustrations } from './flameIllustrations';
 import { releaseKeyframes, releaseMarks } from '../lib/flameRelease';
@@ -42,13 +43,13 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
   const type = spectacle.type;
   const signature = isPlusBurnSpectacle(type);
   const variantConfig = signature
-    ? { titleGlow: `drop-shadow(0 0 24px ${spectacle.bgGlowColor})`, particleCount: 32, burstScale: 1.25 }
+    ? { titleGlow: `drop-shadow(0 0 24px ${spectacle.bgGlowColor})`, particleCount: 16, burstScale: 1.25 }
     : specialVariantConfigs[type];
   const isSpecial = spectacle.isSpecial;
 
   const { flight, mark } = flameIllustrations[type];
   const { particles, burst } = useFireParticles(
-    preview ? Math.min(12, variantConfig.particleCount) : variantConfig.particleCount,
+    preview ? Math.min(8, variantConfig.particleCount) : variantConfig.particleCount,
   );
 
   // Start the burn sequence as soon as the overlay mounts.
@@ -97,10 +98,13 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
       )}
       <div className="ritual-bg" aria-hidden="true" />
       <div className="ritual-artwork" aria-hidden="true">
-        <FlameArtwork spectacle={spectacle} size={320} motion="burn" />
+        <CombustionFlame flame={type} size={320} motion="burn" />
+        {!shouldReduceMotion && (
+          <div className="ritual-cinders"><i /><i /><i /><i /></div>
+        )}
         {particles.length > 0 ? (
           <svg className="ritual-release" viewBox="0 0 96 96" focusable="false" aria-hidden="true">
-            <g transform="translate(48 52)">
+            <g transform="translate(48 76)">
               {particles.map((p) => (
                 <motion.path
                   key={p.id}
@@ -110,7 +114,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
                   animate={{
                     ...releaseKeyframes(flight, p, variantConfig.burstScale),
                     opacity: [0, 1, .85, 0],
-                    scale: [.36, .4 + p.size * .1, .28],
+                    scale: [.14, .24 + p.size * .055, .12],
                   }}
                   transition={{
                     duration: PARTICLE_BURST_DURATION_S,
@@ -122,40 +126,11 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
             </g>
           </svg>
         ) : null}
+        {!shouldReduceMotion && phase === 'complete' && !preview && (
+          <motion.div className="ritual-coal-glow" variants={spectacleBurstVariants}
+            initial="hidden" animate="visible" />
+        )}
       </div>
-      {!preview && !shouldReduceMotion ? (
-        <>
-          <div className="ritual-shockwave" aria-hidden="true" />
-          <div className="ritual-sparks" aria-hidden="true">
-            <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
-          </div>
-          <div className="ritual-ash-fall" aria-hidden="true">
-            <i /><i /><i /><i /><i /><i /><i /><i />
-          </div>
-          <div className="ritual-embers" aria-hidden="true">
-            <i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
-          </div>
-        </>
-      ) : null}
-
-      {/* ── Spectacle burst ring — every Fire gets a pulse; specials scale up. ── */}
-      {!shouldReduceMotion && phase === 'complete' && !preview ? (
-        <AnimatePresence>
-          <motion.div
-            key="spectacle-burst"
-            className="ritual-spectacle-burst"
-            aria-hidden="true"
-            style={{ '--burst-scale': variantConfig.burstScale } as React.CSSProperties}
-            variants={spectacleBurstVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <i /><i /><i /><i /><i /><i /><i /><i />
-          </motion.div>
-        </AnimatePresence>
-      ) : null}
-
       {/* ── Central stage is visual-only; the concise live copy above owns announcements. ── */}
       <div className="ritual-stage" aria-hidden="true">
         {isSpecial ? (
@@ -168,7 +143,9 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
                   ? '✦ レア ✦'
                   : '✦ 特別 ✦'}
             </span>
-            <span className="spectacle-type-name">{spectacle.label}</span>
+            <span className="spectacle-type-name">
+              <FlameArtwork spectacle={spectacle} size={21} motion="glimpse" />{spectacle.label}
+            </span>
           </div>
         ) : null}
 

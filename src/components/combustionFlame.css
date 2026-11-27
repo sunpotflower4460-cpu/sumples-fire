@@ -1,0 +1,28 @@
+.combustion-flame {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  width: var(--flame-size);
+  max-width: 100%;
+  aspect-ratio: 1;
+  vertical-align: middle;
+  isolation: isolate;
+}
+
+.combustion-flame > *,
+.combustion-plume img {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.combustion-plume {
+  transform-origin: 50% 83%;
+}
+
+.combustion-coals {
+  z-index: 1;
+}

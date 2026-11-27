@@ -50,37 +50,20 @@
 .campfire-firebed {
   position: relative;
   z-index: 1;
-  display: block;
-  width: min(135px, 100%);
+  display: grid;
+  place-items: end center;
   height: 100%;
-  max-height: 124px;
+  max-height: 148px;
+  aspect-ratio: 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .campfire-firebed g[class] {
-    transform-box: view-box;
-    transform-origin: 60px 90px;
-    animation: campfire-draft 1.65s ease-in-out infinite;
-  }
-
-  .campfire-firebed .campfire-back-tongue {
-    animation-duration: 2.13s;
-    animation-delay: -.68s;
-    animation-direction: reverse;
-  }
-
-  .campfire-firebed .campfire-front-tongue {
-    animation-duration: 1.29s;
-    animation-delay: -.52s;
-  }
+.campfire-firebed .combustion-flame {
+  display: grid;
+  max-width: 100%;
+  height: 100%;
 }
 
-@keyframes campfire-draft {
-  0%, 100% { transform: skewX(-2deg) scale(1); }
-  27% { transform: skewX(3deg) scale(.94, 1.055); }
-  60% { transform: skewX(-3deg) scale(1.04, .93); }
-  82% { transform: skewX(1deg) scale(.98, 1.02); }
-}
+.campfire-firebed .combustion-plume { transform: scale(var(--campfire-scale)); }
 
 /* ── Embers ── */
 .campfire-embers {
@@ -246,39 +229,16 @@
 }
 
 .spectacle-type-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .38em;
   font-size: 1.8rem;
   font-weight: 900;
   letter-spacing: -0.04em;
   color: var(--particle, #e8b923);
   text-shadow: 0 0 28px var(--bg-glow, rgba(232,185,35,0.45)), 0 0 55px var(--bg-glow, rgba(255,154,61,0.25));
 }
-
-/* ── Spectacle burst particles (for special effects) ── */
-.ritual-spectacle-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9;
-}
-
-.ritual-spectacle-burst i {
-  position: absolute;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--particle, #ffcc40);
-  box-shadow: 0 0 8px 3px var(--particle-shadow, rgba(255,200,50,0.9));
-  will-change: transform, opacity;
-  animation: spectacleBurstParticle var(--dur, 1.2s) cubic-bezier(0.2,0.8,0.4,1) var(--del, 0s) both;
-}
-
-.ritual-spectacle-burst i:nth-child(1) { --dur:0.55s; --del:0.00s; top:45%; left:50%; --bx:-80px; --by:-120px; width:8px; height:8px; }
-.ritual-spectacle-burst i:nth-child(2) { --dur:0.58s; --del:0.02s; top:48%; left:50%; --bx: 80px; --by:-110px; }
-.ritual-spectacle-burst i:nth-child(3) { --dur:0.52s; --del:0.04s; top:46%; left:50%; --bx:-120px; --by:-60px; width:5px; height:5px; }
-.ritual-spectacle-burst i:nth-child(4) { --dur:0.6s;  --del:0.01s; top:47%; left:50%; --bx: 110px; --by:-80px; }
-.ritual-spectacle-burst i:nth-child(5) { --dur:0.54s; --del:0.03s; top:44%; left:50%; --bx: -60px; --by:-140px; width:7px; height:7px; }
-.ritual-spectacle-burst i:nth-child(6) { --dur:0.57s; --del:0.02s; top:49%; left:50%; --bx:  70px; --by:-130px; }
-.ritual-spectacle-burst i:nth-child(7) { --dur:0.5s;  --del:0.05s; top:45%; left:50%; --bx:-100px; --by:-90px; width:5px; height:5px; }
-.ritual-spectacle-burst i:nth-child(8) { --dur:0.56s; --del:0.03s; top:47%; left:50%; --bx: 130px; --by:-70px; }
 
 /* ══════════════════════════════════════════════════════
    Momentum effects on task cards
@@ -366,13 +326,6 @@
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-@keyframes spectacleBurstParticle {
-  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
-  15%  { opacity: 1; transform: translate(calc(var(--bx,0px)*.15), calc(var(--by,0px)*.15)) scale(1.2); }
-  60%  { opacity: 0.8; transform: translate(calc(var(--bx,0px)*.6), calc(var(--by,0px)*.6)) scale(0.7); }
-  100% { opacity: 0; transform: translate(var(--bx,0px), var(--by,0px)) scale(0.1); }
-}
-
 @keyframes momentumCardBreath {
   0%, 100% { box-shadow: 0 18px 46px rgba(108,48,14,0.09), 0 0 0 1px rgba(255,140,50,0.18); }
   50%       { box-shadow: 0 18px 46px rgba(108,48,14,0.12), 0 0 0 1px rgba(255,160,60,0.28), 0 0 16px rgba(255,120,30,0.08); }
@@ -399,7 +352,6 @@
   .streak-flame-icon,
   .campfire-craving-copy,
   .ritual-spectacle-label,
-  .ritual-spectacle-burst i,
   .fire-card {
     animation: none !important;
     transition-duration: 0.01ms !important;

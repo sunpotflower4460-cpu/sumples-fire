@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { FlameArtwork } from '../../components/FlameArtwork';
+import { CombustionFlame } from '../../components/CombustionFlame';
 import { applyCampfirePreset } from '../campfireSets';
 import { COPY } from '../plusCopy';
 import { sceneSettingsOf } from '../plusPreferences';
@@ -8,7 +8,6 @@ import type { PlusRoute } from '../plusStore';
 import { usePlus } from '../usePlus';
 import { PlusDialog } from './PlusDialog';
 import { PurchaseButton, PurchaseStatus } from './PurchaseStatus';
-import { getFlame } from '../flames';
 import type { FlameId } from '../flames';
 import { SCENES } from '../scenes';
 
@@ -45,7 +44,7 @@ export function PlusIntroScreen() {
   const draftedFlame: FlameId = state.flameDraft?.flameMode === 'fixed'
     ? state.flameDraft.fixedFlame
     : state.flameDraft?.favoriteFlames[0] ?? 'aurora';
-  const previewFlame = getFlame(state.presetDraft?.flame ?? draftedFlame);
+  const previewFlame = state.presetDraft?.flame ?? draftedFlame;
   const hasDraft = Boolean(state.flameDraft || state.sceneDraft || state.presetDraft);
 
   const canGoBack = state.routeStack.length > 1;
@@ -88,7 +87,7 @@ export function PlusIntroScreen() {
     >
       {showThanks ? (
         <div className="plus-thanks">
-          <div className="plus-hero-flame"><FlameArtwork spectacle={previewFlame} size={64} /></div>
+          <div className="plus-hero-flame"><CombustionFlame flame={previewFlame} size={64} /></div>
           <h3 ref={thanksRef} tabIndex={-1} className="plus-hero-title">{COPY.thanks}</h3>
           <p className="plus-lead">{state.presetDraft ? `「${state.presetDraft.name}」を適用できます。` : COPY.next}</p>
           <div className="plus-actions">
@@ -115,9 +114,9 @@ export function PlusIntroScreen() {
           <div className="plus-intro-visual" aria-hidden="true">
             <img src={SCENES.aurora.artwork} alt="" />
             <div className="plus-hero-flame">
-              <FlameArtwork spectacle={getFlame('daybreak')} size={50} />
-              <FlameArtwork spectacle={getFlame('aurora')} size={82} />
-              <FlameArtwork spectacle={getFlame('lotus')} size={50} />
+              <CombustionFlame flame="daybreak" size={50} />
+              <CombustionFlame flame="aurora" size={82} />
+              <CombustionFlame flame="lotus" size={50} />
             </div>
           </div>
           <h3 className="plus-hero-title">{COPY.headline}</h3>

@@ -286,7 +286,7 @@
   background: #101d22;
 }
 
-.plus-intro-visual img {
+.plus-intro-visual > img {
   position: absolute;
   z-index: -2;
   width: 100%;
@@ -311,7 +311,7 @@
   filter: drop-shadow(0 5px 16px #050c0bcd);
 }
 
-.plus-intro-visual svg:nth-child(2) {
+.plus-intro-visual .combustion-flame:nth-child(2) {
   filter: drop-shadow(0 0 12px #6bf2ba65);
 }
 
@@ -477,10 +477,10 @@
   isolation: isolate;
 }
 
-.plus-flame-stage > svg {
+.plus-flame-stage > .combustion-flame {
   max-width: 82%;
   height: auto;
-  filter: drop-shadow(0 0 18px var(--spotlight-glow));
+  filter: drop-shadow(0 0 5px #e5743329);
 }
 
 .plus-flame-details {
@@ -491,6 +491,9 @@
 }
 
 .plus-flame-details h3 {
+  display: flex;
+  align-items: center;
+  gap: .3em;
   font-size: 1.25rem;
   line-height: 1.25;
 }
@@ -581,7 +584,7 @@
 
 .burning-ritual.is-preview .ritual-artwork {
   place-self: center;
-  width: min(84%, 7.5rem);
+  width: min(94%, 8.5rem);
 }
 
 .is-signature .ritual-spectacle-label .spectacle-rarity-badge {

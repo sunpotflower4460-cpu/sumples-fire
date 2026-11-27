@@ -274,42 +274,40 @@ test.describe('Plus introduction and purchase states', () => {
 });
 
 test.describe('Fire choice', () => {
-  test('each catalog flame has its own drawing and only the spotlight animates', async ({ page }) => {
+  test('all 22 flames have local stills and motion follows the display preference', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await launch(page, {}, { owned: true, fireSoundOff: true });
     await goToTab(page, '設定');
     await page.getByRole('button', { name: '炎を選ぶ', exact: true }).click();
     const picker = plusDialog(page, '炎を選ぶ');
-    const drawings = new Set<string>();
+    const posters = new Set<string>();
     for (const catalog of [/Plus専用/, /おまかせの炎/]) {
       await picker.getByRole('radio', { name: catalog }).check();
       const cards = picker.getByRole('list', { name: '炎の一覧' }).getByRole('button');
-      for (const card of await cards.evaluateAll((items) => items.map((item) => {
-        const svg = item.querySelector('svg')!;
-        return {
-          id: item.getAttribute('data-flame-id'),
-          artId: svg.dataset.flame,
-          paths: Array.from(svg.querySelectorAll('path'), (p) => p.getAttribute('d')).join(' '),
-          playing: Array.from(svg.querySelectorAll('g'), (g) => getComputedStyle(g).animationName)
-            .some((name) => name !== 'none'),
-        };
-      }))) {
-        expect(card.artId).toBe(card.id);
-        expect(card.paths.length).toBeGreaterThan(0);
-        expect(card.playing).toBe(false);
-        drawings.add(card.paths);
+      for (const card of await cards.all()) {
+        const id = await card.getAttribute('data-flame-id');
+        const artwork = card.locator('.combustion-flame');
+        await expect(artwork).toHaveAttribute('data-flame', id!);
+        await expect(artwork.locator('source')).toHaveCount(0);
+        const src = await artwork.locator('picture img').evaluate(async (img: HTMLImageElement) => {
+          await img.decode();
+          return img.currentSrc;
+        });
+        expect(src).toContain(id + '-still');
+        posters.add(src);
       }
     }
-    expect(drawings.size).toBe(22);
+    expect(posters.size).toBe(22);
     await picker.locator('[data-flame-id="phoenixRise"]').click();
-    const wing = picker.locator('.plus-flame-stage > svg [data-action="open-left"]');
-    await expect(wing).toHaveCSS('animation-name', 'flame-open-left');
+    const live = picker.locator('.plus-flame-stage > .combustion-flame picture img');
+    await expect(live).toHaveJSProperty('naturalWidth', 288);
+    await expect.poll(() => live.evaluate((img: HTMLImageElement) => img.currentSrc)).toContain('phoenixRise-live');
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await expect(wing).toHaveCSS('animation-name', 'none');
+    await expect.poll(() => live.evaluate((img: HTMLImageElement) => img.currentSrc)).toContain('phoenixRise-still');
     await picker.getByRole('button', { name: '試し見', exact: true }).click();
-    const preview = picker.locator('.ritual-artwork svg[data-flame="phoenixRise"]');
+    const preview = picker.locator('.ritual-artwork [data-flame="phoenixRise"] picture img');
     await expect(preview).toBeVisible();
-    await expect(preview.locator('[data-action="open-left"]')).toHaveCSS('animation-name', 'none');
+    await expect.poll(() => preview.evaluate((img: HTMLImageElement) => img.currentSrc)).toContain('phoenixRise-still');
   });
 
   test('試し見 changes no record: tasks, ash, streak and preferences stay byte-identical', async ({ page }) => {
@@ -377,7 +375,7 @@ test.describe('Fire choice', () => {
 
     await goToTab(page, '今日');
     await fireButton(page, '蓮の灯で燃やす').click();
-    await expect(page.locator('.burning-ritual.spectacle-lotus .ritual-artwork svg[data-flame="lotus"]')).toBeVisible();
+    await expect(page.locator('.burning-ritual.spectacle-lotus .ritual-artwork .combustion-flame[data-flame="lotus"]')).toBeVisible();
     await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
     expect(await readTotalAsh(page)).toBe(5); // the flame never changes the reward
 

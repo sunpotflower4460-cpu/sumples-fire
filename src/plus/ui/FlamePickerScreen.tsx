@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { CombustionFlame } from '../../components/CombustionFlame';
 import { FlameArtwork } from '../../components/FlameArtwork';
 import { isPlusBurnSpectacle, PLUS_BURN_TYPES } from '../../lib/fireBurnSpectacle';
 import { AUTO_FLAME_IDS, FLAME_IDS, getFlameEntry } from '../flames';
@@ -160,11 +161,11 @@ export function FlamePickerScreen() {
         style={{ '--spotlight-glow': active.spectacle.bgGlowColor } as CSSProperties}
       >
         <div className="plus-flame-stage">
-          <FlameArtwork key={activeId} spectacle={active.spectacle} size={104} motion="glimpse" />
+          <CombustionFlame key={activeId} flame={activeId} size={128} motion={preview.playing ? 'still' : 'glimpse'} />
           {preview.layer}
         </div>
         <div className="plus-flame-details">
-          <h3 id={`${headingId}-spotlight`}>{active.label}</h3>
+          <h3 id={`${headingId}-spotlight`}><FlameArtwork spectacle={active.spectacle} size={18} />{active.label}</h3>
           <p className="plus-help">{active.description}</p>
           <button
             type="button"
@@ -208,7 +209,7 @@ export function FlamePickerScreen() {
                 disabled={saving}
                 style={{ '--spotlight-glow': flame.spectacle.bgGlowColor } as CSSProperties}
               >
-                <FlameArtwork spectacle={flame.spectacle} size={42} />
+                <CombustionFlame flame={id} size={46} />
                 <span className="plus-flame-name">{flame.label}</span>
                 {selected ? <span className="plus-flame-check" aria-hidden="true">✓</span> : null}
               </button>
