@@ -22,7 +22,6 @@ export function PlusSettingsCard() {
     scene: SCENES[scene].label,
     sets: '',
     monthly: '年間表示',
-    intro: '',
   };
 
   const restoreMessage = store.restore === 'restored' ? COPY.storeRestored
@@ -73,6 +72,11 @@ export function PlusSettingsCard() {
           </button>
         </>
       )}
+
+      <button type="button" className="plus-link"
+        onClick={(event) => plusStore.openScreen('guide', event.currentTarget)}>
+        {COPY.guideLink}
+      </button>
 
       <p className="plus-status" role="status" aria-live="polite">
         {store.revokedNotice ? COPY.storeRevoked : restoreMessage}

@@ -7,6 +7,8 @@ import { SCENE_IDS } from './scenes';
 
 export const COPY = {
   name: 'Fire Task Plus',
+  guideTitle: 'Fire Task Plusの紹介',
+  guideLink: '紹介ページを見る',
   headline: '好きな炎で、今日を終える。',
   benefitFlameTitle: '好きな炎を選ぶ',
   benefitFlameBody: `Plus専用の${PLUS_BURN_TYPES.length}種類を含む、全${FLAME_IDS.length}種類。`,

@@ -123,6 +123,75 @@ test.describe('free experience is untouched', () => {
 });
 
 test.describe('Plus introduction and purchase states', () => {
+  test('the bundled guide opens from Settings and the purchase sheet before buying', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await launch(page, { price: '¥1,000' });
+    await page.evaluate(() => { document.documentElement.style.fontSize = '20px'; });
+    await goToTab(page, '設定');
+    const link = page.getByRole('button', { name: '紹介ページを見る', exact: true });
+    await link.click();
+    const guide = plusDialog(page, 'Fire Task Plusの紹介');
+    await expect(guide.getByRole('heading', { name: '22種類の炎を見比べる。' })).toBeVisible();
+    await guide.getByRole('button', { name: '閉じる', exact: true }).click();
+    await expect(link).toBeFocused();
+
+    const intro = await openIntro(page);
+    const pref = await stored(page, PREFS_KEY);
+    await intro.getByRole('button', { name: '紹介ページを見る' }).click();
+    const left = guide.getByRole('combobox', { name: '左の炎' });
+    const right = guide.getByRole('combobox', { name: '右の炎' });
+    await expect(left.locator('option')).toHaveCount(22);
+    await expect(left).toHaveValue('lantern');
+    await expect(right).toHaveValue('magma');
+    const layout = await guide.locator('.plus-dialog-body').evaluate((body) => {
+      const bounds = body.getBoundingClientRect();
+      const plates = [...body.querySelectorAll('[data-guide-flame] picture')].map((el) => el.getBoundingClientRect());
+      return {
+        scrollsHorizontally: body.scrollWidth > body.clientWidth,
+        bothFit: plates.length === 2 && plates.every((plate) => plate.width > 0 && plate.left >= bounds.left && plate.right <= bounds.right),
+        baselineDifference: Math.abs(plates[0].bottom - plates[1].bottom),
+      };
+    });
+    expect(layout.scrollsHorizontally).toBe(false);
+    expect(layout.bothFit).toBe(true);
+    expect(layout.baselineDifference).toBeLessThan(1);
+    await left.selectOption('magma');
+    await expect(right).toHaveValue('lantern');
+    await left.selectOption({ label: '希望の灯' });
+    await expect(guide.locator('[data-guide-flame="voidFire"] picture img')).toHaveJSProperty('naturalWidth', 288);
+    await guide.getByRole('link', { name: '動画', exact: true }).click();
+    const videos = guide.locator('video');
+    await expect(videos).toHaveCount(2);
+    const origin = new URL(page.url()).origin;
+    for (const video of await videos.all()) {
+      expect(new URL((await video.getAttribute('src'))!, page.url()).origin).toBe(origin);
+    }
+    await guide.getByRole('button', { name: '戻る', exact: true }).click();
+    await expect(intro.getByRole('button', { name: '¥1,000でPlusを購入' })).toBeEnabled();
+    expect(await stored(page, PREFS_KEY)).toBe(pref);
+    expect(await control(page).calls()).not.toContain('purchase');
+  });
+
+  test('a saved voidFire still works under the new name and owners can revisit the guide', async ({ page }) => {
+    const prefs = { version: 1, flameMode: 'fixed', fixedFlame: 'voidFire', favoriteFlames: ['voidFire'], lastRealFlame: 'voidFire' };
+    await launch(page, {}, { owned: true, storage: { [PREFS_KEY]: JSON.stringify(prefs) } });
+    await goToTab(page, '設定');
+    const settings = page.getByRole('region', { name: 'Fire Task Plus' });
+    await expect(settings.getByRole('button', { name: '炎を選ぶ' })).toContainText('希望の灯');
+    await settings.getByRole('button', { name: '紹介ページを見る' }).click();
+    const guide = plusDialog(page, 'Fire Task Plusの紹介');
+    await guide.getByText('全22種類の炎を一覧で見る', { exact: true }).click();
+    await expect(guide.getByRole('heading', { name: 'Plus専用・13種類' })).toBeVisible();
+    await expect(guide.getByRole('listitem').getByText('希望の灯', { exact: true })).toBeVisible();
+    await guide.getByRole('button', { name: '閉じる', exact: true }).click();
+    await settings.getByRole('button', { name: '炎を選ぶ' }).click();
+    const picker = plusDialog(page, '炎を選ぶ');
+    await expect(picker.getByRole('heading', { name: '希望の灯' })).toBeVisible();
+    await picker.getByRole('button', { name: '試し見', exact: true }).click();
+    await expect(picker.locator('.is-preview.spectacle-voidFire')).toBeVisible();
+    expect(await storedJson(page, PREFS_KEY)).toMatchObject(prefs);
+  });
+
   test('shows the real price from the store, the one-time note, and what restore does and does not do', async ({ page }) => {
     await launch(page, { price: '¥1,000' });
     const dialog = await openIntro(page);

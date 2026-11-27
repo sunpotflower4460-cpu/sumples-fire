@@ -125,7 +125,7 @@ realistic flame distortion.
 | 爆炎 (heavy/boss) | 10 % / 3 %    | —            |
 | 鉄の火        | 3 %              | +0.15 / streak |
 | 龍の炎        | 2 %              | +0.2 / streak |
-| 虚空の火       | 1.5 %            | +0.1 / streak |
+| 希望の灯       | 1.5 %            | +0.1 / streak |
 | フェニックス  | 0.4 % (boss: 2 %) | —           |
 
 Implemented in `src/lib/fireBurnSpectacle.ts → selectBurnSpectacle()`.

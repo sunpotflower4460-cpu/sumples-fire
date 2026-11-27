@@ -498,6 +498,13 @@
   line-height: 1.25;
 }
 
+.plus-flame-trait {
+  margin: 0;
+  font-size: .875rem;
+  font-weight: 700;
+  color: var(--plus-accent);
+}
+
 .plus-preview-trigger {
   width: auto;
   padding-inline: 0.875rem;
@@ -1389,4 +1396,10 @@
   padding-inline: 0.5rem;
   font-size: 0.9375rem;
   line-height: 1.35;
+}
+
+
+[data-plus-screen='guide'] .plus-dialog-body { display: block; padding: 0; }
+[data-plus-screen='guide'] .plus-dialog-header {
+  padding-inline: max(.75rem, env(safe-area-inset-left)) max(.75rem, env(safe-area-inset-right));
 }

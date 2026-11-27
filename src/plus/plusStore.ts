@@ -16,7 +16,7 @@ import { canStartPurchase, initialStoreState, isPlusActive, storeReducer } from 
 import type { PlusStoreState, StoreAction } from './storeState';
 
 /** The Plus screens. Only one is shown at a time; the rest of the stack waits underneath. */
-export type PlusRoute = 'intro' | 'flames' | 'scene' | 'sets' | 'monthly';
+export type PlusRoute = 'guide' | 'intro' | 'flames' | 'scene' | 'sets' | 'monthly';
 
 export type SaveResult =
   | { ok: true }

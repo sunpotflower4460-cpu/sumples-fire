@@ -19,7 +19,7 @@ const BENEFITS: { route: PlusRoute; title: string; body: string }[] = [
 ];
 
 /** Where the Plus screens can be entered once the person owns Plus. */
-export const PLUS_ENTRIES: { route: PlusRoute; label: string }[] = [
+export const PLUS_ENTRIES: { route: Exclude<PlusRoute, 'intro' | 'guide'>; label: string }[] = [
   { route: 'flames', label: '炎を選ぶ' },
   { route: 'scene', label: '焚き火を整える' },
   { route: 'sets', label: COPY.setsTitle },
@@ -137,6 +137,9 @@ export function PlusIntroScreen() {
           </ul>
 
           <div className="plus-purchase-area">
+            <button type="button" className="plus-secondary" onClick={() => plusStore.openScreen('guide')}>
+              {COPY.guideLink}
+            </button>
             {entitled ? (
               <p className="plus-owned" role="status">
                 <span className="plus-badge">{COPY.purchased}</span>

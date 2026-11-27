@@ -124,10 +124,36 @@ const AUTO_DESCRIPTIONS: Record<AutoBurnSpectacleType, string> = {
   golden: '黄金色の火が重なり合い、奥から明るい芯がのぞく。',
   explosion: '幅のある朱色の火が一気にふくらみ、端からほぐれる。',
   dragon: '紫がかった朱の炎が、横風を受けて長くうねる。',
-  cherry: '桜色の火が低くゆらぎ、最後に花びらが舞い落ちる。',
+  cherry: '桜色の火が左になびき、最後に花びらが舞い落ちる。',
   ironFire: '鋼色の細い炎が高く立ち、切れた先だけ白く光る。',
-  voidFire: '濃い紫の火がよじれ、細かな光が火元に吸い込まれる。',
+  voidFire: '紫の火が寄り添って立ち上がり、その間に淡い金の芯が光る。',
   phoenixRise: '紅と金の火が左右で別々に立ち上がり、羽根の火の粉が昇る。',
+};
+
+/** Short silhouettes for comparing two flames at the same scale. */
+export const FLAME_TRAITS: Record<FlameId, string> = {
+  normal: '橙の一筋、揺れる火先',
+  blueGhost: '細く漂う青い尾',
+  golden: 'ふっくら重なる金の火',
+  explosion: '大きく弾ける朱の火',
+  dragon: '長くうねる朱紫の火',
+  cherry: '左になびく桜色の火',
+  ironFire: '刃のような銀白の芯',
+  voidFire: '寄り添う紫と淡い金の芯',
+  phoenixRise: '左右にひらく二筋の火',
+  aurora: '幾重にも揺れる翡翠の膜',
+  moonFrost: '細く澄んだ霜色の火先',
+  firefly: '炭のそばの小さな黄緑',
+  maple: '風に返る朱色の火先',
+  lotus: '花弁のように重なる薄桃',
+  daybreak: '横に広がる琥珀の光',
+  thunder: '折れ曲がる青紫の火先',
+  comet: '斜めに伸びる青緑の尾',
+  magma: '炭を横にはう深紅の火',
+  lantern: 'まっすぐ灯る金色の細芯',
+  seaGlass: '低く波打つ青緑',
+  starRain: '斜めに降る金の火の粉',
+  iris: '高さの違うすみれ色の火',
 };
 
 export type FlameCatalogEntry = {

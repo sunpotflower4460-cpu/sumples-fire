@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/check-release-bundle.mjs",
+    "build:guide": "vite build plus-guide",
     "build:ios": "tsc -b && vite build --mode capacitor && node scripts/check-release-bundle.mjs",
     "typecheck": "tsc -b",
     "lint": "eslint .",

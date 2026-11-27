@@ -115,7 +115,7 @@ export const flameIllustrations: Record<BurnSpectacleType, FlameIllustration> = 
     ],
   },
   voidFire: {
-    accent: '#aba4ff', period: 2.58, flight: 'inward', mark: 'pearl',
+    accent: '#c4a4e8', period: 2.58, flight: 'updraft', mark: 'pearl',
     layers: [
       { motion: 'orbit', pivot: '48px 49px', facet: 'M8 53C6 29 26 11 48 11 31 17 22 28 21 40 29 21 56 16 70 25 42 20 19 37 19 58c0 7 2 13 6 18-9-3-15-12-17-23Z', line: 'M12 30c4-7 10-13 18-17m38 66c8-5 12-11 16-20' },
       { motion: 'spiral', pivot: '48px 49px',

@@ -23,7 +23,7 @@ describe('flame catalog', () => {
     expect(new Set(FLAME_IDS).size).toBe(FLAME_IDS.length);
     expect([...AUTO_FLAME_IDS].sort()).toEqual(Object.keys(spectacles).sort());
     expect(AUTO_FLAME_IDS.map((id) => getFlame(id).label)).toEqual([
-      '炎', '鬼火', '黄金の炎', '爆炎', '龍の炎', '桜の火', '鉄の火', '虚空の火', 'フェニックス',
+      '炎', '鬼火', '黄金の炎', '爆炎', '龍の炎', '桜の火', '鉄の火', '希望の灯', 'フェニックス',
     ]);
     for (const id of PLUS_BURN_TYPES) expect(getFlame(id)).toMatchObject({ type: id, isSpecial: true });
   });

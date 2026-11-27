@@ -5,6 +5,7 @@ import { usePlusState } from '../usePlus';
 import { CampfireSetsScreen } from './CampfireSetsScreen';
 import { FlamePickerScreen } from './FlamePickerScreen';
 import { MonthlyScreen } from './MonthlyScreen';
+import { PlusGuideScreen } from './PlusGuideScreen';
 import { PlusIntroScreen } from './PlusIntroScreen';
 import { SceneEditorScreen } from './SceneEditorScreen';
 import type { FireSeed } from '../../types/fireSeed';
@@ -53,6 +54,8 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
   }, [top]);
 
   switch (top) {
+    case 'guide':
+      return <PlusGuideScreen canGoBack={routeStack.length > 1} />;
     case 'intro':
       return <PlusIntroScreen key="intro" />;
     case 'flames':
