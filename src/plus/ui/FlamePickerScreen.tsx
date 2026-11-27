@@ -160,7 +160,7 @@ export function FlamePickerScreen() {
         style={{ '--spotlight-glow': active.spectacle.bgGlowColor } as CSSProperties}
       >
         <div className="plus-flame-stage">
-          <FlameArtwork spectacle={active.spectacle} size={104} />
+          <FlameArtwork key={activeId} spectacle={active.spectacle} size={104} motion="glimpse" />
           {preview.layer}
         </div>
         <div className="plus-flame-details">

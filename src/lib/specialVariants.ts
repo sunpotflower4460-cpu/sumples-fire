@@ -35,11 +35,7 @@ export const overlayVariants: Variants = {
   exit:    { opacity: 0, transition: { duration: 0.45, ease: CARBONIZE_EASE } },
 };
 
-/**
- * Title text variants keyed to BurnPhase values.
- * Note: does NOT include a CSS `filter` property so that the SVG
- * displacement filter applied to a wrapper element does not conflict.
- */
+/** Title text variants keyed to the four burn phases. */
 export const titleVariants: Variants = {
   ignite: {
     opacity: 1,

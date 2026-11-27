@@ -566,127 +566,26 @@
   line-height: 1;
 }
 
-/* Inline audition uses the same ritual within the artwork area. */
+/* The audition follows all four ritual phases inside the catalog's illustration panel. */
 .burning-ritual.is-preview {
   position: absolute;
   z-index: 2;
+  grid-template-rows: 1fr;
+  gap: 0;
+  padding: 0;
 }
 
-.burning-ritual.is-preview .ritual-stage,
-.burning-ritual.is-preview .ritual-heat-haze,
-.burning-ritual.is-preview .ritual-shockwave {
+.burning-ritual.is-preview .ritual-stage {
   display: none;
 }
 
-.burning-ritual.is-preview .ritual-flames {
-  height: 100%;
-  transform: scaleY(0.28);
-  transform-origin: center bottom;
-}
-
-.burning-ritual.is-preview .ritual-flames i {
-  width: 13%;
-}
-
-.burning-ritual.is-signature .ritual-bg {
-  background:
-    radial-gradient(ellipse 86% 54% at 50% 92%, var(--bg-glow), transparent 85%),
-    radial-gradient(ellipse at 50% 90%, var(--flame-a), transparent 64%),
-    #0a090d;
-  animation: none;
-}
-
-.burning-ritual.is-signature .ritual-flames i {
-  background: linear-gradient(0deg, var(--flame-a), var(--flame-b) 34%, var(--flame-c) 62%, transparent 96%);
-}
-
-.burning-ritual.is-signature .ritual-embers i {
-  background: radial-gradient(circle at 35% 30%, var(--flame-c), var(--flame-b));
+.burning-ritual.is-preview .ritual-artwork {
+  place-self: center;
+  width: min(84%, 7.5rem);
 }
 
 .is-signature .ritual-spectacle-label .spectacle-rarity-badge {
   color: var(--flame-c);
-  border-color: var(--flame-b);
-  background: #151217;
-}
-
-.ritual-signature {
-  position: absolute;
-  z-index: 6;
-  left: 50%;
-  bottom: 4%;
-  width: min(70%, 22rem, 43vh);
-  opacity: 0.45;
-  transform: translateX(-50%);
-  transition: opacity 0.4s ease-out;
-  pointer-events: none;
-}
-
-.ritual-signature svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 0 18px var(--bg-glow));
-  transform-origin: center 80%;
-  animation: plus-flame-rise var(--motif-time, 1.5s) ease-in-out infinite alternate;
-}
-
-.ritual-phase-burning .ritual-signature {
-  opacity: 1;
-}
-
-.ritual-phase-carbonizing .ritual-signature,
-.ritual-phase-complete .ritual-signature {
-  opacity: 0.2;
-}
-
-.burning-ritual.is-preview .ritual-signature {
-  bottom: 12%;
-  width: min(76%, 6.75rem);
-}
-
-.spectacle-aurora { --motif-skew: 9deg; --motif-height: 8%; --motif-time: 1.85s; }
-.spectacle-moonFrost { --motif-turn: 8deg; --motif-height: 5%; --motif-time: 1.7s; }
-.spectacle-firefly { --motif-height: 15%; --motif-time: 1.9s; }
-.spectacle-maple { --motif-turn: -21deg; --motif-x: 10%; --motif-time: 1.2s; }
-.spectacle-lotus { --motif-wide: 1.14; --motif-height: 3%; --motif-time: 1.6s; }
-.spectacle-daybreak { --motif-wide: 1.08; --motif-height: 12%; --motif-time: 1.7s; }
-.spectacle-thunder { --motif-skew: -6deg; --motif-time: 0.72s; }
-.spectacle-comet { --motif-x: 22%; --motif-height: 23%; --motif-time: 1.35s; }
-.spectacle-magma { --motif-wide: 1.05; --motif-height: 7%; --motif-time: 1.25s; }
-.spectacle-lantern { --motif-turn: 5deg; --motif-height: 12%; --motif-time: 2s; }
-.spectacle-seaGlass { --motif-skew: 8deg; --motif-x: 8%; --motif-time: 1.75s; }
-.spectacle-starRain { --motif-x: -13%; --motif-height: 9%; --motif-time: 1.4s; }
-.spectacle-iris { --motif-wide: 1.18; --motif-height: 7%; --motif-time: 1.65s; }
-
-.spectacle-thunder .ritual-signature .flame-artwork-trace {
-  stroke-dasharray: 170;
-  animation: plus-flame-trace 1.15s ease-out both;
-}
-
-.spectacle-firefly .ritual-signature .flame-artwork-body {
-  animation: plus-firefly-shimmer 1.1s ease-in-out infinite alternate;
-}
-
-@keyframes plus-flame-rise {
-  from { transform: scale(0.88) translateY(5%); }
-  to {
-    transform:
-      translate(var(--motif-x, 0%), calc(-1 * var(--motif-height, 4%)))
-      skewX(var(--motif-skew, 0deg))
-      rotate(var(--motif-turn, 0deg))
-      scaleX(var(--motif-wide, 1));
-  }
-}
-
-@keyframes plus-flame-trace {
-  from { stroke-dashoffset: 170; }
-  to { stroke-dashoffset: 0; }
-}
-
-@keyframes plus-firefly-shimmer {
-  from { opacity: 0.56; }
-  to { opacity: 1; }
 }
 
 /* ── Settings card ── */
@@ -1122,28 +1021,6 @@
   background: radial-gradient(ellipse at 50% 52%, #ffa05b55, #a3471b20 46%, transparent 72%);
   transform: translateX(-50%);
   content: '';
-}
-
-.plus-scene .campfire-flames {
-  left: calc(50% - 4px);
-}
-
-.plus-scene .campfire-flame {
-  border-radius: 70% 38% 45% 36% / 86% 70% 38% 31%;
-  background:
-    radial-gradient(ellipse at 48% 76%, #fff0bd 0%, #ffd17c 24%, transparent 66%),
-    linear-gradient(to top, var(--flame-a), var(--flame-b) 35%, var(--flame-c) 62%, transparent 97%);
-  filter: blur(1.4px);
-}
-
-.plus-scene .campfire-flame:nth-child(odd) {
-  border-radius: 34% 80% 36% 49% / 88% 94% 25% 38%;
-}
-
-.plus-scene .campfire-log {
-  border: 1px solid #51311c;
-  background: repeating-linear-gradient(5deg, #3e271d, #3e271d 2px, #281910 4px);
-  box-shadow: 0 -1px 2px #cb6c3b75;
 }
 
 .plus-scene-caption {

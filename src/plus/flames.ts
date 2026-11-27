@@ -34,21 +34,21 @@ const PLUS_DESIGNS: Record<PlusBurnSpectacleType, FlameDesign> = {
   },
   moonFrost: {
     label: '月霜の炎',
-    description: '月白の火と、霜の結晶が立ちのぼる。',
+    description: '三日月の下で、霜の結晶が両側にひらく。',
     message: '月明かりの中に、ひとつの区切りを。',
     colors: ['#334aa0', '#a7d9f8', '#f5fbff'],
     sound: 'metallic',
   },
   firefly: {
     label: '蛍火',
-    description: '金緑の小さな光が、ゆっくり浮かんでは消える。',
+    description: '蛍が草の上を漂い、小さな金緑の光が瞬く。',
     message: '小さな光が、確かな一歩を残した。',
     colors: ['#4c6022', '#c8e967', '#fff9c0'],
     sound: 'soft',
   },
   maple: {
     label: '紅葉の火',
-    description: '朱色の葉が舞い、銅色の火の粉へ変わる。',
+    description: '朱色の葉が風に揺れ、小さな葉が回りながら舞い落ちる。',
     message: '舞い落ちる葉のように、手放した。',
     colors: ['#852322', '#f39840', '#ffe19d'],
     sound: 'normal',
@@ -62,7 +62,7 @@ const PLUS_DESIGNS: Record<PlusBurnSpectacleType, FlameDesign> = {
   },
   daybreak: {
     label: '朝焼けの炎',
-    description: '白金色の弧がひろがり、琥珀の光にほどける。',
+    description: '朝日が稜線からのぞき、琥珀色の光が水面を渡る。',
     message: '今日の仕事から、次の光へ。',
     colors: ['#a34330', '#ffbe70', '#fff4c7'],
     sound: 'golden',
@@ -90,7 +90,7 @@ const PLUS_DESIGNS: Record<PlusBurnSpectacleType, FlameDesign> = {
   },
   lantern: {
     label: '灯籠の火',
-    description: '朱色の灯籠が、内側からゆっくり明るくなる。',
+    description: '朱色の灯籠の中で火芯が揺れ、下の房が静かに振れる。',
     message: '灯をともして、今日の仕事を閉じた。',
     colors: ['#6c2023', '#ff8050', '#fff0ad'],
     sound: 'soft',
@@ -119,15 +119,15 @@ const PLUS_DESIGNS: Record<PlusBurnSpectacleType, FlameDesign> = {
 };
 
 const AUTO_DESCRIPTIONS: Record<AutoBurnSpectacleType, string> = {
-  normal: '橙の火が、勢いよく燃え上がる。',
-  blueGhost: '青白い火の粉が、闇に浮かび上がる。',
-  golden: '金色の光が、画面いっぱいにひろがる。',
-  explosion: '赤い火が一気に燃え、火花が弾ける。',
-  dragon: '深い紫の光の中を、朱の炎が駆け上がる。',
-  cherry: 'やわらかな桜色の火の粉が舞う。',
-  ironFire: '鋼のような青が、白い火花を散らす。',
-  voidFire: '濃い紫の炎が、暗闇へ吸い込まれる。',
-  phoenixRise: '金と白のまばゆい火の粉が立ちのぼる。',
+  normal: '橙の炎が左右に揺れ、内側から金色の火芯が伸びる。',
+  blueGhost: '青白い火がふわりと浮かび、藍色の尾が後を追う。',
+  golden: '金の輪に包まれた菱形の火芯が、ゆっくり脈打つ。',
+  explosion: '赤い火が中心から膨らみ、尖った火花が四方に弾ける。',
+  dragon: '朱色の龍が身をくねらせ、紫の尾が後を追う。',
+  cherry: '淡い桜の花から、ひとひらずつ花びらが舞い落ちる。',
+  ironFire: '鋼色の刃が白く光り、細長い火花が飛び散る。',
+  voidFire: '紫の炎が渦を巻き、光の粒を暗い中心へ引き込む。',
+  phoenixRise: '不死鳥が左右の翼を広げ、羽根の形の火の粉が昇る。',
 };
 
 export type FlameCatalogEntry = {

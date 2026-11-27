@@ -274,6 +274,44 @@ test.describe('Plus introduction and purchase states', () => {
 });
 
 test.describe('Fire choice', () => {
+  test('each catalog flame has its own drawing and only the spotlight animates', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await launch(page, {}, { owned: true, fireSoundOff: true });
+    await goToTab(page, '設定');
+    await page.getByRole('button', { name: '炎を選ぶ', exact: true }).click();
+    const picker = plusDialog(page, '炎を選ぶ');
+    const drawings = new Set<string>();
+    for (const catalog of [/Plus専用/, /おまかせの炎/]) {
+      await picker.getByRole('radio', { name: catalog }).check();
+      const cards = picker.getByRole('list', { name: '炎の一覧' }).getByRole('button');
+      for (const card of await cards.evaluateAll((items) => items.map((item) => {
+        const svg = item.querySelector('svg')!;
+        return {
+          id: item.getAttribute('data-flame-id'),
+          artId: svg.dataset.flame,
+          paths: Array.from(svg.querySelectorAll('path'), (p) => p.getAttribute('d')).join(' '),
+          playing: Array.from(svg.querySelectorAll('g'), (g) => getComputedStyle(g).animationName)
+            .some((name) => name !== 'none'),
+        };
+      }))) {
+        expect(card.artId).toBe(card.id);
+        expect(card.paths.length).toBeGreaterThan(0);
+        expect(card.playing).toBe(false);
+        drawings.add(card.paths);
+      }
+    }
+    expect(drawings.size).toBe(22);
+    await picker.locator('[data-flame-id="phoenixRise"]').click();
+    const wing = picker.locator('.plus-flame-stage > svg [data-action="open-left"]');
+    await expect(wing).toHaveCSS('animation-name', 'flame-open-left');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(wing).toHaveCSS('animation-name', 'none');
+    await picker.getByRole('button', { name: '試し見', exact: true }).click();
+    const preview = picker.locator('.ritual-artwork svg[data-flame="phoenixRise"]');
+    await expect(preview).toBeVisible();
+    await expect(preview.locator('[data-action="open-left"]')).toHaveCSS('animation-name', 'none');
+  });
+
   test('試し見 changes no record: tasks, ash, streak and preferences stay byte-identical', async ({ page }) => {
     await launch(page);
     await addTask(page, '記録に残るタスク');
@@ -339,7 +377,7 @@ test.describe('Fire choice', () => {
 
     await goToTab(page, '今日');
     await fireButton(page, '蓮の灯で燃やす').click();
-    await expect(page.locator('.burning-ritual.spectacle-lotus')).toBeVisible();
+    await expect(page.locator('.burning-ritual.spectacle-lotus .ritual-artwork svg[data-flame="lotus"]')).toBeVisible();
     await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
     expect(await readTotalAsh(page)).toBe(5); // the flame never changes the reward
 
