@@ -172,7 +172,7 @@ const scheduleTone = (
   oscillator.stop(options.start + options.duration + 0.04);
 };
 
-const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S) => {
+const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S, signal?: AbortSignal) => {
   const compressor = context.createDynamicsCompressor();
   compressor.threshold.setValueAtTime(-16, context.currentTime);
   compressor.knee.setValueAtTime(14, context.currentTime);
@@ -187,14 +187,18 @@ const createMaster = (context: AudioContext, durationS = FIRE_SOUND_DURATION_S) 
   gain.connect(context.destination);
 
   const hangMs = Math.ceil(durationS * 1000) + 180;
-  window.setTimeout(() => {
+  const disconnect = () => {
+    window.clearTimeout(timer);
+    signal?.removeEventListener('abort', disconnect);
     try {
       compressor.disconnect();
       gain.disconnect();
     } catch {
       // already torn down
     }
-  }, hangMs);
+  };
+  const timer = window.setTimeout(disconnect, hangMs);
+  signal?.addEventListener('abort', disconnect, { once: true });
 
   return compressor;
 };
@@ -449,12 +453,45 @@ const playPhoenixLayers: SoundDecorator = (context, master, start, clock) => {
   });
 };
 
-const playWithProfile = async (decorate?: SoundDecorator, reduceMotion = false) => {
+const playGlimmerLayers: SoundDecorator = (context, master, start, clock) => {
+  [660, 990, 1320].forEach((frequency, index) => {
+    scheduleTone(context, master, {
+      start: start + clock.ignite + index * 0.12 * clock.factor,
+      duration: scaledDuration(0.78, clock.factor),
+      attack: scaledDuration(0.28, clock.factor),
+      frequency, gain: 0.033, type: 'sine',
+    });
+  });
+};
+
+const playBloomLayers: SoundDecorator = (context, master, start, clock) => {
+  [392, 587, 784].forEach((frequency, index) => {
+    scheduleTone(context, master, {
+      start: start + clock.carbonizing + index * 0.065 * clock.factor,
+      duration: scaledDuration(0.54, clock.factor),
+      attack: scaledDuration(0.12, clock.factor),
+      frequency, gain: 0.035, type: 'sine',
+    });
+  });
+};
+
+const playSurgeLayers: SoundDecorator = (context, master, start, clock) => {
+  scheduleNoise(context, master, {
+    start: start + clock.ignite, duration: scaledDuration(0.21, clock.factor),
+    frequency: 1700, gain: 0.16, pan: -0.4,
+  });
+  scheduleTone(context, master, {
+    start: start + clock.ignite, duration: scaledDuration(0.52, clock.factor),
+    frequency: 132, endFrequency: 42, gain: 0.18, type: 'triangle',
+  });
+};
+
+const playWithProfile = async (decorate?: SoundDecorator, reduceMotion = false, signal?: AbortSignal) => {
   const context = await getAudioContext();
-  if (!context) return false;
+  if (!context || signal?.aborted) return false;
 
   const clock = getSoundClock(reduceMotion);
-  const master = createMaster(context, clock.complete);
+  const master = createMaster(context, clock.complete, signal);
   const start = context.currentTime + 0.012;
   playCoreRitual(context, master, start, clock);
   decorate?.(context, master, start, clock);
@@ -496,26 +533,33 @@ export const warmUpFireSound = async () => {
 export const playSpectacleSequence = async (
   profile: BurnSpectacleSound,
   reduceMotion = false,
+  signal?: AbortSignal,
 ) => {
   switch (profile) {
     case 'ethereal':
-      return playWithProfile(playEtherealLayers, reduceMotion);
+      return playWithProfile(playEtherealLayers, reduceMotion, signal);
     case 'golden':
-      return playWithProfile(playGoldenLayers, reduceMotion);
+      return playWithProfile(playGoldenLayers, reduceMotion, signal);
     case 'explosive':
-      return playWithProfile(playExplosiveLayers, reduceMotion);
+      return playWithProfile(playExplosiveLayers, reduceMotion, signal);
     case 'dragon':
-      return playWithProfile(playDragonLayers, reduceMotion);
+      return playWithProfile(playDragonLayers, reduceMotion, signal);
     case 'soft':
-      return playWithProfile(playSoftLayers, reduceMotion);
+      return playWithProfile(playSoftLayers, reduceMotion, signal);
     case 'metallic':
-      return playWithProfile(playMetallicLayers, reduceMotion);
+      return playWithProfile(playMetallicLayers, reduceMotion, signal);
     case 'void':
-      return playWithProfile(playVoidLayers, reduceMotion);
+      return playWithProfile(playVoidLayers, reduceMotion, signal);
     case 'phoenix':
-      return playWithProfile(playPhoenixLayers, reduceMotion);
+      return playWithProfile(playPhoenixLayers, reduceMotion, signal);
+    case 'glimmer':
+      return playWithProfile(playGlimmerLayers, reduceMotion, signal);
+    case 'bloom':
+      return playWithProfile(playBloomLayers, reduceMotion, signal);
+    case 'surge':
+      return playWithProfile(playSurgeLayers, reduceMotion, signal);
     case 'normal':
     default:
-      return playFireSequence(reduceMotion);
+      return playWithProfile(undefined, reduceMotion, signal);
   }
 };

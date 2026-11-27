@@ -23,9 +23,9 @@ const sleep = (ms: number) => new Promise<void>((resolve) => { window.setTimeout
  *
  * Phase timing (full motion):
  *   ignite      (0 – 500 ms)     overlay fades in, title appears
- *   burning     (500 – 1700 ms)  intense flames, text distortion, particles
+ *   burning     (500 – 1700 ms)  filmed flames reach full height
  *   carbonizing (1700 – 2300 ms) flames settle, edges char, brightness dims
- *   complete    (2300 – 3000 ms) reward badge pops, spectacle burst
+ *   complete    (2300 – 3000 ms) exposed coals, drifting accents and reward
  *
  * Respects prefers-reduced-motion: all durations scale to 35%, keeping the
  * same semantic phases while reducing the full sequence to about one second.
@@ -46,14 +46,16 @@ export function useBurnSequence() {
     setPhase('ignite');
     await sleep(BURN_TIMING.IGNITE_END * f);
 
+    if (!scope.current) return;
     setPhase('burning');
     await sleep((BURN_TIMING.BURNING_END - BURN_TIMING.IGNITE_END) * f);
 
+    if (!scope.current) return;
     setPhase('carbonizing');
     const carbonizeDurS = 0.6 * f;
     await animate(
-      scope.current,
-      { filter: 'brightness(0.75)' },
+      '.ritual-bg',
+      { opacity: 0.84 },
       { duration: carbonizeDurS, ease: CARBONIZE_EASE },
     );
     const remainingCarbonizeMs = Math.max(
@@ -62,6 +64,7 @@ export function useBurnSequence() {
     );
     await sleep(remainingCarbonizeMs);
 
+    if (!scope.current) return;
     setPhase('complete');
     await sleep((BURN_TIMING.COMPLETE_END - BURN_TIMING.CARBONIZING_END) * f);
   }, [scope, animate, shouldReduceMotion]);
@@ -80,8 +83,8 @@ export type FireParticle = {
 /**
  * useFireParticles — generates the completion particle burst.
  *
- * The hook keeps a defensive cap of 120 particles; current spectacle configs
- * top out at 80. Delays are clustered into the opening milliseconds so every
+ * The hook keeps a defensive cap of 120 particles.
+ * Delays are clustered into the opening milliseconds so every
  * particle can be seen before the complete phase ends.
  */
 export function useFireParticles(count: number) {

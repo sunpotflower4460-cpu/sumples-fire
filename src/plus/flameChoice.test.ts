@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { selectBurnSpectacle, spectacles } from '../lib/fireBurnSpectacle';
-import { pickFavoriteFlame, resolveBurnSpectacle } from './flameChoice';
-import { FLAME_IDS } from './flames';
+import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
+import { pickFlameAvoidingRepeat, resolveBurnSpectacle } from './flameChoice';
+import { AUTO_FLAME_IDS, FLAME_IDS, getFlame } from './flames';
 import { DEFAULT_PLUS_PREFERENCES } from './plusPreferences';
 import type { PlusPreferences } from './plusPreferences';
 
@@ -17,7 +17,7 @@ describe('free automatic selection is unchanged', () => {
     for (let step = 0; step < 4000; step += 1) {
       seen.add(selectBurnSpectacle('boss', 20, () => step / 4000).type);
     }
-    expect([...seen].sort()).toEqual([...FLAME_IDS].sort());
+    expect([...seen].sort()).toEqual([...AUTO_FLAME_IDS].sort());
   });
 
   it('boss tasks make explosion/dragon/phoenix more likely, as before', () => {
@@ -40,7 +40,7 @@ describe('resolveBurnSpectacle', () => {
     const choice = resolveBurnSpectacle({
       ...base,
       entitled: false,
-      preferences: prefs({ flameMode: 'fixed', fixedFlame: 'dragon' }),
+      preferences: prefs({ flameMode: 'fixed', fixedFlame: 'aurora' }),
       random: () => 0,
     });
     expect(choice.source).toBe('auto');
@@ -59,16 +59,16 @@ describe('resolveBurnSpectacle', () => {
         difficulty,
         streak: 12,
         entitled: true,
-        preferences: prefs({ flameMode: 'fixed', fixedFlame: 'cherry' }),
+        preferences: prefs({ flameMode: 'fixed', fixedFlame: 'lotus' }),
         random: Math.random,
       });
       expect(choice).toMatchObject({ source: 'fixed' });
-      expect(choice.spectacle).toBe(spectacles.cherry);
+      expect(choice.spectacle).toBe(getFlame('lotus'));
     }
   });
 
   it('favourites only pick from the chosen set', () => {
-    const chosen = ['cherry', 'golden', 'ironFire'] as const;
+    const chosen = ['cherry', 'aurora', 'magma'] as const;
     for (let step = 0; step < 200; step += 1) {
       const choice = resolveBurnSpectacle({
         ...base,
@@ -83,24 +83,24 @@ describe('resolveBurnSpectacle', () => {
 
   it('with two or more favourites, never repeats the previous real flame', () => {
     for (let step = 0; step < 100; step += 1) {
-      const id = pickFavoriteFlame(['cherry', 'golden'], 'cherry', () => step / 100);
+      const id = pickFlameAvoidingRepeat(['cherry', 'golden'], 'cherry', () => step / 100);
       expect(id).toBe('golden');
     }
     for (let step = 0; step < 100; step += 1) {
-      expect(pickFavoriteFlame(['cherry', 'golden', 'dragon'], 'golden', () => step / 100)).not.toBe('golden');
+      expect(pickFlameAvoidingRepeat(['cherry', 'golden', 'dragon'], 'golden', () => step / 100)).not.toBe('golden');
     }
   });
 
   it('with exactly one favourite it behaves like a fixed flame', () => {
-    expect(pickFavoriteFlame(['dragon'], 'dragon')).toBe('dragon');
-    expect(pickFavoriteFlame(['dragon'], null)).toBe('dragon');
+    expect(pickFlameAvoidingRepeat(['dragon'], 'dragon')).toBe('dragon');
+    expect(pickFlameAvoidingRepeat(['dragon'], null)).toBe('dragon');
   });
 
   it('the remaining favourites are chosen with equal probability', () => {
     const counts: Record<string, number> = { golden: 0, dragon: 0 };
     const draw = seeded([0.01, 0.51, 0.26, 0.76, 0.11, 0.61, 0.41, 0.91]);
     for (let n = 0; n < 8; n += 1) {
-      counts[pickFavoriteFlame(['cherry', 'golden', 'dragon'], 'cherry', draw)] += 1;
+      counts[pickFlameAvoidingRepeat(['cherry', 'golden', 'dragon'], 'cherry', draw)] += 1;
     }
     expect(counts.golden).toBe(4);
     expect(counts.dragon).toBe(4);
@@ -109,5 +109,17 @@ describe('resolveBurnSpectacle', () => {
   it('an empty favourites set safely falls back to automatic', () => {
     const choice = resolveBurnSpectacle({ ...base, entitled: true, preferences: prefs({ flameMode: 'favorites', favoriteFlames: [] }), random: () => 0 });
     expect(choice.source).toBe('auto');
+  });
+
+  it('Plus shuffle reaches all other flames and stays locked without an entitlement', () => {
+    const preferences = prefs({ flameMode: 'shuffle', lastRealFlame: 'iris' });
+    const seen = new Set<string>();
+    for (let step = 0; step < 220; step += 1) {
+      const choice = resolveBurnSpectacle({ ...base, entitled: true, preferences, random: () => step / 220 });
+      expect(choice.source).toBe('shuffle');
+      seen.add(choice.spectacle.type);
+    }
+    expect(seen).toEqual(new Set(FLAME_IDS.filter((id) => id !== 'iris')));
+    expect(resolveBurnSpectacle({ ...base, entitled: false, preferences, random: () => 0.99 }).source).toBe('auto');
   });
 });

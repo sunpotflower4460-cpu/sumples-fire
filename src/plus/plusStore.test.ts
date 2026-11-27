@@ -198,9 +198,8 @@ describe('plusStore — saving preferences', () => {
     const { store, writes } = createStore();
     await store.init(createFakeService({ entitlement: 'entitled' }));
     const result = await store.savePreferences(favorites({ favoriteFlames: [] }));
-    // normalisation turns an empty favourites set back into おまかせ, which is valid and saved as such
-    expect(result.ok === true || result.reason === 'invalid').toBe(true);
-    if (result.ok) expect(parsePlusPreferences(writes[0]).flameMode).toBe('auto');
+    expect(result).toEqual({ ok: false, reason: 'invalid' });
+    expect(writes).toHaveLength(0);
   });
 
   it('commits only after the durable write succeeded', async () => {
@@ -229,6 +228,35 @@ describe('plusStore — saving preferences', () => {
       store.savePreferences(favorites({ favoriteFlames: ['dragon'] })),
     ]);
     expect(parsePlusPreferences(getStored()).favoriteFlames).toEqual(['dragon']);
+  });
+
+  it('preserves other changes when a real Fire lands during a preference save', async () => {
+    const writes: string[] = [];
+    const completions: ((ok: boolean) => void)[] = [];
+    const store = createPlusStore({
+      readPreferences: () => null,
+      writePreferences: (value) => new Promise((resolve) => {
+        writes.push(value);
+        completions.push(resolve);
+      }),
+      createService: async () => createFakeService({ entitlement: 'entitled' }),
+    });
+    await store.init();
+    const saveScene = store.savePreferences({ scene: 'aurora' });
+    await vi.waitFor(() => expect(writes).toHaveLength(1));
+    store.recordRealFlame('comet');
+    const saveFlame = store.savePreferences({ flameMode: 'fixed', fixedFlame: 'lotus' });
+
+    completions[0](true);
+    await saveScene;
+    expect(store.getState().preferences.lastRealFlame).toBe('comet');
+    await vi.waitFor(() => expect(writes).toHaveLength(2));
+    expect(parsePlusPreferences(writes[1])).toMatchObject({ scene: 'aurora', lastRealFlame: 'comet' });
+    completions[1](true);
+    await vi.waitFor(() => expect(writes).toHaveLength(3));
+    completions[2](true);
+    await saveFlame;
+    expect(parsePlusPreferences(writes[2])).toMatchObject({ scene: 'aurora', fixedFlame: 'lotus', lastRealFlame: 'comet' });
   });
 
   it('remembers the last real flame in memory even for non-owners, without writing', async () => {

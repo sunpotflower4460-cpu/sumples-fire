@@ -11,6 +11,7 @@ type PlusDialogProps = {
   canGoBack: boolean;
   onBack: () => void;
   onClose: () => void;
+  footer?: ReactNode;
   children: ReactNode;
 };
 
@@ -36,7 +37,7 @@ function CloseX() {
  * which recognises `.plus-backdrop`) an inert background. Content scrolls inside
  * the sheet, so large text and small screens never push the actions out of reach.
  */
-export function PlusDialog({ titleId, title, screen, canGoBack, onBack, onClose, children }: PlusDialogProps) {
+export function PlusDialog({ titleId, title, screen, canGoBack, onBack, onClose, footer, children }: PlusDialogProps) {
   const dialogRef = useFocusTrap<HTMLElement>(true);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export function PlusDialog({ titleId, title, screen, canGoBack, onBack, onClose,
           </button>
         </header>
         <div className="plus-dialog-body">{children}</div>
+        {footer ? <footer className="plus-dialog-footer">{footer}</footer> : null}
       </section>
     </div>
   );

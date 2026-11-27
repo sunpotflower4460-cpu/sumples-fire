@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createAmbientPlayer } from './ambientPlayer';
-import type { AmbientLayerId, StereoLoop } from './ambientSynth';
+import { AMBIENT_LAYERS, makeAmbientMix } from './ambientOptions';
+import type { AmbientLayerId } from './ambientOptions';
+import type { StereoLoop } from './ambientSynth';
 
 type FakeNode = { connected: unknown[]; connect: (target: unknown) => void };
 
@@ -95,9 +97,25 @@ const setup = (state?: string) => {
   };
 };
 
-const mix = (fire = 0, rain = 0, wind = 0) => ({ fire, rain, wind });
+const mix = (fire = 0, rain = 0, wind = 0) => makeAmbientMix({ fire, rain, wind });
 
 describe('ambient player', () => {
+  it('keeps headroom and makes at most one source per layer during rapid mix changes', async () => {
+    const { player, fake, rendered } = setup();
+    const fullMix = makeAmbientMix();
+    for (const layer of AMBIENT_LAYERS) fullMix[layer] = 100;
+    await player.start(makeAmbientMix({ fire: 100 }));
+
+    player.setMix(fullMix);
+    player.setMix(fullMix);
+    await vi.waitFor(() => expect(fake.log.sources).toHaveLength(AMBIENT_LAYERS.length));
+    expect(rendered).toEqual([...AMBIENT_LAYERS]);
+    const targetSum = fake.log.gains.slice(1).reduce(
+      (total, { gain }) => total + (gain.targets[gain.targets.length - 1] ?? 0),
+      0,
+    );
+    expect(targetSum).toBeCloseTo(0.92);
+  });
   it('is silent by default: no audio context exists until start() is called', () => {
     const { player, fake } = setup();
     expect(player.getStatus()).toBe('stopped');

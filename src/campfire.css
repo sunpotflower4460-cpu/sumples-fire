@@ -47,103 +47,23 @@
 .campfire-stage-4 .campfire-visual { height: 160px; }
 .campfire-stage-5 .campfire-visual { height: 180px; }
 
-/* ── Logs ── */
-.campfire-logs {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 18px;
+.campfire-firebed {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: end center;
+  height: 100%;
+  max-height: 148px;
+  aspect-ratio: 1;
 }
 
-.campfire-log {
-  position: absolute;
-  border-radius: 6px;
-  background: linear-gradient(to right, #2a1208, #3d1c0c, #2a1208);
-}
-
-.log-base {
-  bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 68px; height: 10px;
-}
-
-.log-left {
-  bottom: 5px; left: 6px;
-  width: 50px; height: 8px;
-  transform: rotate(-22deg);
-  transform-origin: left center;
-}
-
-.log-right {
-  bottom: 5px; right: 6px;
-  width: 50px; height: 8px;
-  transform: rotate(22deg);
-  transform-origin: right center;
-}
-
-/* ── Flames ── */
-.campfire-flames {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
+.campfire-firebed .combustion-flame {
+  display: grid;
+  max-width: 100%;
   height: 100%;
 }
 
-.campfire-flame {
-  position: absolute;
-  bottom: 0;
-  border-radius: 50% 50% 30% 30%;
-  transform-origin: bottom center;
-  will-change: transform, opacity;
-  background: linear-gradient(
-    to top,
-    var(--flame-a, rgba(160,35,10,0.98)) 0%,
-    var(--flame-b, rgba(230,85,22,0.95)) 28%,
-    var(--flame-c, rgba(255,215,75,0.72)) 70%,
-    transparent 100%
-  );
-}
-
-/* Core flame colors per stage */
-.campfire-stage-0 .campfire-flame,
-.campfire-stage-1 .campfire-flame {
-  --flame-a: rgba(159,42,42,0.95);
-  --flame-b: rgba(201,50,29,0.9);
-  --flame-c: rgba(255,154,61,0.62);
-}
-
-.campfire-stage-2 .campfire-flame,
-.campfire-stage-3 .campfire-flame {
-  --flame-a: rgba(159,42,42,0.98);
-  --flame-b: rgba(255,107,0,0.95);
-  --flame-c: rgba(232,185,35,0.75);
-}
-
-.campfire-stage-4 .campfire-flame {
-  --flame-a: rgba(130,55,5,0.98);
-  --flame-b: rgba(220,150,15,0.95);
-  --flame-c: rgba(255,240,120,0.82);
-}
-
-.campfire-stage-5 .campfire-flame {
-  --flame-a: rgba(140,90,5,0.98);
-  --flame-b: rgba(220,185,25,0.95);
-  --flame-c: rgba(255,252,160,0.88);
-}
-
-/* Flame positions */
-.cf-1 { left: 28px; width: 14px; height: 38px; filter: blur(2px); animation: campfireFlameDance 1.25s cubic-bezier(0.32,0,0.67,0) 0.05s infinite; }
-.cf-2 { left: 34px; width: 22px; height: 58px; filter: blur(3px); animation: campfireFlameDance 1.55s cubic-bezier(0.32,0,0.67,0) 0.12s infinite; }
-.cf-3 { left: 44px; width: 16px; height: 44px; filter: blur(2.5px); animation: campfireFlameDance 1.35s cubic-bezier(0.32,0,0.67,0) 0.25s infinite; }
-.cf-4 { left: 22px; width: 12px; height: 30px; filter: blur(2px); animation: campfireFlameDance 1.10s cubic-bezier(0.32,0,0.67,0) 0.18s infinite; }
-.cf-5 { left: 52px; width: 18px; height: 50px; filter: blur(2.5px); animation: campfireFlameDance 1.45s cubic-bezier(0.32,0,0.67,0) 0.35s infinite; }
-.cf-6 { left: 14px; width: 20px; height: 64px; filter: blur(3px); animation: campfireFlameDance 1.60s cubic-bezier(0.32,0,0.67,0) 0.08s infinite; }
-.cf-7 { left: 56px; width: 24px; height: 70px; filter: blur(3.5px); animation: campfireFlameDance 1.70s cubic-bezier(0.32,0,0.67,0) 0.30s infinite; }
-.cf-8 { left: 8px;  width: 22px; height: 78px; filter: blur(4px); animation: campfireFlameDance 1.80s cubic-bezier(0.32,0,0.67,0) 0.15s infinite; }
-.cf-9 { left: 60px; width: 28px; height: 86px; filter: blur(4.5px); animation: campfireFlameDance 1.90s cubic-bezier(0.32,0,0.67,0) 0.40s infinite; }
+.campfire-firebed .combustion-plume { transform: scale(var(--campfire-scale)); }
 
 /* ── Embers ── */
 .campfire-embers {
@@ -178,18 +98,6 @@
 .ce-12 { --dur:0.88s; --del:0.28s; left:52%; --tx: 16px; --ty:-82px; width:4px; height:4px; }
 .ce-13 { --dur:1.32s; --del:0.62s; left:38%; --tx:-14px; --ty:-92px; }
 .ce-14 { --dur:1.02s; --del:0.20s; left:64%; --tx: 20px; --ty:-68px; width:3px; height:3px; }
-
-/* Outer glow for higher stages */
-.campfire-outer-glow {
-  position: absolute;
-  bottom: -8px; left: 50%;
-  transform: translateX(-50%);
-  width: 120px; height: 40px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, var(--campfire-glow, rgba(255,120,30,0.25)) 0%, transparent 70%);
-  filter: blur(8px);
-  animation: campfireOuterGlow 2.5s ease-in-out infinite;
-}
 
 /* ── Info row ── */
 .campfire-info {
@@ -302,30 +210,6 @@
    ══════════════════════════════════════════════════════ */
 
 /* Use CSS vars injected via inline style for dynamic flame colors */
-.burning-ritual .ritual-flames i {
-  background: linear-gradient(
-    to top,
-    var(--flame-a, rgba(159,42,42,0.98)) 0%,
-    var(--flame-b, rgba(255,107,0,0.94)) 28%,
-    rgba(255,154,61,0.85) 50%,
-    var(--flame-c, rgba(255,220,100,0.68)) 74%,
-    rgba(255,240,160,0.28) 92%,
-    transparent 100%
-  );
-}
-
-.burning-ritual .ritual-embers i {
-  background: radial-gradient(circle at 35% 30%, #ffe494, var(--particle, #ff9a3d));
-  box-shadow: 0 0 6px 2px var(--particle-shadow, rgba(232,185,35,0.8));
-}
-
-.burning-ritual.is-special .ritual-bg {
-  background:
-    radial-gradient(ellipse 140% 100% at 50% 120%, var(--bg-glow, rgba(255,90,15,0.38)) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,150,30,0.15), transparent 50%),
-    #060300;
-}
-
 /* ── Spectacle label overlay ── */
 .ritual-spectacle-label {
   display: flex;
@@ -345,39 +229,16 @@
 }
 
 .spectacle-type-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .38em;
   font-size: 1.8rem;
   font-weight: 900;
   letter-spacing: -0.04em;
   color: var(--particle, #e8b923);
   text-shadow: 0 0 28px var(--bg-glow, rgba(232,185,35,0.45)), 0 0 55px var(--bg-glow, rgba(255,154,61,0.25));
 }
-
-/* ── Spectacle burst particles (for special effects) ── */
-.ritual-spectacle-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9;
-}
-
-.ritual-spectacle-burst i {
-  position: absolute;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--particle, #ffcc40);
-  box-shadow: 0 0 8px 3px var(--particle-shadow, rgba(255,200,50,0.9));
-  will-change: transform, opacity;
-  animation: spectacleBurstParticle var(--dur, 1.2s) cubic-bezier(0.2,0.8,0.4,1) var(--del, 0s) both;
-}
-
-.ritual-spectacle-burst i:nth-child(1) { --dur:0.55s; --del:0.00s; top:45%; left:50%; --bx:-80px; --by:-120px; width:8px; height:8px; }
-.ritual-spectacle-burst i:nth-child(2) { --dur:0.58s; --del:0.02s; top:48%; left:50%; --bx: 80px; --by:-110px; }
-.ritual-spectacle-burst i:nth-child(3) { --dur:0.52s; --del:0.04s; top:46%; left:50%; --bx:-120px; --by:-60px; width:5px; height:5px; }
-.ritual-spectacle-burst i:nth-child(4) { --dur:0.6s;  --del:0.01s; top:47%; left:50%; --bx: 110px; --by:-80px; }
-.ritual-spectacle-burst i:nth-child(5) { --dur:0.54s; --del:0.03s; top:44%; left:50%; --bx: -60px; --by:-140px; width:7px; height:7px; }
-.ritual-spectacle-burst i:nth-child(6) { --dur:0.57s; --del:0.02s; top:49%; left:50%; --bx:  70px; --by:-130px; }
-.ritual-spectacle-burst i:nth-child(7) { --dur:0.5s;  --del:0.05s; top:45%; left:50%; --bx:-100px; --by:-90px; width:5px; height:5px; }
-.ritual-spectacle-burst i:nth-child(8) { --dur:0.56s; --del:0.03s; top:47%; left:50%; --bx: 130px; --by:-70px; }
 
 /* ══════════════════════════════════════════════════════
    Momentum effects on task cards
@@ -426,28 +287,12 @@
    Keyframes
    ══════════════════════════════════════════════════════ */
 
-@keyframes campfireFlameDance {
-  0%   { opacity: 0;    transform: scaleX(0.18) scaleY(0.04); }
-  8%   { opacity: 1;    transform: scaleX(1.1) scaleY(0.50) rotate(-3deg); }
-  22%  {                transform: scaleX(0.86) scaleY(0.98) rotate( 2deg); }
-  38%  { opacity: 1;    transform: scaleX(1.06) scaleY(1.06) rotate(-2deg); }
-  56%  {                transform: scaleX(0.78) scaleY(1.14) rotate( 3deg); }
-  74%  { opacity: 0.8;  transform: scaleX(0.64) scaleY(1.22) rotate(-2deg) translateY(-2%); }
-  90%  { opacity: 0.3;  transform: scaleX(0.40) scaleY(1.36) translateY(-6%); }
-  100% { opacity: 0;    transform: scaleX(0.20) scaleY(1.50) translateY(-10%); }
-}
-
 @keyframes campfireEmberRise {
   0%   { opacity: 0;   transform: translate(0, 0) scale(1); }
   12%  { opacity: 1;   transform: translate(calc(var(--tx,0px)*.12), -4px) scale(1.15); }
   55%  { opacity: 0.8; transform: translate(calc(var(--tx,0px)*.5), calc(var(--ty,-40px)*.5)) scale(0.65); }
   85%  { opacity: 0.3; transform: translate(calc(var(--tx,0px)*.82), calc(var(--ty,-40px)*.82)) scale(0.3); }
   100% { opacity: 0;   transform: translate(var(--tx,0px), var(--ty,-50px)) scale(0.1); }
-}
-
-@keyframes campfireOuterGlow {
-  0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
-  50%       { opacity: 1;  transform: translateX(-50%) scaleX(1.15); }
 }
 
 @keyframes streakFlameBreath {
@@ -481,13 +326,6 @@
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-@keyframes spectacleBurstParticle {
-  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
-  15%  { opacity: 1; transform: translate(calc(var(--bx,0px)*.15), calc(var(--by,0px)*.15)) scale(1.2); }
-  60%  { opacity: 0.8; transform: translate(calc(var(--bx,0px)*.6), calc(var(--by,0px)*.6)) scale(0.7); }
-  100% { opacity: 0; transform: translate(var(--bx,0px), var(--by,0px)) scale(0.1); }
-}
-
 @keyframes momentumCardBreath {
   0%, 100% { box-shadow: 0 18px 46px rgba(108,48,14,0.09), 0 0 0 1px rgba(255,140,50,0.18); }
   50%       { box-shadow: 0 18px 46px rgba(108,48,14,0.12), 0 0 0 1px rgba(255,160,60,0.28), 0 0 16px rgba(255,120,30,0.08); }
@@ -510,13 +348,10 @@
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .campfire-flame,
   .campfire-ember,
-  .campfire-outer-glow,
   .streak-flame-icon,
   .campfire-craving-copy,
   .ritual-spectacle-label,
-  .ritual-spectacle-burst i,
   .fire-card {
     animation: none !important;
     transition-duration: 0.01ms !important;
@@ -524,13 +359,8 @@
 }
 
 @media (hover: none), (pointer: coarse) {
-  .campfire-embers,
-  .campfire-outer-glow {
+  .campfire-embers {
     display: none;
-  }
-
-  .campfire-flame {
-    filter: none !important;
   }
 
   .mobile-app-shell.streak-momentum .fire-card:not(.is-burned),

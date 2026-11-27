@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { plusStore } from './plusStore';
 import type { PlusState } from './plusStore';
 import { canStartPurchase, isPlusActive } from './storeState';
-import { SCENES } from './plusPreferences';
+import { DEFAULT_PLUS_PREFERENCES } from './plusPreferences';
 import type { PlusPreferences } from './plusPreferences';
 
 export const usePlusState = (): PlusState => (
@@ -17,7 +17,7 @@ export const usePlusState = (): PlusState => (
 export const getEffectivePreferences = (preferences: PlusPreferences, entitled: boolean): PlusPreferences => (
   entitled
     ? preferences
-    : { ...preferences, flameMode: 'auto', scene: 'night', mix: { ...SCENES.night.preset } }
+    : DEFAULT_PLUS_PREFERENCES
 );
 
 export const usePlus = () => {

@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import { ambientPlayer } from '../ambientPlayer';
 import { plusStore } from '../plusStore';
 import { usePlusState } from '../usePlus';
+import { CampfireSetsScreen } from './CampfireSetsScreen';
 import { FlamePickerScreen } from './FlamePickerScreen';
 import { MonthlyScreen } from './MonthlyScreen';
+import { PlusGuideScreen } from './PlusGuideScreen';
 import { PlusIntroScreen } from './PlusIntroScreen';
 import { SceneEditorScreen } from './SceneEditorScreen';
 import type { FireSeed } from '../../types/fireSeed';
@@ -19,10 +21,9 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
   const wasOpenRef = useRef(false);
   const totalAsh = seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0);
 
-  // Ambient sound is only for the scene screens. Moving to any other Plus screen
-  // (purchase, monthly review, flame picker) ends it.
+  // Each scene starts silent, even if the scene on the archive tab was playing.
   useEffect(() => {
-    if (top && top !== 'scene') ambientPlayer.stop();
+    if (top) ambientPlayer.stop();
   }, [top]);
 
   // Lock the page behind the sheet; restore exactly what was there.
@@ -53,6 +54,8 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
   }, [top]);
 
   switch (top) {
+    case 'guide':
+      return <PlusGuideScreen canGoBack={routeStack.length > 1} />;
     case 'intro':
       return <PlusIntroScreen key="intro" />;
     case 'flames':
@@ -61,6 +64,8 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
       return <MonthlyScreen key="monthly" seeds={seeds} />;
     case 'scene':
       return <SceneEditorScreen key="scene" ashPoints={totalAsh} />;
+    case 'sets':
+      return <CampfireSetsScreen key="sets" ashPoints={totalAsh} />;
     default:
       return null;
   }

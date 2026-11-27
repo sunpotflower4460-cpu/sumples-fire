@@ -1,8 +1,8 @@
 # Fire Task Plus — 設計・実装の入口
 
-更新日：2026年11月26日
+更新日：2026年11月27日
 
-**このフォルダーはv1.1向けのPlusの設計資料と実装メモです。アプリ側とStoreKit 2のネイティブ連携は `claude/plus-v1.1-pufig7` に実装済みですが、商品登録・実機Sandbox・TestFlight・公開は未実施です。v1.0は完全無料のままです。**
+初期のPlus実装は [PR #123](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/123) で統合されました。実機Sandbox、商品登録、TestFlightは引き続き提出前の作業です。以下の設計図と引き継ぎ書は初期実装時の資料です。
 
 実装内容と検証結果：[IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md) / StoreKitのテスト手順：[STOREKIT_TESTING.md](STOREKIT_TESTING.md)
 
@@ -19,17 +19,16 @@
 
 **Fire Task Plus、買い切り1商品、設計価格800円。** 商品登録と実際の表示価格は未確定です。
 
-- 好きな炎を選ぶ：既存9種類から固定、またはお気に入りから選択。
-- 自分の焚き火をつくる：追加情景2種類と、環境音の組み合わせを保存。
-- 積み重ねを眺める：月別カレンダー、Fire件数、炭合計、日付から記録への移動。
+- 22種類の炎を固定・お気に入り・全種類シャッフルで使える。極光の炎、蓮の灯、海硝子の炎など13種類はPlus専用。選択画面内で各演出を試し見できる。
+- 9種類の景色から焚き火を選び、6種類の環境音を調整して景色ごとに保存。新しい景色6種類に加え、既存の湖と森も描き直した。景色ごとの初期音量と5種類の音の組み合わせから調整を始められる。
+- 焚き火セットでは、おすすめ6種類や名前を付けたマイセット4枠から、炎・景色・音量を一度に切り替えられる。
+- 月別カレンダー、日別一覧、年間表示から、Fire件数、炭合計、Fireした日数を確認できる。年間表示の月からカレンダーへ、日付から炭の記録へ進める。
 
 タスクの追加・Fire・Undo・既存の炭記録・成長・称号・9種類の炎の自動出現は無料のまま維持します。購入前の試し見は実タスク・炭・実績を変更しません。
 
-## 先行する提出準備との関係
+## 提出準備
 
-確認時点のmainは `bdd871ba174bc8cbc46798e508e0fc5ccabe7476`。提出準備PR [#122](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/122) は未統合で、headは `release/app-store-finalize` の `1447dc4686beb291a86ea8e5c20a56eae5b60b28` です。
-
-PR #122にはiOSのネイティブ保存、移行、縦画面、UIScene、提出資料、WebKit E2E等が含まれます。Plusはその変更を含む独立したv1.1ブランチで実装してください。今回の文書追加だけを理由にPR #122をマージしたり、v1.0の提出用ブランチにPlusを追加したりしないでください。着手時にはPRとブランチの最新状態を再確認します。
+Plusは提出準備PR [#122](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/122) のiOSネイティブ保存、UIScene、WebKit E2E基盤を利用します。App Store提出時は [提出資料](../APP_STORE_SUBMISSION.md) と [実機チェックリスト](../RELEASE_MANUAL_TEST.md) を参照してください。
 
 ## 設計図と現行UIの関係
 

@@ -32,6 +32,13 @@ export type MonthSummary = {
 
 export type MonthRef = { year: number; month: number };
 
+export type YearSummary = {
+  months: MonthSummary[];
+  count: number;
+  ash: number;
+  activeDays: number;
+};
+
 /**
  * Derive monthly records from the burned tasks themselves — there is no second
  * log to drift out of sync, so Undo (burned=false) and deletion remove a record
@@ -97,6 +104,20 @@ export const summarizeMonth = (records: readonly BurnRecord[], year: number, mon
   }
 
   return { year, month, count, ash, days };
+};
+
+export const summarizeYear = (records: readonly BurnRecord[], year: number): YearSummary => {
+  const groups: BurnRecord[][] = Array.from({ length: 12 }, () => []);
+  for (const record of records) {
+    if (record.year === year) groups[record.month - 1].push(record);
+  }
+  const months = groups.map((group, index) => summarizeMonth(group, year, index + 1));
+  return {
+    months,
+    count: months.reduce((sum, month) => sum + month.count, 0),
+    ash: months.reduce((sum, month) => sum + month.ash, 0),
+    activeDays: months.reduce((sum, month) => sum + month.days.size, 0),
+  };
 };
 
 export const compareMonths = (a: MonthRef, b: MonthRef) => (a.year - b.year) * 12 + (a.month - b.month);
@@ -188,3 +209,12 @@ export const createSampleRecords = (today: Date): BurnRecord[] => {
       day: entry.day,
     }));
 };
+
+export const createSampleYearRecords = (today: Date): BurnRecord[] => (
+  [5, 2, 0].filter((offset) => offset <= today.getMonth()).flatMap((offset) => {
+    const month = new Date(today.getFullYear(), today.getMonth() - offset, 1);
+    return createSampleRecords(month)
+      .slice(0, offset === 0 ? undefined : offset === 2 ? 4 : 2)
+      .map((record) => ({ ...record, id: `${record.dateKey}-${record.id}` }));
+  })
+);

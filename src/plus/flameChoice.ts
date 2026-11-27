@@ -1,11 +1,11 @@
 import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
 import type { FireDifficulty } from '../types/fireSeed';
-import { getFlame } from './flames';
+import { FLAME_IDS, getFlame } from './flames';
 import type { FlameId } from './flames';
 import type { PlusPreferences } from './plusPreferences';
 
-export type FlameChoiceSource = 'auto' | 'fixed' | 'favorites';
+export type FlameChoiceSource = 'auto' | 'fixed' | 'favorites' | 'shuffle';
 
 export type FlameChoice = {
   spectacle: BurnSpectacle;
@@ -21,8 +21,8 @@ type ResolveInput = {
   random?: () => number;
 };
 
-/** Favourites never repeat the previous real flame — unless it is the only one. */
-export const pickFavoriteFlame = (
+/** A pool with multiple flames can avoid the previously shown flame. */
+export const pickFlameAvoidingRepeat = (
   favorites: readonly FlameId[],
   lastRealFlame: FlameId | null,
   random: () => number = Math.random,
@@ -54,8 +54,12 @@ export const resolveBurnSpectacle = ({
       return { spectacle: getFlame(preferences.fixedFlame), source: 'fixed' };
     }
     if (preferences.flameMode === 'favorites' && preferences.favoriteFlames.length > 0) {
-      const id = pickFavoriteFlame(preferences.favoriteFlames, preferences.lastRealFlame, random);
+      const id = pickFlameAvoidingRepeat(preferences.favoriteFlames, preferences.lastRealFlame, random);
       return { spectacle: getFlame(id), source: 'favorites' };
+    }
+    if (preferences.flameMode === 'shuffle') {
+      const id = pickFlameAvoidingRepeat(FLAME_IDS, preferences.lastRealFlame, random);
+      return { spectacle: getFlame(id), source: 'shuffle' };
     }
   }
 

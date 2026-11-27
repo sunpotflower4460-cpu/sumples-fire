@@ -1,19 +1,24 @@
-/**
- * All Fire Task Plus wording, taken from docs/plus/DESIGN.md §9. One place so
- * the purchase screen, the settings card, the App Store text and the review
- * notes cannot drift apart.
- */
+import { PLUS_BURN_TYPES } from '../lib/fireBurnSpectacle';
+import { AMBIENT_LAYERS } from './ambientOptions';
+import { CAMPFIRE_PRESETS } from './campfireSets';
+import { FLAME_IDS } from './flames';
+import { CAMPFIRE_SET_SLOTS } from './plusPreferences';
+import { SCENE_IDS } from './scenes';
+
 export const COPY = {
   name: 'Fire Task Plus',
+  guideTitle: 'Fire Task Plusの紹介',
+  guideLink: '紹介ページを見る',
   headline: '好きな炎で、今日を終える。',
-  description: '炎を選び、焚き火を整え、終えたことを眺める。いつものFireを、あなた好みに。',
-
   benefitFlameTitle: '好きな炎を選ぶ',
-  benefitFlameBody: '9種類から、いつもの炎を。お気に入りだけで楽しむこともできます。',
+  benefitFlameBody: `Plus専用の${PLUS_BURN_TYPES.length}種類を含む、全${FLAME_IDS.length}種類。`,
   benefitSceneTitle: '自分の焚き火をつくる',
-  benefitSceneBody: '星明かりの湖や、雨あがりの森へ。景色と音を、好きな組み合わせに。',
+  benefitSceneBody: `${SCENE_IDS.length}つの景色と${AMBIENT_LAYERS.length}つの環境音を組み合わせる。`,
+  benefitSetsTitle: '炎と焚き火をセットで選ぶ',
+  benefitSetsBody: `おすすめ${CAMPFIRE_PRESETS.length}組み合わせと、マイセット${CAMPFIRE_SET_SLOTS}枠。`,
   benefitHistoryTitle: '積み重ねを眺める',
-  benefitHistoryBody: '月ごとのカレンダーで、終えたことと炭の記録をふりかえれます。',
+  benefitHistoryBody: '月別・年間表示でFireの記録をふりかえる。',
+  catalogSummary: `炎${FLAME_IDS.length}種類・焚き火セット・月別と年間のふりかえり`,
 
   tryIt: '試してみる',
   oneTime: '一度の購入。月額料金はかかりません。',
@@ -31,15 +36,14 @@ export const COPY = {
 
   flameTitle: '炎を選ぶ',
   flameAuto: 'おまかせ',
-  flameFixed: 'この炎を使う',
-  flameFavorites: 'お気に入りから',
-  flameFavoritesEmpty: '1つ以上選んでください。',
+  flameFixed: '炎を固定',
+  flameFavorites: 'お気に入り',
+  flameShuffle: '全種類シャッフル',
   previewLabel: '試し見',
   previewNoRecord: '試し見では、タスクや炭の記録は変わりません。',
-  previewPlusSave: 'Plusで、この設定を使えます。',
-  freeAutoStillShowsAll: '無料のおまかせでも、9種類が現れます。',
 
   sceneTitle: '焚き火を整える',
+  setsTitle: '焚き火セット',
   sceneSave: 'この焚き火にする',
   soundPlay: '音を再生',
   soundStop: '音を止める',

@@ -10,9 +10,11 @@ Fire Task は、先延ばししていること、面倒なこと、やりたく�
 
 タスクは緊急度と重要度で自動分類され、燃やしたタスクは炭になり、炭ポイントとして残ります。
 
-## Plus v1.1 の設計
+## Fire Task Plus v1.1
 
-買い切りPlusの機能・画面・実装引き継ぎは [docs/plus/README.md](docs/plus/README.md) にまとめています。v1.1ブランチ `claude/plus-v1.1-pufig7` に実装済みですが（[実装メモ](docs/plus/IMPLEMENTATION_NOTES.md)）、実機のSandbox・商品登録は未実施です。v1.0は完全無料のまま維持します。実装開始時は、提出準備PR [#122](https://github.com/sunpotflower4460-cpu/sumples-fire/pull/122) の最新状態と保存方式の変更も確認してください。
+買い切りのPlusでは、22種類の炎を固定・お気に入り・全種類シャッフルで使えます。9種類の焚き火の景色と6種類の環境音を調整でき、炎・景色・音量をまとめて切り替える焚き火セットも使えます。ふりかえりは月別カレンダー、日別一覧、年間表示で確認できます。資料は [docs/plus/README.md](docs/plus/README.md) にあります。
+
+「設定」のFire Task Plus欄と購入ボタンのすぐ上にある「紹介ページを見る」から、2種類の炎を並べて比較したり、操作動画を見たりできます。紹介はアプリに同梱され、購入前からオフラインで開けます。同じページのWeb版は `npm run build:guide` で `build/plus-guide` に出力します。
 
 ## 主な機能
 

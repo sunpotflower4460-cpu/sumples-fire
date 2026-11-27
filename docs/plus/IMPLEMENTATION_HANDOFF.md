@@ -76,7 +76,7 @@
 | 龍の炎 | `dragon` |
 | 桜の火 | `cherry` |
 | 鉄の火 | `ironFire` |
-| 虚空の火 | `voidFire` |
+| 希望の灯 | `voidFire` |
 | フェニックス | `phoenixRise` |
 
 固定・お気に入りの選択はこのカタログを使います。無料の `selectBurnSpectacle(difficulty, currentStreak)` は元の挙動を維持します。確認範囲では炎とポイントは分離済みで、難易度の炭は3／5／10／20、称号と成長は累積炭に基づきます。

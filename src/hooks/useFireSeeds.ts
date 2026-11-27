@@ -69,7 +69,9 @@ export function useFireSeeds() {
     // exists. Clearing the copy earlier would mutate the same live region and
     // cause assistive technology to announce the completion twice.
     if (!notice || undoBurnSnapshot) return;
-    const timer = window.setTimeout(() => setNotice(''), 3200);
+    const timer = window.setTimeout(() => {
+      setNotice((current) => current === notice ? '' : current);
+    }, 3200);
     return () => window.clearTimeout(timer);
   }, [notice, undoBurnSnapshot]);
 

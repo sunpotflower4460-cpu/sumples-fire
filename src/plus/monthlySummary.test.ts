@@ -8,11 +8,13 @@ import {
   canGoToPreviousMonth,
   collectBurnRecords,
   createSampleRecords,
+  createSampleYearRecords,
   describeDay,
   getFirstRecordDateKey,
   getMonthStatus,
   shiftMonth,
   summarizeMonth,
+  summarizeYear,
 } from './monthlySummary';
 
 const originalTz = process.env.TZ;
@@ -32,6 +34,31 @@ const seed = (extra: Partial<FireSeed> = {}): FireSeed => normalizeSeed({
 const burned = (id: string, burnedAt: string, ashPoints = 5, extra: Partial<FireSeed> = {}) => (
   seed({ id, title: `タスク${id}`, burned: true, completed: true, stage: 'flame', burnedAt, ashPoints, ...extra })
 );
+
+describe('yearly overview', () => {
+  it('totals only the selected calendar year and counts each active day once', () => {
+    process.env.TZ = 'Asia/Tokyo';
+    const { records } = collectBurnRecords([
+      burned('old', '2025-12-30T03:00:00.000Z', 20),
+      burned('a', '2026-01-10T03:00:00.000Z', 3),
+      burned('b', '2026-01-10T07:00:00.000Z', 5),
+      burned('c', '2026-11-12T03:00:00.000Z', 10),
+    ]);
+    const summary = summarizeYear(records, 2026);
+    expect(summary).toMatchObject({ count: 3, ash: 18, activeDays: 2 });
+    expect(summary.months).toHaveLength(12);
+    expect(summary.months[0]).toMatchObject({ count: 2, ash: 8 });
+    expect(summary.months[10]).toMatchObject({ count: 1, ash: 10 });
+    expect(summary.months[11]).toMatchObject({ count: 0, ash: 0 });
+  });
+
+  it('keeps the demo months within the selected year with unique sample IDs', () => {
+    expect(createSampleYearRecords(new Date(2026, 0, 1)).every((record) => record.year === 2026 && record.month === 1)).toBe(true);
+    const samples = createSampleYearRecords(new Date(2026, 10, 26));
+    expect(new Set(samples.map((record) => record.month))).toEqual(new Set([6, 9, 11]));
+    expect(new Set(samples.map((record) => record.id)).size).toBe(samples.length);
+  });
+});
 
 describe('collectBurnRecords', () => {
   it('only counts burned tasks that have a valid burnedAt', () => {

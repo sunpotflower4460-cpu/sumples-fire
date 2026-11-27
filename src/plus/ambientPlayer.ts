@@ -1,6 +1,7 @@
-import { AMBIENT_LAYERS, AMBIENT_SAMPLE_RATE, renderAmbientLayer, volumeToGain } from './ambientSynth';
-import type { AmbientLayerId, StereoLoop } from './ambientSynth';
-import type { AmbientMix } from './plusPreferences';
+import { AMBIENT_LAYERS, hasAmbientSound, makeAmbientMix } from './ambientOptions';
+import type { AmbientLayerId, AmbientMix } from './ambientOptions';
+import { AMBIENT_SAMPLE_RATE, renderAmbientLayer, volumeToGain } from './ambientSynth';
+import type { StereoLoop } from './ambientSynth';
 
 export type AmbientStatus = 'stopped' | 'starting' | 'playing';
 
@@ -47,7 +48,7 @@ const defaultWatchPage = (stop: () => void) => {
 const yieldToUi = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 /**
- * The Plus ambient sound player (火の音 / 雨だれ / 夜の風).
+ * The Plus ambient sound player.
  *
  * Contract (docs/plus/DESIGN.md §4.2):
  *  - silent until `start()` is called from a button press
@@ -70,7 +71,7 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
   let generation = 0;
   let context: AudioContext | null = null;
   let master: GainNode | null = null;
-  let mix: AmbientMix = { fire: 0, rain: 0, wind: 0 };
+  let mix = makeAmbientMix();
   let unwatch: (() => void) | null = null;
   const layers = new Map<AmbientLayerId, GainNode>();
   const listeners = new Set<() => void>();
@@ -84,18 +85,21 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
 
   const applyGains = () => {
     if (!context) return;
+    const now = context.currentTime;
+    // All six sliders can be at 100%. Keep headroom in the combined signal.
+    const totalGain = AMBIENT_LAYERS.reduce((sum, layer) => sum + volumeToGain(layer, mix[layer]), 0);
+    const scale = totalGain > 0.92 ? 0.92 / totalGain : 1;
     layers.forEach((gain, layer) => {
-      gain.gain.setTargetAtTime(volumeToGain(layer, mix[layer]), context!.currentTime, 0.05);
+      gain.gain.setTargetAtTime(volumeToGain(layer, mix[layer]) * scale, now, 0.05);
     });
   };
 
   const ensureLayer = async (layer: AmbientLayerId, token: number) => {
     if (layers.has(layer) || !context) return;
     await yieldToUi();
-    if (token !== generation || !context) return;
+    if (token !== generation || !context || !master || layers.has(layer) || mix[layer] === 0) return;
 
     const loop = deps.renderLayer(layer);
-    if (token !== generation || !context) return;
 
     const buffer = context.createBuffer(2, loop.left.length, AMBIENT_SAMPLE_RATE);
     buffer.copyToChannel(loop.left, 0);
@@ -107,12 +111,13 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
     const gain = context.createGain();
     gain.gain.value = 0;
     source.connect(gain);
-    gain.connect(master!);
+    gain.connect(master);
     source.start();
     layers.set(layer, gain);
   };
 
   const syncLayers = async (token: number) => {
+    applyGains();
     for (const layer of AMBIENT_LAYERS) {
       if (mix[layer] > 0) await ensureLayer(layer, token);
       if (token !== generation) return;
@@ -149,8 +154,12 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
   /** Begin playing. Must be called from a user gesture (iOS requires it). */
   const start = async (nextMix: AmbientMix): Promise<boolean> => {
     mix = nextMix;
+    if (!hasAmbientSound(mix)) {
+      stop();
+      return false;
+    }
     if (status !== 'stopped') {
-      await syncLayers(generation);
+      setMix(nextMix);
       return status === 'playing';
     }
 
@@ -173,31 +182,26 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
       // not supported — default behaviour is fine
     }
 
-    master = created.createGain();
-    master.gain.value = 1;
-    master.connect(created.destination);
-
-    // An OS interruption (call, Siri, another app taking audio) ends playback; it
-    // is never resumed behind the person's back.
-    created.onstatechange = () => {
-      if (token === generation && created.state !== 'running') stop();
-    };
-
     try {
+      master = created.createGain();
+      master.gain.value = 1;
+      master.connect(created.destination);
+      unwatch = deps.watchPage(stop);
       await created.resume();
+      if (token !== generation) return false;
+      if (created.state !== 'running') {
+        stop();
+        return false;
+      }
+      // Install after resume, so the context's initial suspension is harmless.
+      created.onstatechange = () => {
+        if (token === generation && created.state !== 'running') stop();
+      };
+      await syncLayers(token);
     } catch {
       if (token === generation) stop();
       return false;
     }
-    if (token !== generation) return false;
-    if (created.state !== 'running') {
-      stop();
-      return false;
-    }
-
-    unwatch = deps.watchPage(stop);
-
-    await syncLayers(token);
     if (token !== generation) return false;
 
     setStatus('playing');
@@ -207,7 +211,10 @@ export const createAmbientPlayer = (overrides: Partial<AmbientDeps> = {}) => {
   const setMix = (nextMix: AmbientMix) => {
     mix = nextMix;
     if (status === 'stopped') return;
-    void syncLayers(generation);
+    const token = generation;
+    void syncLayers(token).catch(() => {
+      if (token === generation) stop();
+    });
   };
 
   return {
