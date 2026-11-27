@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ambientPlayer } from '../ambientPlayer';
 import { plusStore } from '../plusStore';
 import { usePlusState } from '../usePlus';
+import { CampfireSetsScreen } from './CampfireSetsScreen';
 import { FlamePickerScreen } from './FlamePickerScreen';
 import { MonthlyScreen } from './MonthlyScreen';
 import { PlusIntroScreen } from './PlusIntroScreen';
@@ -60,6 +61,8 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
       return <MonthlyScreen key="monthly" seeds={seeds} />;
     case 'scene':
       return <SceneEditorScreen key="scene" ashPoints={totalAsh} />;
+    case 'sets':
+      return <CampfireSetsScreen key="sets" ashPoints={totalAsh} />;
     default:
       return null;
   }

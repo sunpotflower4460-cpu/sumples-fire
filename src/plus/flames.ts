@@ -88,6 +88,34 @@ const PLUS_DESIGNS: Record<PlusBurnSpectacleType, FlameDesign> = {
     colors: ['#60171d', '#ff6543', '#fff0a5'],
     sound: 'dragon',
   },
+  lantern: {
+    label: '灯籠の火',
+    description: '朱色の灯籠が、内側からゆっくり明るくなる。',
+    message: '灯をともして、今日の仕事を閉じた。',
+    colors: ['#6c2023', '#ff8050', '#fff0ad'],
+    sound: 'soft',
+  },
+  seaGlass: {
+    label: '海硝子の炎',
+    description: '波に磨かれた青緑の硝子が、光を透かして浮かぶ。',
+    message: '波が引くように、ひとつ手を離れた。',
+    colors: ['#155466', '#62cfc4', '#e6fff2'],
+    sound: 'ethereal',
+  },
+  starRain: {
+    label: '星雨の炎',
+    description: '金色の小さな星が、斜めに流れてほどける。',
+    message: '流れ星の跡のように、今日の一歩が残った。',
+    colors: ['#49366d', '#e2ab78', '#ffffdd'],
+    sound: 'glimmer',
+  },
+  iris: {
+    label: '菖蒲の火',
+    description: '薄紫の花弁が開き、先に青白い火が宿る。',
+    message: '花がほころぶように、仕事がひとつ片づいた。',
+    colors: ['#432879', '#ae98ec', '#eee4ff'],
+    sound: 'bloom',
+  },
 };
 
 const AUTO_DESCRIPTIONS: Record<AutoBurnSpectacleType, string> = {

@@ -78,6 +78,15 @@ export function ScenePanel({ ashPoints }: { ashPoints: number }) {
           >
             月ごとに見る{!entitled ? <span className="plus-badge">Plus</span> : null}
           </button>
+          {entitled ? (
+            <button
+              type="button"
+              className="plus-secondary plus-set-link"
+              onClick={(event) => plusStore.openScreen('sets', event.currentTarget)}
+            >
+              {COPY.setsTitle}
+            </button>
+          ) : null}
         </div>
       </div>
     </section>

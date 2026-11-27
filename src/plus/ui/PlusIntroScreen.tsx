@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { FlameArtwork } from '../../components/FlameArtwork';
+import { applyCampfirePreset } from '../campfireSets';
 import { COPY } from '../plusCopy';
 import { sceneSettingsOf } from '../plusPreferences';
 import { plusStore } from '../plusStore';
@@ -14,6 +15,7 @@ import { SCENES } from '../scenes';
 const BENEFITS: { route: PlusRoute; title: string; body: string }[] = [
   { route: 'flames', title: COPY.benefitFlameTitle, body: COPY.benefitFlameBody },
   { route: 'scene', title: COPY.benefitSceneTitle, body: COPY.benefitSceneBody },
+  { route: 'sets', title: COPY.benefitSetsTitle, body: COPY.benefitSetsBody },
   { route: 'monthly', title: COPY.benefitHistoryTitle, body: COPY.benefitHistoryBody },
 ];
 
@@ -21,6 +23,7 @@ const BENEFITS: { route: PlusRoute; title: string; body: string }[] = [
 export const PLUS_ENTRIES: { route: PlusRoute; label: string }[] = [
   { route: 'flames', label: '炎を選ぶ' },
   { route: 'scene', label: '焚き火を整える' },
+  { route: 'sets', label: COPY.setsTitle },
   { route: 'monthly', label: '月別ふりかえり' },
 ];
 
@@ -39,18 +42,19 @@ export function PlusIntroScreen() {
     if (showThanks) thanksRef.current?.focus();
   }, [showThanks]);
 
-  const previewFlameId: FlameId = state.flameDraft?.flameMode === 'fixed'
+  const draftedFlame: FlameId = state.flameDraft?.flameMode === 'fixed'
     ? state.flameDraft.fixedFlame
     : state.flameDraft?.favoriteFlames[0] ?? 'aurora';
-  const previewFlame = getFlame(previewFlameId);
+  const previewFlame = getFlame(state.presetDraft?.flame ?? draftedFlame);
+  const hasDraft = Boolean(state.flameDraft || state.sceneDraft || state.presetDraft);
 
   const canGoBack = state.routeStack.length > 1;
 
   const applyChosen = async () => {
     if (applying) return;
     setApplyError(false);
-    const { flameDraft, sceneDraft } = plusStore.getState();
-    if (!flameDraft && !sceneDraft) {
+    const { flameDraft, sceneDraft, presetDraft } = plusStore.getState();
+    if (!flameDraft && !sceneDraft && !presetDraft) {
       plusStore.acknowledgePurchase();
       plusStore.openScreen('flames');
       return;
@@ -62,7 +66,8 @@ export function PlusIntroScreen() {
         : {}),
       ...(sceneDraft ? sceneSettingsOf(sceneDraft) : {}),
     };
-    const result = await plusStore.savePreferences(changes);
+    const result = await plusStore.savePreferences(presetDraft
+      ? (current) => applyCampfirePreset(current, presetDraft) : changes);
     if (result.ok) {
       plusStore.acknowledgePurchase();
       plusStore.closeAll();
@@ -85,10 +90,10 @@ export function PlusIntroScreen() {
         <div className="plus-thanks">
           <div className="plus-hero-flame"><FlameArtwork spectacle={previewFlame} size={64} /></div>
           <h3 ref={thanksRef} tabIndex={-1} className="plus-hero-title">{COPY.thanks}</h3>
-          <p className="plus-lead">{COPY.next}</p>
+          <p className="plus-lead">{state.presetDraft ? `「${state.presetDraft.name}」を適用できます。` : COPY.next}</p>
           <div className="plus-actions">
             <button type="button" className="plus-primary" onClick={() => void applyChosen()} disabled={applying}>
-              {applying ? COPY.saveSaving : state.flameDraft || state.sceneDraft ? COPY.setSelected : COPY.flameTitle}
+              {applying ? COPY.saveSaving : hasDraft ? COPY.setSelected : COPY.flameTitle}
             </button>
             <p className="plus-status is-error" role="status" aria-live="polite">
               {applyError ? COPY.saveFailed : ''}

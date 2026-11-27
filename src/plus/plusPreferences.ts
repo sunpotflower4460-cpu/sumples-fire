@@ -8,7 +8,14 @@ import type { SceneId } from './scenes';
 
 export { PLUS_PREFERENCES_KEY };
 
-export type FlameMode = 'auto' | 'fixed' | 'favorites';
+export type FlameMode = 'auto' | 'fixed' | 'favorites' | 'shuffle';
+
+type FlameSettings = {
+  flameMode: FlameMode;
+  fixedFlame: FlameId;
+  favoriteFlames: FlameId[];
+};
+
 type SceneSettings = {
   scene: SceneId;
   mix: AmbientMix;
@@ -16,16 +23,19 @@ type SceneSettings = {
   sceneMixes: Partial<Record<SceneId, AmbientMix>>;
 };
 
+export type CampfireSet = FlameSettings & Pick<SceneSettings, 'scene' | 'mix'>;
+export type SavedCampfireSet = CampfireSet & { name: string };
+export const CAMPFIRE_SET_SLOTS = 4;
+export const CAMPFIRE_SET_NAME_LIMIT = 24;
+
 export type PlusPreferences = {
   version: 1;
-  flameMode: FlameMode;
-  /** Used when `flameMode === 'fixed'`. */
-  fixedFlame: FlameId;
-  /** Used when `flameMode === 'favorites'`. At least one when that mode is saved. */
-  favoriteFlames: FlameId[];
   /** The flame shown by the last *real* Fire, so favourites do not repeat it. */
   lastRealFlame: FlameId | null;
-} & SceneSettings;
+  campfireSets: (SavedCampfireSet | null)[];
+} & FlameSettings & SceneSettings;
+
+const emptyCampfireSets = () => Array.from({ length: CAMPFIRE_SET_SLOTS }, () => null);
 
 export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   version: 1,
@@ -36,6 +46,7 @@ export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   scene: 'night',
   mix: makeAmbientMix(),
   sceneMixes: {},
+  campfireSets: emptyCampfireSets(),
 };
 
 export const clampVolume = (value: unknown): number => {
@@ -60,7 +71,7 @@ export const sceneSettingsOf = ({ scene, mix, sceneMixes }: SceneSettings): Scen
 
 /** Switch scenes without losing the draft mix, including intentional silence. */
 export const switchScene = (settings: SceneSettings, scene: SceneId): SceneSettings => {
-  if (scene === settings.scene) return settings;
+  if (scene === settings.scene) return sceneSettingsOf(settings);
   const { [scene]: previousMix, ...sceneMixes } = settings.sceneMixes;
   return {
     scene,
@@ -69,18 +80,7 @@ export const switchScene = (settings: SceneSettings, scene: SceneId): SceneSetti
   };
 };
 
-/**
- * Turn anything read from storage into valid preferences.
- *
- * Corrupt values, unknown flame ids (for example a flame removed in a later
- * version) and impossible combinations all degrade to "おまかせ" / the free
- * scene instead of throwing or leaving the app in a half-applied state.
- */
-export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
-  if (!isRecord(raw)) {
-    return { ...DEFAULT_PLUS_PREFERENCES, favoriteFlames: [], mix: makeAmbientMix(), sceneMixes: {} };
-  }
-
+const normalizeFlameSettings = (raw: Record<string, unknown>): FlameSettings => {
   const favorites: FlameId[] = [];
   if (Array.isArray(raw.favoriteFlames)) {
     for (const id of raw.favoriteFlames) {
@@ -94,6 +94,28 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
   let flameMode: FlameMode = 'auto';
   if (raw.flameMode === 'fixed' && hasValidFixed) flameMode = 'fixed';
   if (raw.flameMode === 'favorites' && favorites.length > 0) flameMode = 'favorites';
+  if (raw.flameMode === 'shuffle') flameMode = 'shuffle';
+  return { flameMode, fixedFlame, favoriteFlames: favorites };
+};
+
+const normalizeCampfireSet = (raw: unknown): SavedCampfireSet | null => {
+  if (!isRecord(raw) || !isSceneId(raw.scene) || typeof raw.name !== 'string') return null;
+  const name = Array.from(raw.name.trim()).slice(0, CAMPFIRE_SET_NAME_LIMIT).join('');
+  if (!name) return null;
+  return { ...normalizeFlameSettings(raw), name, scene: raw.scene, mix: normalizeMix(raw.mix) };
+};
+
+/** Read legacy preferences and discard invalid choices without disturbing valid settings. */
+export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
+  if (!isRecord(raw)) {
+    return {
+      ...DEFAULT_PLUS_PREFERENCES,
+      favoriteFlames: [],
+      mix: makeAmbientMix(),
+      sceneMixes: {},
+      campfireSets: emptyCampfireSets(),
+    };
+  }
 
   const scene = isSceneId(raw.scene) ? raw.scene : 'night';
   const sourceSceneMixes = isRecord(raw.sceneMixes) ? raw.sceneMixes : {};
@@ -103,16 +125,17 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
       sceneMixes[id] = normalizeMix(sourceSceneMixes[id]);
     }
   }
+  const sourceSets = Array.isArray(raw.campfireSets) ? raw.campfireSets : [];
+  const campfireSets = Array.from({ length: CAMPFIRE_SET_SLOTS }, (_, index) => normalizeCampfireSet(sourceSets[index]));
 
   return {
     version: 1,
-    flameMode,
-    fixedFlame,
-    favoriteFlames: favorites,
+    ...normalizeFlameSettings(raw),
     lastRealFlame: isFlameId(raw.lastRealFlame) ? raw.lastRealFlame : null,
     scene,
     mix: normalizeMix(raw.mix),
     sceneMixes,
+    campfireSets,
   };
 };
 

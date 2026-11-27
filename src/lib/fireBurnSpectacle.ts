@@ -15,6 +15,7 @@ export const PLUS_BURN_TYPES = [
   'aurora', 'moonFrost', 'firefly',
   'maple', 'lotus', 'daybreak',
   'thunder', 'comet', 'magma',
+  'lantern', 'seaGlass', 'starRain', 'iris',
 ] as const;
 
 export type PlusBurnSpectacleType = (typeof PLUS_BURN_TYPES)[number];

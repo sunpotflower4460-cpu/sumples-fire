@@ -1,3 +1,4 @@
+import { getFlame } from '../flames';
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import { usePlus } from '../usePlus';
@@ -16,9 +17,11 @@ export function PlusSettingsCard() {
   const { flameMode, fixedFlame, favoriteFlames, scene } = effectivePreferences;
   const entryDetail = {
     flames: flameMode === 'fixed' ? getFlame(fixedFlame).label
-      : flameMode === 'favorites' ? `お気に入り${favoriteFlames.length}種類` : COPY.flameAuto,
+      : flameMode === 'favorites' ? `お気に入り${favoriteFlames.length}種類`
+        : flameMode === 'shuffle' ? COPY.flameShuffle : COPY.flameAuto,
     scene: SCENES[scene].label,
-    monthly: '',
+    sets: '',
+    monthly: '年間表示',
     intro: '',
   };
 
@@ -87,4 +90,3 @@ export function PlusSettingsCard() {
     </section>
   );
 }
-import { getFlame } from '../flames';

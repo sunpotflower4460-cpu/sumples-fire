@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import type { FireSeed } from '../../types/fireSeed';
 import {
   WEEKDAY_HEADERS,
@@ -6,13 +6,15 @@ import {
   canGoToNextMonth,
   canGoToPreviousMonth,
   collectBurnRecords,
-  createSampleRecords,
+  createSampleYearRecords,
   describeDay,
   getFirstRecordDateKey,
+  getFirstRecordMonth,
   getMonthStatus,
   monthOf,
   shiftMonth,
   summarizeMonth,
+  summarizeYear,
   weekdayLabel,
 } from '../monthlySummary';
 import type { MonthRef } from '../monthlySummary';
@@ -20,6 +22,7 @@ import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import { usePlus } from '../usePlus';
 import { PlusDialog } from './PlusDialog';
+import { YearOverview } from './YearOverview';
 
 /** Event the app listens for to open a record in the free ash history. */
 export const SHOW_ASH_RECORD_EVENT = 'fire:show-ash-record';
@@ -37,25 +40,54 @@ const formatStart = (dateKey: string) => {
   return `${year}年${month}月${day}日`;
 };
 
+function SummaryStats({ count, ash, days }: { count: number; ash: number; days: number }) {
+  return (
+    <div className="plus-month-stats">
+      <div>
+        <p><strong>{count}</strong><span>件</span></p>
+        <small>{COPY.historyCount}</small>
+      </div>
+      <div>
+        <p><strong>{ash}</strong><span>炭</span></p>
+        <small>{COPY.historyCharcoal}</small>
+      </div>
+      <div>
+        <p><strong>{days}</strong><span>日</span></p>
+        <small>Fireした日数</small>
+      </div>
+    </div>
+  );
+}
+
 export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
   const { state, entitled } = usePlus();
   const headingId = useId();
+  const periodHeading = useRef<HTMLHeadingElement>(null);
   const today = useMemo(() => new Date(), []);
-  const [viewed, setViewed] = useState<MonthRef>(() => monthOf(today));
+  const currentMonth = monthOf(today);
+  const [viewed, setViewed] = useState<MonthRef>(currentMonth);
+  const [year, setYear] = useState(currentMonth.year);
   const [selectedDay, setSelectedDay] = useState<number | null | undefined>(undefined);
-  const [view, setView] = useState<'calendar' | 'days'>('calendar');
+  const [view, setView] = useState<'calendar' | 'days' | 'year'>('calendar');
 
   // Owners see their own device's records; everyone else sees a labelled example.
   const real = useMemo(() => collectBurnRecords(seeds), [seeds]);
   const records = useMemo(
-    () => (entitled ? real.records : createSampleRecords(today)),
+    () => (entitled ? real.records : createSampleYearRecords(today)),
     [entitled, real.records, today],
   );
-  const month = entitled ? viewed : monthOf(today);
+  const month = entitled || viewed.year === currentMonth.year ? viewed : currentMonth;
+  const shownYear = entitled ? year : currentMonth.year;
   const summary = useMemo(() => summarizeMonth(records, month.year, month.month), [records, month.year, month.month]);
+  const annual = useMemo(() => summarizeYear(
+    records.filter((record) => record.year !== currentMonth.year || record.month <= currentMonth.month),
+    shownYear,
+  ), [records, shownYear, currentMonth.year, currentMonth.month]);
   const status = getMonthStatus(records, month, summary);
   const weeks = useMemo(() => buildCalendarWeeks(month.year, month.month), [month.year, month.month]);
   const firstDateKey = entitled ? getFirstRecordDateKey(real.records) : null;
+  const firstMonth = entitled ? getFirstRecordMonth(real.records) ?? currentMonth
+    : { year: currentMonth.year, month: 1 };
   const isFirstMonth = firstDateKey !== null && firstDateKey.startsWith(`${month.year}-${String(month.month).padStart(2, '0')}`);
 
   // Default to the latest day that has records; an explicit pick (or "none") sticks.
@@ -65,8 +97,16 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
   const dayList = [...summary.days.values()].sort((a, b) => b.day - a.day);
 
   const goTo = (delta: number) => {
-    setViewed((current) => shiftMonth(current, delta));
+    if (view === 'year') setYear((current) => current + delta);
+    else setViewed((current) => shiftMonth(current, delta));
     setSelectedDay(undefined);
+  };
+
+  const openMonth = (next: MonthRef) => {
+    setViewed(next);
+    setSelectedDay(undefined);
+    setView('calendar');
+    periodHeading.current?.focus();
   };
 
   const showRecord = (id: string) => {
@@ -75,7 +115,8 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
   };
 
   const canGoBack = state.routeStack.length > 1;
-  const title = `${month.year}年${month.month}月`;
+  const annualView = view === 'year';
+  const title = annualView ? `${shownYear}年` : `${month.year}年${month.month}月`;
 
   return (
     <PlusDialog
@@ -97,40 +138,28 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
         <button
           type="button"
           className="plus-icon-button"
-          aria-label="前の月"
+          aria-label={annualView ? '前年' : '前の月'}
           onClick={() => goTo(-1)}
-          disabled={!entitled || !canGoToPreviousMonth(records, month)}
+          disabled={!entitled || !(annualView ? shownYear > firstMonth.year : canGoToPreviousMonth(records, month))}
         >
           <Arrow direction="left" />
         </button>
-        <h3 aria-live="polite">{title}</h3>
+        <h3 ref={periodHeading} tabIndex={-1} aria-live="polite">{title}</h3>
         <button
           type="button"
           className="plus-icon-button"
-          aria-label="次の月"
+          aria-label={annualView ? '翌年' : '次の月'}
           onClick={() => goTo(1)}
-          disabled={!entitled || !canGoToNextMonth(month, today)}
+          disabled={!entitled || !(annualView ? shownYear < currentMonth.year : canGoToNextMonth(month, today))}
         >
           <Arrow direction="right" />
         </button>
       </div>
 
-      <div className="plus-month-stats">
-        <div>
-          <p><strong>{summary.count}</strong><span>件</span></p>
-          <small>{COPY.historyCount}</small>
-        </div>
-        <div>
-          <p><strong>{summary.ash}</strong><span>炭</span></p>
-          <small>{COPY.historyCharcoal}</small>
-        </div>
-        <div>
-          <p><strong>{summary.days.size}</strong><span>日</span></p>
-          <small>Fireした日数</small>
-        </div>
-      </div>
+      {annualView ? <SummaryStats count={annual.count} ash={annual.ash} days={annual.activeDays} />
+        : <SummaryStats count={summary.count} ash={summary.ash} days={summary.days.size} />}
 
-      <fieldset className="plus-segmented plus-catalog-switch">
+      <fieldset className="plus-segmented">
         <legend className="sr-only">ふりかえりの表示</legend>
         <label className={view === 'calendar' ? 'is-active' : undefined}>
           <input type="radio" name="plus-review-view" checked={view === 'calendar'} onChange={() => setView('calendar')} />
@@ -140,9 +169,29 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
           <input type="radio" name="plus-review-view" checked={view === 'days'} onChange={() => setView('days')} />
           <span>日別一覧</span>
         </label>
+        <label className={annualView ? 'is-active' : undefined}>
+          <input
+            type="radio"
+            name="plus-review-view"
+            checked={annualView}
+            onChange={() => {
+              setYear(month.year);
+              setView('year');
+            }}
+          />
+          <span>年間</span>
+        </label>
       </fieldset>
 
-      {view === 'calendar' ? <table className="plus-calendar" aria-label={`${title}のカレンダー`}>
+      {annualView ? (
+        <YearOverview
+          year={shownYear}
+          summary={annual}
+          firstMonth={firstMonth}
+          currentMonth={currentMonth}
+          openMonth={openMonth}
+        />
+      ) : view === 'calendar' ? <table className="plus-calendar" aria-label={`${title}のカレンダー`}>
         <thead>
           <tr>
             {WEEKDAY_HEADERS.map((weekday) => <th key={weekday} scope="col">{weekday}</th>)}
@@ -199,7 +248,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
         </ul>
       ) : null}
 
-      {status === 'recorded' && view === 'calendar' ? (
+      {annualView ? null : status === 'recorded' && view === 'calendar' ? (
         <p className="plus-help">印のある日を選ぶと、終えたことが見られます。</p>
       ) : status === 'beforeStart' ? (
         <p className="plus-help">記録開始前の月です。</p>
@@ -207,7 +256,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
         <p className="plus-help">{COPY.historyEmpty}</p>
       ) : null}
 
-      {dayDetail ? (
+      {!annualView && dayDetail ? (
         <section className="plus-day-detail" aria-labelledby={`${headingId}-day`}>
           <h4 id={`${headingId}-day`}>
             {month.month}月{dayDetail.day}日（{weekdayLabel(month.year, month.month, dayDetail.day)}）
@@ -234,7 +283,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
         </section>
       ) : null}
 
-      {entitled && isFirstMonth && firstDateKey ? (
+      {entitled && !annualView && isFirstMonth && firstDateKey ? (
         <p className="plus-help">{COPY.historyStart(formatStart(firstDateKey))}</p>
       ) : null}
       {entitled && real.undatedCount > 0 ? (

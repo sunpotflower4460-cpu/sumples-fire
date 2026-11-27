@@ -292,11 +292,11 @@ test.describe('Fire choice', () => {
 
     const grid = picker.getByRole('list', { name: '炎の一覧' });
     const ritual = picker.locator('.burning-ritual.is-preview');
-    await expect(grid.getByRole('button')).toHaveCount(9);
-    await picker.locator('[data-flame-id="aurora"]').click();
+    await expect(grid.getByRole('button')).toHaveCount(13);
+    await picker.locator('[data-flame-id="seaGlass"]').click();
     await expect(ritual).toBeHidden(); // browsing is silent and does not start a Fire
     await picker.getByRole('button', { name: '試し見', exact: true }).click();
-    await expect(ritual).toHaveClass(/spectacle-aurora/);
+    await expect(ritual).toHaveClass(/spectacle-seaGlass/);
     await expect(ritual).toContainText('試し見');
     await expect(ritual).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
@@ -608,6 +608,53 @@ test.describe('scenes and ambient sound', () => {
   });
 });
 
+test.describe('campfire sets', () => {
+  test('previews a set before purchase and applies the selected flame, scene and mix together', async ({ page }) => {
+    await launch(page, {}, { fireSoundOff: true });
+    const intro = await openIntro(page);
+    await intro.getByRole('button', { name: /^炎と焚き火をセットで選ぶ/ }).click();
+    const sets = plusDialog(page, '焚き火セット');
+    await expect(sets.getByRole('group', { name: 'おすすめの組み合わせ' }).getByRole('radio')).toHaveCount(6);
+    await sets.getByRole('radio', { name: '波を待つ浜辺' }).check();
+    await expect(sets.getByRole('region', { name: '波を待つ浜辺' })).toContainText('海硝子の炎');
+    expect(await stored(page, PREFS_KEY)).toBeNull();
+
+    await sets.getByRole('button', { name: 'Plusでこのセットを使う' }).click();
+    await buyPlus(page);
+    await page.getByRole('button', { name: '選んだ設定を使う' }).click();
+    await expect(sets).toBeHidden();
+    expect(await storedJson(page, PREFS_KEY)).toMatchObject({
+      scene: 'coast', fixedFlame: 'seaGlass', flameMode: 'fixed', mix: { waves: 68 },
+    });
+  });
+
+  test('applies a saved personal set after a restart, with the recorded selection mode and mix', async ({ page }) => {
+    await launch(page, {}, { owned: true, storage: {
+      [PREFS_KEY]: JSON.stringify({ scene: 'lake', mix: { fire: 32 }, flameMode: 'shuffle' }),
+    } });
+    await goToTab(page, '設定');
+    await page.getByRole('button', { name: '焚き火セット', exact: true }).click();
+    const sets = plusDialog(page, '焚き火セット');
+    await sets.getByRole('radio', { name: 'マイセット', exact: true }).check();
+    await sets.getByLabel('セット名').fill('夜のひと息');
+    await sets.getByRole('button', { name: '現在の設定を保存' }).click();
+    await expect(sets.getByText('現在の設定をセットに保存しました。')).toBeVisible();
+    await sets.getByRole('radio', { name: 'おすすめ', exact: true }).check();
+    await sets.getByRole('button', { name: 'このセットを使う' }).click();
+    await expect(sets.getByText('このセットを適用しました。')).toBeVisible();
+    expect(await storedJson(page, PREFS_KEY)).toMatchObject({ scene: 'aurora', fixedFlame: 'aurora' });
+
+    await page.reload();
+    await goToTab(page, '設定');
+    await page.getByRole('button', { name: '焚き火セット', exact: true }).click();
+    await sets.getByRole('radio', { name: 'マイセット', exact: true }).check();
+    await expect(sets.getByRole('region', { name: '夜のひと息' })).toContainText('全種類シャッフル');
+    await sets.getByRole('button', { name: 'このセットを使う' }).click();
+    await expect(sets.getByText('このセットを適用しました。')).toBeVisible();
+    expect(await storedJson(page, PREFS_KEY)).toMatchObject({ scene: 'lake', flameMode: 'shuffle', mix: { fire: 32 } });
+  });
+});
+
 test.describe('monthly review', () => {
   const thisMonthIso = (day: number, hour = 12) => {
     const now = new Date();
@@ -617,6 +664,26 @@ test.describe('monthly review', () => {
     id, title, body: '', nextAction: '', category: 'task', priority: 'medium', stage: 'flame',
     difficulty: 'normal', urgency: 'high', importance: 'high', quadrant: 'doNow', ashPoints: 5,
     burned: true, completed: true, createdAt: thisMonthIso(1), updatedAt: thisMonthIso(1), ...extra,
+  });
+
+  test('annual view navigates to last year and opens a recorded month', async ({ page }) => {
+    const pastYear = new Date().getFullYear() - 1;
+    await launch(page, {}, { owned: true, storage: {
+      [SEEDS_KEY]: JSON.stringify([seed('past', '前年の記録', {
+        burnedAt: `${pastYear}-06-09T12:00:00.000Z`,
+        burnedLocalDate: `${pastYear}-06-09`,
+        ashPoints: 12,
+      })]),
+    } });
+    await goToTab(page, '炭');
+    await page.getByRole('button', { name: /月ごとに見る/ }).click();
+    const monthly = plusDialog(page, '月別ふりかえり');
+    await monthly.getByRole('radio', { name: '年間', exact: true }).check();
+    await monthly.getByRole('button', { name: '前年' }).click();
+    await expect(monthly.locator('.plus-month-stats')).toContainText('12');
+    await monthly.getByRole('button', { name: '6月、1件、炭12、1日' }).click();
+    await expect(monthly.getByRole('table', { name: `${pastYear}年6月のカレンダー` })).toBeVisible();
+    await expect(monthly.getByText('前年の記録', { exact: true })).toBeVisible();
   });
 
   test('a free user sees a clearly labelled example, never their own records dressed as one', async ({ page }) => {

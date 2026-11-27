@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { DURABLE_STORAGE_KEYS } from '../lib/appStorage';
 import { PLUS_BURN_TYPES, spectacles } from '../lib/fireBurnSpectacle';
 import { makeAmbientMix } from './ambientOptions';
+import { CAMPFIRE_PRESETS, applyCampfirePreset, applyCampfireSet, captureCampfireSet } from './campfireSets';
 import { AUTO_FLAME_IDS, FLAME_IDS, getFlame } from './flames';
 import {
   DEFAULT_PLUS_PREFERENCES,
+  CAMPFIRE_SET_SLOTS,
   PLUS_PREFERENCES_KEY,
   clampVolume,
   normalizePlusPreferences,
@@ -16,8 +18,8 @@ import {
 import { SCENE_IDS, SCENES } from './scenes';
 
 describe('flame catalog', () => {
-  it('keeps the nine automatic flames and adds nine distinct Plus designs', () => {
-    expect(FLAME_IDS).toHaveLength(18);
+  it('includes nine automatic flames and thirteen distinct Plus designs', () => {
+    expect(FLAME_IDS).toHaveLength(22);
     expect(new Set(FLAME_IDS).size).toBe(FLAME_IDS.length);
     expect([...AUTO_FLAME_IDS].sort()).toEqual(Object.keys(spectacles).sort());
     expect(AUTO_FLAME_IDS.map((id) => getFlame(id).label)).toEqual([
@@ -62,6 +64,38 @@ describe('plus preferences storage', () => {
     expect(coast.mix.waves).toBe(41);
     const reloaded = parsePlusPreferences(serializePlusPreferences({ ...legacy, ...coast }));
     expect(switchScene(reloaded, 'brook').mix).toEqual(makeAmbientMix());
+  });
+
+  it('round-trips a personal set and restores its mix and flame selection together', () => {
+    const baseline = normalizePlusPreferences({
+      scene: 'lake', mix: { fire: 15 }, flameMode: 'favorites', favoriteFlames: ['iris', 'lotus'],
+    });
+    const saved = { ...captureCampfireSet(baseline), name: ' 雨の日 ' };
+    const reloaded = parsePlusPreferences(serializePlusPreferences({
+      ...baseline,
+      ...applyCampfirePreset(baseline, CAMPFIRE_PRESETS[2]),
+      campfireSets: [saved, null, null, null],
+    }));
+    expect(reloaded).toMatchObject({ scene: 'coast', fixedFlame: 'seaGlass', favoriteFlames: ['iris', 'lotus'] });
+    expect(reloaded.campfireSets[0]?.name).toBe('雨の日');
+    const restored = applyCampfireSet(reloaded, reloaded.campfireSets[0]!);
+    expect(restored).toMatchObject({ scene: 'lake', flameMode: 'favorites', favoriteFlames: ['iris', 'lotus'], mix: { fire: 15 } });
+    expect(restored.sceneMixes.coast?.waves).toBe(68);
+  });
+
+  it('normalizes a bounded set library when older or corrupt data is read', () => {
+    const legacy = normalizePlusPreferences({ fixedFlame: 'lotus', flameMode: 'fixed' });
+    expect(legacy.campfireSets).toEqual([null, null, null, null]);
+    const corrupt = normalizePlusPreferences({ campfireSets: [
+      { name: '古い景色', scene: 'invalid' },
+      { name: ' ', scene: 'lake' },
+      { name: ' 湖 ', scene: 'lake', mix: { fire: 170 }, flameMode: 'shuffle' },
+      4,
+      { name: '余分な設定', scene: 'lake' },
+    ] });
+    expect(corrupt.campfireSets).toHaveLength(CAMPFIRE_SET_SLOTS);
+    expect(corrupt.campfireSets[2]).toMatchObject({ name: '湖', mix: { fire: 100 }, flameMode: 'shuffle' });
+    expect(corrupt.campfireSets.filter(Boolean)).toHaveLength(1);
   });
 
   it('a removed or unknown flame id degrades to おまかせ instead of breaking', () => {

@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { FlameArtwork } from '../../components/FlameArtwork';
 import { isPlusBurnSpectacle, PLUS_BURN_TYPES } from '../../lib/fireBurnSpectacle';
-import { AUTO_FLAME_IDS, getFlameEntry } from '../flames';
+import { AUTO_FLAME_IDS, FLAME_IDS, getFlameEntry } from '../flames';
 import type { FlameId } from '../flames';
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
@@ -19,12 +19,14 @@ const MODES: { id: FlameMode; label: string }[] = [
   { id: 'auto', label: COPY.flameAuto },
   { id: 'fixed', label: COPY.flameFixed },
   { id: 'favorites', label: COPY.flameFavorites },
+  { id: 'shuffle', label: COPY.flameShuffle },
 ];
 
 const MODE_HELP: Record<FlameMode, string> = {
   auto: `タスクや連続日数に応じて、無料の${AUTO_FLAME_IDS.length}種類から決まります。`,
   fixed: '選んだ炎を毎回使います。',
   favorites: '登録した炎から選びます。2種類以上なら、前回と同じ炎は続けて出ません。',
+  shuffle: `全${FLAME_IDS.length}種類から、前回とは違う炎を選びます。`,
 };
 
 const CATALOGS = {
@@ -49,7 +51,7 @@ export function FlamePickerScreen() {
   const active = getFlameEntry(activeId);
   const validation = validatePlusPreferences(draft);
   const saving = saveStatus === 'saving';
-  const choosing = draft.flameMode !== 'auto';
+  const choosing = draft.flameMode === 'fixed' || draft.flameMode === 'favorites';
   const favoriteCount = draft.favoriteFlames.length;
 
   const setDraft = (next: PlusPreferences) => {
@@ -93,8 +95,9 @@ export function FlamePickerScreen() {
     setSaveStatus(result.ok ? 'saved' : 'failed');
   };
 
-  const purchaseLabel = !choosing ? 'Plusの購入内容を見る'
-    : draft.flameMode === 'fixed' ? 'Plusで、この炎を使う' : 'Plusで、お気に入りを使う';
+  const purchaseLabel = draft.flameMode === 'fixed' ? 'Plusで、この炎を使う'
+    : draft.flameMode === 'favorites' ? 'Plusで、お気に入りを使う'
+      : draft.flameMode === 'shuffle' ? 'Plusで、全種類をシャッフル' : 'Plusの購入内容を見る';
 
   return (
     <PlusDialog
@@ -130,7 +133,7 @@ export function FlamePickerScreen() {
         </div>
       )}
     >
-      <fieldset className="plus-segmented" aria-describedby={`${headingId}-mode-help`} disabled={saving}>
+      <fieldset className="plus-segmented plus-flame-modes" aria-describedby={`${headingId}-mode-help`} disabled={saving}>
         <legend className="sr-only">炎の選び方</legend>
         {MODES.map((mode) => (
           <label key={mode.id} className={draft.flameMode === mode.id ? 'is-active' : undefined}>

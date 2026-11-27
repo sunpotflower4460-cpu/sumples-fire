@@ -1,5 +1,6 @@
 import { getAppStorageDriver, writeDurableConfirmed } from '../lib/appStorage';
 import type { FlameId } from './flames';
+import type { CampfirePreset } from './campfireSets';
 import { PLUS_PREFERENCES_KEY } from './plusConstants';
 import {
   DEFAULT_PLUS_PREFERENCES,
@@ -15,13 +16,14 @@ import { canStartPurchase, initialStoreState, isPlusActive, storeReducer } from 
 import type { PlusStoreState, StoreAction } from './storeState';
 
 /** The Plus screens. Only one is shown at a time; the rest of the stack waits underneath. */
-export type PlusRoute = 'intro' | 'flames' | 'scene' | 'monthly';
+export type PlusRoute = 'intro' | 'flames' | 'scene' | 'sets' | 'monthly';
 
 export type SaveResult =
   | { ok: true }
   | { ok: false; reason: 'notEntitled' | 'invalid' | 'storage' };
 
 type PreferenceChanges = Partial<Omit<PlusPreferences, 'version' | 'lastRealFlame'>>;
+export type PreferenceUpdate = PreferenceChanges | ((current: PlusPreferences) => PreferenceChanges);
 
 export type PlusState = {
   store: PlusStoreState;
@@ -32,6 +34,7 @@ export type PlusState = {
   flameDraft: PlusPreferences | null;
   /** Scene + mix the person was trying when they were sent to the purchase screen. */
   sceneDraft: PlusPreferences | null;
+  presetDraft: CampfirePreset | null;
 };
 
 type PlusStoreDeps = {
@@ -47,6 +50,7 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     routeStack: [],
     flameDraft: null,
     sceneDraft: null,
+    presetDraft: null,
   };
   const listeners = new Set<() => void>();
   let service: PlusPurchaseService | null = null;
@@ -123,9 +127,10 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
    * `committed` state only changes after the write truly succeeded; on failure
    * nothing is claimed and the caller keeps the draft so it can retry.
    */
-  const savePreferences = (changes: PreferenceChanges): Promise<SaveResult> => {
+  const savePreferences = (update: PreferenceUpdate): Promise<SaveResult> => {
     const run = async (): Promise<SaveResult> => {
       if (!isPlusActive(state.store)) return { ok: false, reason: 'notEntitled' };
+      const changes = typeof update === 'function' ? update(state.preferences) : update;
       const candidate = { ...state.preferences, ...changes, lastRealFlame: state.preferences.lastRealFlame };
       if (validatePlusPreferences(candidate)) return { ok: false, reason: 'invalid' };
       const normalized = normalizePlusPreferences(candidate);
@@ -162,8 +167,12 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
       const active = typeof document !== 'undefined' ? document.activeElement : null;
       returnFocus = trigger ?? (active && typeof HTMLElement !== 'undefined' && active instanceof HTMLElement ? active : null);
     }
-    if (state.routeStack[state.routeStack.length - 1] === route) return;
-    setState({ routeStack: [...state.routeStack, route] });
+    const current = state.routeStack[state.routeStack.length - 1];
+    if (current === route) return;
+    setState({
+      routeStack: [...state.routeStack, route],
+      ...(route === 'intro' && current !== 'sets' ? { presetDraft: null } : {}),
+    });
   };
 
   const closeScreen = () => {
@@ -172,12 +181,12 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     setState({
       routeStack: stack,
       // Drafts only survive while a purchase screen is above (or below) them.
-      ...(stack.length === 0 ? { flameDraft: null, sceneDraft: null } : {}),
+      ...(stack.length === 0 ? { flameDraft: null, sceneDraft: null, presetDraft: null } : {}),
     });
   };
 
   const closeAll = () => {
-    setState({ routeStack: [], flameDraft: null, sceneDraft: null });
+    setState({ routeStack: [], flameDraft: null, sceneDraft: null, presetDraft: null });
   };
 
   const takeReturnFocus = () => {
@@ -204,6 +213,7 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     recordRealFlame,
     setFlameDraft: (flameDraft: PlusPreferences | null) => setState({ flameDraft }),
     setSceneDraft: (sceneDraft: PlusPreferences | null) => setState({ sceneDraft }),
+    setPresetDraft: (presetDraft: CampfirePreset) => setState({ presetDraft }),
     openScreen,
     closeScreen,
     closeAll,
