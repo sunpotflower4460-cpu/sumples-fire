@@ -1,5 +1,5 @@
 /**
- * Procedural ambient layers for the Plus scenes — 火の音, 雨だれ, 夜の風.
+ * Procedural ambient layers for the Plus scenes.
  *
  * Everything is synthesised (no audio files, no downloads, no SDK), and every
  * layer is built to loop without a click:
@@ -8,12 +8,12 @@
  *     starts near the end simply rings on at the start of the loop
  * Pure functions: testable and analysable without Web Audio.
  */
-export type AmbientLayerId = 'fire' | 'rain' | 'wind';
-
-export const AMBIENT_LAYERS: readonly AmbientLayerId[] = ['fire', 'rain', 'wind'];
+import type { AmbientLayerId } from './ambientOptions';
 
 /** Loop lengths differ so the layers never re-align into an audible pattern. */
-export const AMBIENT_LOOP_SECONDS: Record<AmbientLayerId, number> = { fire: 9, rain: 11, wind: 14 };
+export const AMBIENT_LOOP_SECONDS: Record<AmbientLayerId, number> = {
+  fire: 9, rain: 11, wind: 14, waves: 17, stream: 13, insects: 19,
+};
 
 /** A calm sample rate: ambient layers carry little above 10 kHz. */
 export const AMBIENT_SAMPLE_RATE = 24000;
@@ -297,6 +297,102 @@ const renderWind = (sampleRate: number, seconds: number, rng: Rng): StereoLoop =
   return { left, right };
 };
 
+/* ── 波音: a rolling low wash followed by a thinner surf hiss ── */
+const renderWaves = (sampleRate: number, seconds: number, rng: Rng): StereoLoop => {
+  const length = Math.floor(sampleRate * seconds);
+  const fade = Math.min(Math.floor(sampleRate * 0.5), length);
+  const phaseOffset = rng();
+
+  const channel = (offset: number) => {
+    const wash = new Biquad().bandpass(190, 0.5, sampleRate);
+    const foam = new Biquad().bandpass(1490, 0.6, sampleRate);
+    const bed = new Float32Array(length + fade);
+    for (let i = 0; i < bed.length; i += 1) {
+      const time = i / length + phaseOffset;
+      const swell = 0.5 + 0.5 * Math.cos(2 * Math.PI * (3 * time + offset));
+      const crest = 0.5 + 0.5 * Math.cos(2 * Math.PI * (3 * time + offset - 0.19));
+      const tide = 0.82 + 0.18 * Math.sin(2 * Math.PI * time);
+      const noise = rng() * 2 - 1;
+      bed[i] = tide * (
+        wash.process(noise) * (0.18 + 1.7 * swell ** 2)
+        + foam.process(noise) * (0.08 + 0.55 * crest ** 3)
+      );
+    }
+    return toLoop(bed, length, fade);
+  };
+
+  const left = channel(0);
+  const right = channel(0.025);
+  peakNormalize(left, right, 0.8);
+  return { left, right };
+};
+
+/* ── せせらぎ: a continuous soft flow with restless, higher bubbles ── */
+const renderStream = (sampleRate: number, seconds: number, rng: Rng): StereoLoop => {
+  const length = Math.floor(sampleRate * seconds);
+  const fade = Math.min(Math.floor(sampleRate * 0.4), length);
+
+  const channel = () => {
+    const current = new Biquad().bandpass(530, 0.62, sampleRate);
+    const bubbles = new Biquad();
+    const bed = new Float32Array(length + fade);
+    const drift = smooth(rng, bed.length, sampleRate, 3, 0.45);
+    for (let i = 0; i < bed.length; i += 1) {
+      if (i % 64 === 0) bubbles.bandpass(950 + 1000 * Math.min(2, drift[i]), 2.2, sampleRate);
+      const noise = rng() * 2 - 1;
+      bed[i] = current.process(noise) * 0.72 + bubbles.process(noise) * 0.68 * drift[i];
+    }
+    return toLoop(bed, length, fade);
+  };
+
+  const left = channel();
+  const right = channel();
+  peakNormalize(left, right, 0.79);
+  return { left, right };
+};
+
+/* ── 虫の声: alternating groups of short, softly pitched evening chirps ── */
+const renderInsects = (sampleRate: number, seconds: number, rng: Rng): StereoLoop => {
+  const length = Math.floor(sampleRate * seconds);
+  const left = new Float32Array(length);
+  const right = new Float32Array(length);
+
+  let time = rng() * 0.6;
+  while (time < seconds) {
+    const pitch = 2200 + rng() * 1200;
+    const duration = 0.23 + rng() * 0.32;
+    const pan = 0.18 + rng() * 0.64;
+    const gain = 0.22 + rng() * 0.4;
+    const start = Math.floor(time * sampleRate);
+    const samples = Math.floor(duration * sampleRate);
+    const trills = 3 + Math.floor(rng() * 5);
+    for (let i = 0; i < samples; i += 1) {
+      const progress = i / samples;
+      const secondsIntoChirp = i / sampleRate;
+      const pulse = Math.sin(Math.PI * progress * trills) ** 4;
+      const envelope = Math.sin(Math.PI * progress) * pulse;
+      const tone = Math.sin(2 * Math.PI * secondsIntoChirp * (pitch - 100 * progress));
+      const texture = (rng() * 2 - 1) * 0.08;
+      const sound = (tone + texture) * envelope * gain;
+      addWrapped(left, start + i, sound * Math.sqrt(1 - pan));
+      addWrapped(right, start + i, sound * Math.sqrt(pan));
+    }
+    time += 0.36 + rng() * 0.88;
+  }
+
+  peakNormalize(left, right, 0.75);
+  return { left, right };
+};
+
+const RENDER_LAYERS: Record<AmbientLayerId, typeof renderFire> = {
+  fire: renderFire, rain: renderRain, wind: renderWind,
+  waves: renderWaves, stream: renderStream, insects: renderInsects,
+};
+
+const SEED_OFFSET: Record<AmbientLayerId, number> = {
+  fire: 11, rain: 23, wind: 37, waves: 53, stream: 79, insects: 97,
+};
+
 /** Render one loopable stereo layer. Deterministic for a given seed. */
 export const renderAmbientLayer = (
   layer: AmbientLayerId,
@@ -304,16 +400,15 @@ export const renderAmbientLayer = (
   seed = 1,
   seconds: number = AMBIENT_LOOP_SECONDS[layer],
 ): StereoLoop => {
-  const rng = mulberry32(seed + (layer === 'fire' ? 11 : layer === 'rain' ? 23 : 37));
-  if (layer === 'fire') return renderFire(sampleRate, seconds, rng);
-  if (layer === 'rain') return renderRain(sampleRate, seconds, rng);
-  return renderWind(sampleRate, seconds, rng);
+  return RENDER_LAYERS[layer](sampleRate, seconds, mulberry32(seed + SEED_OFFSET[layer]));
 };
 
 /** Slider (0–100) → linear gain. Quadratic so small settings stay gentle. */
-export const LAYER_MAX_GAIN: Record<AmbientLayerId, number> = { fire: 0.55, rain: 0.5, wind: 0.42 };
+export const LAYER_MAX_GAIN: Record<AmbientLayerId, number> = {
+  fire: 0.55, rain: 0.5, wind: 0.42, waves: 0.55, stream: 0.45, insects: 0.32,
+};
 
 export const volumeToGain = (layer: AmbientLayerId, volume: number): number => {
-  const v = Math.min(100, Math.max(0, volume)) / 100;
+  const v = Number.isFinite(volume) ? Math.min(100, Math.max(0, volume)) / 100 : 0;
   return LAYER_MAX_GAIN[layer] * v * v;
 };

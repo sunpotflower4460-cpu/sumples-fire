@@ -290,15 +290,24 @@ test.describe('Fire choice', () => {
     await dialog.getByRole('button', { name: /^好きな炎を選ぶ/ }).click();
     const picker = plusDialog(page, '炎を選ぶ');
 
-    for (const id of ['normal', 'blueGhost', 'golden', 'explosion', 'dragon', 'cherry', 'ironFire', 'voidFire', 'phoenixRise']) {
-      await picker.locator(`[data-flame-id="${id}"]`).click();
-      const ritual = page.locator('.burning-ritual.is-preview');
-      await expect(ritual).toBeVisible();
-      await expect(ritual).toContainText('試し見');
-      await expect(ritual).toBeHidden({ timeout: RITUAL_TIMEOUT });
-    }
+    const grid = picker.getByRole('list', { name: '炎の一覧' });
+    const ritual = picker.locator('.burning-ritual.is-preview');
+    await expect(grid.getByRole('button')).toHaveCount(9);
+    await picker.locator('[data-flame-id="aurora"]').click();
+    await expect(ritual).toBeHidden(); // browsing is silent and does not start a Fire
+    await picker.getByRole('button', { name: '試し見', exact: true }).click();
+    await expect(ritual).toHaveClass(/spectacle-aurora/);
+    await expect(ritual).toContainText('試し見');
+    await expect(ritual).toBeHidden({ timeout: RITUAL_TIMEOUT });
 
-    await expect(picker.getByText('試し見では、タスクや炭の記録は変わりません。', { exact: false }).or(picker.getByText('試し見は無料です。タスクや炭ポイントには影響しません。'))).toBeVisible();
+    await picker.getByRole('radio', { name: /おまかせの炎/ }).check();
+    await expect(grid.getByRole('button')).toHaveCount(9);
+    await picker.locator('[data-flame-id="phoenixRise"]').click();
+    await picker.getByRole('button', { name: '試し見', exact: true }).click();
+    await expect(ritual).toHaveClass(/spectacle-phoenixRise/);
+    await expect(ritual).toBeHidden({ timeout: RITUAL_TIMEOUT });
+
+    await expect(picker.getByText('試し見では、タスクや炭の記録は変わりません。', { exact: true })).toBeVisible();
     expect(await stored(page, SEEDS_KEY)).toBe(before.seeds);
     expect(await stored(page, STREAK_KEY)).toBe(before.streak);
     expect(await stored(page, PREFS_KEY)).toBe(before.prefs);
@@ -310,16 +319,15 @@ test.describe('Fire choice', () => {
 
   test('buying from the picker keeps the chosen flame; applying it makes real Fires use it, and it survives a restart', async ({ page }) => {
     await launch(page);
-    await addTask(page, '桜で燃やす');
-    await addTask(page, 'もう一度桜で');
+    await addTask(page, '蓮の灯で燃やす');
+    await addTask(page, 'もう一度蓮の灯で');
     const dialog = await openIntro(page);
     await dialog.getByRole('button', { name: /^好きな炎を選ぶ/ }).click();
     const picker = plusDialog(page, '炎を選ぶ');
 
-    await picker.getByRole('radio', { name: 'この炎を使う' }).check();
-    await picker.locator('[data-flame-id="cherry"]').click();
-    await expect(picker.locator('[data-flame-id="cherry"]')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('.burning-ritual.is-preview')).toBeHidden({ timeout: RITUAL_TIMEOUT });
+    await picker.getByRole('radio', { name: '炎を固定' }).check();
+    await picker.locator('[data-flame-id="lotus"]').click();
+    await expect(picker.locator('[data-flame-id="lotus"]')).toHaveAttribute('aria-pressed', 'true');
 
     // Not owned: choosing does not save anything.
     expect(await stored(page, PREFS_KEY)).toBeNull();
@@ -328,11 +336,11 @@ test.describe('Fire choice', () => {
 
     await page.getByRole('button', { name: '選んだ設定を使う' }).click();
     await expect(page.locator('.plus-backdrop')).toHaveCount(0);
-    expect(await storedJson<{ flameMode: string; fixedFlame: string }>(page, PREFS_KEY)).toMatchObject({ flameMode: 'fixed', fixedFlame: 'cherry' });
+    expect(await storedJson<{ flameMode: string; fixedFlame: string }>(page, PREFS_KEY)).toMatchObject({ flameMode: 'fixed', fixedFlame: 'lotus' });
 
     await goToTab(page, '今日');
-    await fireButton(page, '桜で燃やす').click();
-    await expect(page.locator('.burning-ritual.spectacle-cherry')).toBeVisible();
+    await fireButton(page, '蓮の灯で燃やす').click();
+    await expect(page.locator('.burning-ritual.spectacle-lotus')).toBeVisible();
     await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
     expect(await readTotalAsh(page)).toBe(5); // the flame never changes the reward
 
@@ -340,8 +348,8 @@ test.describe('Fire choice', () => {
     await goToTab(page, '設定');
     await expect(page.getByRole('region', { name: 'Fire Task Plus' })).toContainText('購入済み');
     await goToTab(page, '今日');
-    await fireButton(page, 'もう一度桜で').click();
-    await expect(page.locator('.burning-ritual.spectacle-cherry')).toBeVisible();
+    await fireButton(page, 'もう一度蓮の灯で').click();
+    await expect(page.locator('.burning-ritual.spectacle-lotus')).toBeVisible();
     await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
   });
 
@@ -350,15 +358,15 @@ test.describe('Fire choice', () => {
     await goToTab(page, '設定');
     await page.getByRole('region', { name: 'Fire Task Plus' }).getByRole('button', { name: '炎を選ぶ' }).click();
     const picker = plusDialog(page, '炎を選ぶ');
-    await picker.getByRole('radio', { name: 'お気に入りから' }).check();
+    await picker.getByRole('radio', { name: 'お気に入り' }).check();
 
     await expect(picker.getByText('1つ以上選んでください。')).toBeVisible();
     await expect(picker.getByRole('button', { name: 'この設定にする' })).toBeDisabled();
 
-    await picker.locator('[data-flame-id="golden"]').click();
-    await expect(page.locator('.burning-ritual.is-preview')).toBeHidden({ timeout: RITUAL_TIMEOUT });
+    await picker.locator('[data-flame-id="daybreak"]').click();
+    await picker.getByRole('radio', { name: /おまかせの炎/ }).check();
     await picker.locator('[data-flame-id="dragon"]').click();
-    await expect(page.locator('.burning-ritual.is-preview')).toBeHidden({ timeout: RITUAL_TIMEOUT });
+    await expect(picker.getByText('お気に入りに2種類を選択中')).toBeVisible();
 
     // Storage refuses the write: the app must not claim success.
     await page.evaluate((key) => {
@@ -379,7 +387,7 @@ test.describe('Fire choice', () => {
     await picker.getByRole('button', { name: 'この設定にする' }).click();
     await expect(picker.getByText('保存しました。')).toBeVisible();
     expect(await storedJson<{ flameMode: string; favoriteFlames: string[] }>(page, PREFS_KEY))
-      .toMatchObject({ flameMode: 'favorites', favoriteFlames: ['golden', 'dragon'] });
+      .toMatchObject({ flameMode: 'favorites', favoriteFlames: ['daybreak', 'dragon'] });
 
     // Real Fires now use only those two, and never the same one twice in a row.
     await page.keyboard.press('Escape');
@@ -394,7 +402,7 @@ test.describe('Fire choice', () => {
       used.push(/spectacle-(\w+)/.exec(className)?.[1] ?? '');
       await expect(page.locator('.burning-ritual')).toBeHidden({ timeout: RITUAL_TIMEOUT });
     }
-    expect(used.every((id) => id === 'golden' || id === 'dragon')).toBe(true);
+    expect(used.every((id) => id === 'daybreak' || id === 'dragon')).toBe(true);
     for (let i = 1; i < used.length; i += 1) expect(used[i]).not.toBe(used[i - 1]);
   });
 });
@@ -453,6 +461,7 @@ test.describe('scenes and ambient sound', () => {
     await editor.getByRole('radio', { name: /星明かりの湖/ }).check();
     expect((await audio(page)).created).toBe(0); // picking a scene never starts sound
 
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
     await editor.getByRole('button', { name: '音を再生' }).click();
     await expect(editor.getByRole('button', { name: '音を止める' })).toBeVisible();
     expect((await audio(page)).created).toBe(1);
@@ -462,7 +471,9 @@ test.describe('scenes and ambient sound', () => {
 
     // Coming back: stopped, and nothing restarted by itself.
     await page.getByRole('button', { name: '焚き火を整える' }).click();
-    await expect(plusDialog(page, '焚き火を整える').getByRole('button', { name: '音を再生' })).toBeVisible();
+    const reopened = plusDialog(page, '焚き火を整える');
+    await reopened.getByRole('radio', { name: '環境音', exact: true }).check();
+    await expect(reopened.getByRole('button', { name: '音を再生' })).toBeVisible();
     expect((await audio(page)).created).toBe(1);
   });
 
@@ -473,6 +484,7 @@ test.describe('scenes and ambient sound', () => {
     const editor = plusDialog(page, '焚き火を整える');
     await editor.getByRole('radio', { name: /雨あがりの森/ }).check();
 
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
     await editor.getByRole('button', { name: '音を再生' }).click();
     await expect(editor.getByRole('button', { name: '音を止める' })).toBeVisible();
 
@@ -490,6 +502,7 @@ test.describe('scenes and ambient sound', () => {
     await expect(editor.getByRole('button', { name: '音を再生' })).toBeVisible(); // no auto-resume
 
     // A phone call interrupts audio: stop, and do not resume when it ends.
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
     await editor.getByRole('button', { name: '音を再生' }).click();
     await expect(editor.getByRole('button', { name: '音を止める' })).toBeVisible();
     await page.evaluate(() => {
@@ -508,6 +521,7 @@ test.describe('scenes and ambient sound', () => {
     await page.getByRole('button', { name: '焚き火を整える' }).click();
     const editor = plusDialog(page, '焚き火を整える');
     await editor.getByRole('radio', { name: /星明かりの湖/ }).check();
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
     await editor.getByRole('button', { name: '音を再生' }).click();
     await expect(editor.getByRole('button', { name: '音を止める' })).toBeVisible();
 
@@ -521,7 +535,13 @@ test.describe('scenes and ambient sound', () => {
     await goToTab(page, '炭');
     await page.getByRole('button', { name: '焚き火を整える' }).click();
     const editor = plusDialog(page, '焚き火を整える');
-    await editor.getByRole('radio', { name: /星明かりの湖/ }).check();
+    await expect(editor.getByRole('group', { name: '景色の一覧' }).getByRole('radio')).toHaveCount(9);
+    await editor.getByRole('radio', { name: '夕凪の入り江' }).check();
+    await editor.getByRole('radio', { name: '環境音', exact: true }).check();
+    await expect(editor.getByLabel('波音', { exact: true })).toHaveValue('65');
+    await editor.getByLabel('音の組み合わせ').selectOption('brook');
+    await expect(editor.getByLabel('せせらぎ', { exact: true })).toHaveValue('66');
+    await editor.getByLabel('波音', { exact: true }).fill('41');
     await editor.getByLabel('火の音').fill('60');
     await editor.getByLabel('夜の風').fill('25');
 
@@ -542,11 +562,11 @@ test.describe('scenes and ambient sound', () => {
     await editor.getByRole('button', { name: 'この焚き火にする' }).click();
     await expect(editor.getByText('保存しました。')).toBeVisible();
     expect(await storedJson<{ scene: string; mix: Record<string, number> }>(page, PREFS_KEY))
-      .toMatchObject({ scene: 'lake', mix: { fire: 60, wind: 25 } });
+      .toMatchObject({ scene: 'coast', mix: { fire: 60, wind: 25, waves: 41, stream: 66 } });
 
     await page.reload();
     await goToTab(page, '炭');
-    await expect(page.locator('.plus-scene-meta')).toContainText('星明かりの湖');
+    await expect(page.locator('.plus-scene-meta')).toContainText('夕凪の入り江');
     expect((await audio(page)).created).toBe(0); // still silent after a restart
   });
 
@@ -631,6 +651,12 @@ test.describe('monthly review', () => {
     await expect(monthly.getByRole('button', { name: `${day}日、2件、炭15` })).toBeVisible();
     await expect(monthly).toContainText('日付のない記録が1件あります');
     await expect(monthly).not.toContainText('例の記録です');
+
+    await monthly.getByRole('radio', { name: '日別一覧' }).check();
+    await expect(monthly.getByRole('list', { name: /にFireした日$/ })).toContainText('2件・炭15');
+    await expect(monthly.getByRole('table')).toHaveCount(0);
+    await monthly.getByRole('radio', { name: 'カレンダー' }).check();
+    await expect(monthly.getByRole('button', { name: `${day}日、2件、炭15` })).toHaveAttribute('aria-pressed', 'true');
 
     // Open a record from the calendar: lands in the free ash history, focused.
     await monthly.getByRole('button', { name: '「書類を送る」を炭の記録で見る' }).click();

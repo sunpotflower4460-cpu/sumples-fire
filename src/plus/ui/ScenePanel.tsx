@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { CampfireVisual } from '../../components/CampfireVisual';
 import { getCampfireStage, getCampfireStageLabel } from '../../lib/fireStreak';
+import { hasAmbientSound } from '../ambientOptions';
 import { ambientPlayer } from '../ambientPlayer';
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
-import { SCENES } from '../plusPreferences';
+import { SCENES } from '../scenes';
 import { usePlus } from '../usePlus';
-import { SceneBackdrop } from './SceneBackdrop';
+import { CampfireScene } from './CampfireScene';
 import { useAmbientStatus } from './useAmbientStatus';
 
 /**
@@ -20,7 +20,7 @@ export function ScenePanel({ ashPoints }: { ashPoints: number }) {
   const stage = getCampfireStage(ashPoints);
   const sceneId = effectivePreferences.scene;
   const mix = effectivePreferences.mix;
-  const hasSound = mix.fire + mix.rain + mix.wind > 0;
+  const hasSound = hasAmbientSound(mix);
   const playing = status !== 'stopped';
 
   // Sound belongs to this screen: leaving "炭" (or losing Plus) ends it.
@@ -36,10 +36,7 @@ export function ScenePanel({ ashPoints }: { ashPoints: number }) {
 
   return (
     <section className="plus-scene-panel" aria-labelledby="plus-scene-title">
-      <div className={`plus-scene scene-${sceneId} campfire-stage-${stage}`}>
-        <SceneBackdrop scene={sceneId} />
-        <CampfireVisual stage={stage} />
-      </div>
+      <CampfireScene scene={sceneId} stage={stage} />
 
       <div className="plus-scene-meta">
         <h3 id="plus-scene-title">あなたの焚き火</h3>

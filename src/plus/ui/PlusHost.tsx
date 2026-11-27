@@ -19,10 +19,9 @@ export function PlusHost({ seeds }: { seeds: readonly FireSeed[] }) {
   const wasOpenRef = useRef(false);
   const totalAsh = seeds.reduce((sum, seed) => (seed.burned ? sum + seed.ashPoints : sum), 0);
 
-  // Ambient sound is only for the scene screens. Moving to any other Plus screen
-  // (purchase, monthly review, flame picker) ends it.
+  // Each scene starts silent, even if the scene on the archive tab was playing.
   useEffect(() => {
-    if (top && top !== 'scene') ambientPlayer.stop();
+    if (top) ambientPlayer.stop();
   }, [top]);
 
   // Lock the page behind the sheet; restore exactly what was there.

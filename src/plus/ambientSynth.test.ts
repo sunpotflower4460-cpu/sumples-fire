@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { AMBIENT_LAYERS } from './ambientOptions';
 import {
-  AMBIENT_LAYERS,
   AMBIENT_LOOP_SECONDS,
   LAYER_MAX_GAIN,
   renderAmbientLayer,
@@ -51,9 +51,9 @@ describe('ambient layers', () => {
     });
   }
 
-  it('the three layers have different loop lengths so they never lock into a pattern', () => {
+  it('uses a different loop length for each layer', () => {
     const lengths = Object.values(AMBIENT_LOOP_SECONDS);
-    expect(new Set(lengths).size).toBe(3);
+    expect(new Set(lengths).size).toBe(AMBIENT_LAYERS.length);
   });
 
   it('rain (patter and drips) is the brightest layer; fire and wind sit lower', () => {

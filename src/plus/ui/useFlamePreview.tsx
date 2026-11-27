@@ -44,7 +44,8 @@ const prefersReducedMotion = () => (
 
 export type FlamePreview = {
   /** Plays the flame's animation and sound once. Ignored while one is running. */
-  play: (id: FlameId) => boolean;
+  play: (id: FlameId) => void;
+  stop: () => void;
   /** Render this once, anywhere in the screen. */
   layer: ReactNode;
   playing: FlameId | null;
@@ -52,37 +53,54 @@ export type FlamePreview = {
 
 export function useFlamePreview(): FlamePreview {
   const [current, setCurrent] = useState<{ key: number; id: FlameId } | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const sessionRef = useRef<{ timer: number; audio: AbortController } | null>(null);
   const keyRef = useRef(0);
-  const busyRef = useRef(false);
+
+  const clearSession = useCallback(() => {
+    const session = sessionRef.current;
+    if (!session) return;
+    sessionRef.current = null;
+    window.clearTimeout(session.timer);
+    session.audio.abort();
+  }, []);
+
+  const stop = useCallback(() => {
+    clearSession();
+    setCurrent(null);
+  }, [clearSession]);
 
   const play = useCallback((id: FlameId) => {
-    // One at a time: overlapping previews would also overlap their sounds.
-    if (busyRef.current) return false;
-    busyRef.current = true;
+    if (sessionRef.current) return;
 
     const reduceMotion = prefersReducedMotion();
-    const flame = getFlame(id);
+    const audio = new AbortController();
+    const timer = window.setTimeout(stop, getBurnSequenceDuration(reduceMotion) + 120);
+    sessionRef.current = { timer, audio };
     // The preview obeys the same Fire sound switch as a real Fire.
-    if (isFireSoundEnabled()) void playSpectacleSequence(flame.soundProfile, reduceMotion);
+    if (isFireSoundEnabled()) {
+      void playSpectacleSequence(getFlame(id).soundProfile, reduceMotion, audio.signal).catch(() => {});
+    }
 
     keyRef.current += 1;
     setCurrent({ key: keyRef.current, id });
-    timerRef.current = window.setTimeout(() => {
-      busyRef.current = false;
-      timerRef.current = null;
-      setCurrent(null);
-    }, getBurnSequenceDuration(reduceMotion) + 120);
-    return true;
-  }, []);
+  }, [stop]);
 
-  useEffect(() => () => {
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    busyRef.current = false;
-  }, []);
+  useEffect(() => {
+    const stopWhenHidden = () => {
+      if (document.visibilityState === 'hidden') stop();
+    };
+    document.addEventListener('visibilitychange', stopWhenHidden);
+    window.addEventListener('pagehide', stop);
+    return () => {
+      document.removeEventListener('visibilitychange', stopWhenHidden);
+      window.removeEventListener('pagehide', stop);
+      clearSession();
+    };
+  }, [clearSession, stop]);
 
   return {
     play,
+    stop,
     playing: current?.id ?? null,
     layer: current
       ? <BurningRitual key={current.key} preview seed={SAMPLE_SEED} spectacle={getFlame(current.id)} />

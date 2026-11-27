@@ -43,6 +43,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
   const today = useMemo(() => new Date(), []);
   const [viewed, setViewed] = useState<MonthRef>(() => monthOf(today));
   const [selectedDay, setSelectedDay] = useState<number | null | undefined>(undefined);
+  const [view, setView] = useState<'calendar' | 'days'>('calendar');
 
   // Owners see their own device's records; everyone else sees a labelled example.
   const real = useMemo(() => collectBurnRecords(seeds), [seeds]);
@@ -61,6 +62,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
   const latestDay = summary.days.size > 0 ? Math.max(...summary.days.keys()) : null;
   const activeDay = selectedDay === undefined ? latestDay : selectedDay;
   const dayDetail = activeDay !== null && activeDay !== undefined ? summary.days.get(activeDay) ?? null : null;
+  const dayList = [...summary.days.values()].sort((a, b) => b.day - a.day);
 
   const goTo = (delta: number) => {
     setViewed((current) => shiftMonth(current, delta));
@@ -122,9 +124,25 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
           <p><strong>{summary.ash}</strong><span>炭</span></p>
           <small>{COPY.historyCharcoal}</small>
         </div>
+        <div>
+          <p><strong>{summary.days.size}</strong><span>日</span></p>
+          <small>Fireした日数</small>
+        </div>
       </div>
 
-      <table className="plus-calendar" aria-label={`${title}のカレンダー`}>
+      <fieldset className="plus-segmented plus-catalog-switch">
+        <legend className="sr-only">ふりかえりの表示</legend>
+        <label className={view === 'calendar' ? 'is-active' : undefined}>
+          <input type="radio" name="plus-review-view" checked={view === 'calendar'} onChange={() => setView('calendar')} />
+          <span>カレンダー</span>
+        </label>
+        <label className={view === 'days' ? 'is-active' : undefined}>
+          <input type="radio" name="plus-review-view" checked={view === 'days'} onChange={() => setView('days')} />
+          <span>日別一覧</span>
+        </label>
+      </fieldset>
+
+      {view === 'calendar' ? <table className="plus-calendar" aria-label={`${title}のカレンダー`}>
         <thead>
           <tr>
             {WEEKDAY_HEADERS.map((weekday) => <th key={weekday} scope="col">{weekday}</th>)}
@@ -144,6 +162,7 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
                       <button
                         type="button"
                         className={activeDay === day ? 'plus-day is-recorded is-selected' : 'plus-day is-recorded'}
+                        data-activity={Math.min(3, entry.count)}
                         aria-label={describeDay(entry)}
                         aria-pressed={activeDay === day}
                         aria-current={current}
@@ -162,14 +181,31 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
           ))}
         </tbody>
       </table>
+      : dayList.length > 0 ? (
+        <ul className="plus-review-days" aria-label={`${title}にFireした日`}>
+          {dayList.map((entry) => (
+            <li key={entry.day}>
+              <button
+                type="button"
+                className={activeDay === entry.day ? 'plus-entry is-selected' : 'plus-entry'}
+                aria-pressed={activeDay === entry.day}
+                onClick={() => setSelectedDay(entry.day)}
+              >
+                <span>{entry.day}日（{weekdayLabel(month.year, month.month, entry.day)}）</span>
+                <span className="plus-entry-detail">{entry.count}件・炭{entry.ash}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
-      {status === 'recorded' ? (
+      {status === 'recorded' && view === 'calendar' ? (
         <p className="plus-help">印のある日を選ぶと、終えたことが見られます。</p>
       ) : status === 'beforeStart' ? (
         <p className="plus-help">記録開始前の月です。</p>
-      ) : (
+      ) : status !== 'recorded' ? (
         <p className="plus-help">{COPY.historyEmpty}</p>
-      )}
+      ) : null}
 
       {dayDetail ? (
         <section className="plus-day-detail" aria-labelledby={`${headingId}-day`}>
@@ -207,16 +243,14 @@ export function MonthlyScreen({ seeds }: { seeds: readonly FireSeed[] }) {
         </p>
       ) : null}
 
-      {entitled ? (
-        <p className="plus-help">ひとつずつ、ここに残っています。</p>
-      ) : (
+      {!entitled ? (
         <div className="plus-actions">
           <p className="plus-help">{COPY.historyAvailable}</p>
           <button type="button" className="plus-primary" onClick={() => plusStore.openScreen('intro')}>
             Plusで、自分の記録を見る
           </button>
         </div>
-      )}
+      ) : null}
     </PlusDialog>
   );
 }

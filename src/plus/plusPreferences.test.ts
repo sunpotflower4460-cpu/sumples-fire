@@ -1,25 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { DURABLE_STORAGE_KEYS } from '../lib/appStorage';
-import { spectacles } from '../lib/fireBurnSpectacle';
-import { FLAME_CATALOG, FLAME_IDS } from './flames';
+import { PLUS_BURN_TYPES, spectacles } from '../lib/fireBurnSpectacle';
+import { makeAmbientMix } from './ambientOptions';
+import { AUTO_FLAME_IDS, FLAME_IDS, getFlame } from './flames';
 import {
   DEFAULT_PLUS_PREFERENCES,
   PLUS_PREFERENCES_KEY,
-  SCENES,
   clampVolume,
   normalizePlusPreferences,
   parsePlusPreferences,
   serializePlusPreferences,
   validatePlusPreferences,
 } from './plusPreferences';
+import { SCENE_IDS, SCENES } from './scenes';
 
 describe('flame catalog', () => {
-  it('lists exactly the nine existing flames, in order, using their existing ids', () => {
-    expect(FLAME_IDS).toHaveLength(9);
-    expect([...FLAME_IDS].sort()).toEqual(Object.keys(spectacles).sort());
-    expect(FLAME_CATALOG.map((flame) => flame.label)).toEqual([
+  it('keeps the nine automatic flames and adds nine distinct Plus designs', () => {
+    expect(FLAME_IDS).toHaveLength(18);
+    expect(new Set(FLAME_IDS).size).toBe(FLAME_IDS.length);
+    expect([...AUTO_FLAME_IDS].sort()).toEqual(Object.keys(spectacles).sort());
+    expect(AUTO_FLAME_IDS.map((id) => getFlame(id).label)).toEqual([
       '炎', '鬼火', '黄金の炎', '爆炎', '龍の炎', '桜の火', '鉄の火', '虚空の火', 'フェニックス',
     ]);
+    for (const id of PLUS_BURN_TYPES) expect(getFlame(id)).toMatchObject({ type: id, isSpecial: true });
   });
 });
 
@@ -30,7 +33,7 @@ describe('plus preferences storage', () => {
 
   it('defaults to the free experience', () => {
     expect(DEFAULT_PLUS_PREFERENCES).toMatchObject({ flameMode: 'auto', scene: 'night', lastRealFlame: null });
-    expect(DEFAULT_PLUS_PREFERENCES.mix).toEqual({ fire: 0, rain: 0, wind: 0 });
+    expect(DEFAULT_PLUS_PREFERENCES.mix).toEqual(makeAmbientMix());
     // No "playing" flag exists to persist: sound never resumes by itself.
     expect(Object.keys(DEFAULT_PLUS_PREFERENCES)).not.toContain('playing');
   });
@@ -39,11 +42,12 @@ describe('plus preferences storage', () => {
     const preferences = normalizePlusPreferences({
       flameMode: 'favorites',
       fixedFlame: 'dragon',
-      favoriteFlames: ['cherry', 'golden'],
-      lastRealFlame: 'cherry',
-      scene: 'lake',
-      mix: { fire: 35, rain: 0, wind: 15 },
+      favoriteFlames: ['cherry', 'aurora'],
+      lastRealFlame: 'aurora',
+      scene: 'coast',
+      mix: { fire: 35, waves: 40, stream: 22, insects: 15 },
     });
+    expect(preferences).toMatchObject({ favoriteFlames: ['cherry', 'aurora'], scene: 'coast', mix: { waves: 40, stream: 22, insects: 15 } });
     expect(parsePlusPreferences(serializePlusPreferences(preferences))).toEqual(preferences);
   });
 
@@ -58,7 +62,9 @@ describe('plus preferences storage', () => {
 
   it('unknown scenes fall back to the free scene; volumes are clamped integers', () => {
     expect(normalizePlusPreferences({ scene: 'moon' }).scene).toBe('night');
-    expect(normalizePlusPreferences({ mix: { fire: 250, rain: -5, wind: 12.6 } }).mix).toEqual({ fire: 100, rain: 0, wind: 13 });
+    expect(normalizePlusPreferences({ mix: { fire: 250, rain: -5, wind: 12.6 } }).mix).toEqual(
+      makeAmbientMix({ fire: 100, rain: 0, wind: 13 }),
+    );
     expect(clampVolume('loud')).toBe(0);
     expect(clampVolume(Number.NaN)).toBe(0);
   });
@@ -74,9 +80,11 @@ describe('plus preferences storage', () => {
     expect(validatePlusPreferences({ ...DEFAULT_PLUS_PREFERENCES, flameMode: 'favorites', favoriteFlames: ['golden'] })).toBeNull();
   });
 
-  it('scene presets match the design and the free scene needs no Plus', () => {
-    expect(SCENES.night).toMatchObject({ plus: false, preset: { fire: 0, rain: 0, wind: 0 } });
-    expect(SCENES.lake).toMatchObject({ plus: true, preset: { fire: 35, rain: 0, wind: 15 } });
-    expect(SCENES.forest).toMatchObject({ plus: true, preset: { fire: 35, rain: 20, wind: 0 } });
+  it('keeps familiar scene presets and ships artwork for every Plus scene', () => {
+    expect(SCENE_IDS).toHaveLength(9);
+    expect(SCENES.night.preset).toEqual(makeAmbientMix());
+    expect(SCENES.lake.preset).toEqual(makeAmbientMix({ fire: 35, wind: 15 }));
+    expect(SCENES.forest.preset).toEqual(makeAmbientMix({ fire: 35, rain: 20 }));
+    for (const id of SCENE_IDS.slice(1)) expect(SCENES[id].artwork).toMatch(/\.webp$/);
   });
 });

@@ -21,9 +21,11 @@ export type SaveResult =
   | { ok: true }
   | { ok: false; reason: 'notEntitled' | 'invalid' | 'storage' };
 
+type PreferenceChanges = Partial<Omit<PlusPreferences, 'version' | 'lastRealFlame'>>;
+
 export type PlusState = {
   store: PlusStoreState;
-  /** What is durably saved. Never changes before a write has really succeeded. */
+  /** Confirmed settings and the most recent real flame. */
   preferences: PlusPreferences;
   routeStack: PlusRoute[];
   /** Flame choice the person was trying when they were sent to the purchase screen. */
@@ -121,15 +123,17 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
    * `committed` state only changes after the write truly succeeded; on failure
    * nothing is claimed and the caller keeps the draft so it can retry.
    */
-  const savePreferences = (next: PlusPreferences): Promise<SaveResult> => {
+  const savePreferences = (changes: PreferenceChanges): Promise<SaveResult> => {
     const run = async (): Promise<SaveResult> => {
       if (!isPlusActive(state.store)) return { ok: false, reason: 'notEntitled' };
-      const normalized = normalizePlusPreferences(next);
-      if (validatePlusPreferences(normalized)) return { ok: false, reason: 'invalid' };
+      const candidate = { ...state.preferences, ...changes, lastRealFlame: state.preferences.lastRealFlame };
+      if (validatePlusPreferences(candidate)) return { ok: false, reason: 'invalid' };
+      const normalized = normalizePlusPreferences(candidate);
 
-      const ok = await deps.writePreferences(serializePlusPreferences(normalized));
+      const ok = await deps.writePreferences(serializePlusPreferences(normalized)).catch(() => false);
       if (!ok) return { ok: false, reason: 'storage' };
-      setState({ preferences: normalized });
+      // A real Fire can update its last-flame hint while this write is in flight.
+      setState({ preferences: { ...normalized, lastRealFlame: state.preferences.lastRealFlame } });
       return { ok: true };
     };
 
@@ -144,10 +148,12 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
    */
   const recordRealFlame = (id: FlameId) => {
     if (state.preferences.lastRealFlame === id) return;
-    const next = { ...state.preferences, lastRealFlame: id };
-    setState({ preferences: next });
+    setState({ preferences: { ...state.preferences, lastRealFlame: id } });
     if (isPlusActive(state.store)) {
-      saveChain = saveChain.then(() => deps.writePreferences(serializePlusPreferences(next)).catch(() => false));
+      const write = () => isPlusActive(state.store)
+        ? deps.writePreferences(serializePlusPreferences(state.preferences)).catch(() => false)
+        : false;
+      saveChain = saveChain.then(write, write);
     }
   };
 

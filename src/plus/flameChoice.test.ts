@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { selectBurnSpectacle, spectacles } from '../lib/fireBurnSpectacle';
+import { selectBurnSpectacle } from '../lib/fireBurnSpectacle';
 import { pickFavoriteFlame, resolveBurnSpectacle } from './flameChoice';
-import { FLAME_IDS } from './flames';
+import { AUTO_FLAME_IDS, getFlame } from './flames';
 import { DEFAULT_PLUS_PREFERENCES } from './plusPreferences';
 import type { PlusPreferences } from './plusPreferences';
 
@@ -17,7 +17,7 @@ describe('free automatic selection is unchanged', () => {
     for (let step = 0; step < 4000; step += 1) {
       seen.add(selectBurnSpectacle('boss', 20, () => step / 4000).type);
     }
-    expect([...seen].sort()).toEqual([...FLAME_IDS].sort());
+    expect([...seen].sort()).toEqual([...AUTO_FLAME_IDS].sort());
   });
 
   it('boss tasks make explosion/dragon/phoenix more likely, as before', () => {
@@ -40,7 +40,7 @@ describe('resolveBurnSpectacle', () => {
     const choice = resolveBurnSpectacle({
       ...base,
       entitled: false,
-      preferences: prefs({ flameMode: 'fixed', fixedFlame: 'dragon' }),
+      preferences: prefs({ flameMode: 'fixed', fixedFlame: 'aurora' }),
       random: () => 0,
     });
     expect(choice.source).toBe('auto');
@@ -59,16 +59,16 @@ describe('resolveBurnSpectacle', () => {
         difficulty,
         streak: 12,
         entitled: true,
-        preferences: prefs({ flameMode: 'fixed', fixedFlame: 'cherry' }),
+        preferences: prefs({ flameMode: 'fixed', fixedFlame: 'lotus' }),
         random: Math.random,
       });
       expect(choice).toMatchObject({ source: 'fixed' });
-      expect(choice.spectacle).toBe(spectacles.cherry);
+      expect(choice.spectacle).toBe(getFlame('lotus'));
     }
   });
 
   it('favourites only pick from the chosen set', () => {
-    const chosen = ['cherry', 'golden', 'ironFire'] as const;
+    const chosen = ['cherry', 'aurora', 'magma'] as const;
     for (let step = 0; step < 200; step += 1) {
       const choice = resolveBurnSpectacle({
         ...base,

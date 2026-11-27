@@ -1,6 +1,6 @@
 import type { FireDifficulty } from '../types/fireSeed';
 
-export type BurnSpectacleType =
+export type AutoBurnSpectacleType =
   | 'normal'
   | 'blueGhost'
   | 'golden'
@@ -10,6 +10,19 @@ export type BurnSpectacleType =
   | 'ironFire'
   | 'voidFire'
   | 'phoenixRise';
+
+export const PLUS_BURN_TYPES = [
+  'aurora', 'moonFrost', 'firefly',
+  'maple', 'lotus', 'daybreak',
+  'thunder', 'comet', 'magma',
+] as const;
+
+export type PlusBurnSpectacleType = (typeof PLUS_BURN_TYPES)[number];
+export type BurnSpectacleType = AutoBurnSpectacleType | PlusBurnSpectacleType;
+
+export const isPlusBurnSpectacle = (type: BurnSpectacleType): type is PlusBurnSpectacleType => (
+  (PLUS_BURN_TYPES as readonly BurnSpectacleType[]).includes(type)
+);
 
 export type BurnSpectacleRarity = 'common' | 'uncommon' | 'rare' | 'legendary';
 
@@ -22,7 +35,10 @@ export type BurnSpectacleSound =
   | 'soft'
   | 'metallic'
   | 'void'
-  | 'phoenix';
+  | 'phoenix'
+  | 'glimmer'
+  | 'bloom'
+  | 'surge';
 
 export type BurnSpectacle = {
   type: BurnSpectacleType;
@@ -39,7 +55,7 @@ export type BurnSpectacle = {
   isSpecial: boolean;
 };
 
-export const spectacles: Record<BurnSpectacleType, BurnSpectacle> = {
+export const spectacles: Record<AutoBurnSpectacleType, BurnSpectacle> = {
   normal: {
     type: 'normal',
     label: '炎',
@@ -169,9 +185,9 @@ export const spectacles: Record<BurnSpectacleType, BurnSpectacle> = {
 };
 
 const weightedRandom = (
-  weights: [BurnSpectacleType, number][],
+  weights: [AutoBurnSpectacleType, number][],
   random: () => number = Math.random,
-): BurnSpectacleType => {
+): AutoBurnSpectacleType => {
   const positiveWeights = weights.filter(([, w]) => w > 0);
   if (positiveWeights.length === 0) return weights[0][0];
   const total = positiveWeights.reduce((sum, [, w]) => sum + w, 0);
@@ -196,7 +212,7 @@ export const selectBurnSpectacle = (
   const isBoss = difficulty === 'boss';
   const isHeavy = difficulty === 'heavy';
 
-  const weights: [BurnSpectacleType, number][] = [
+  const weights: [AutoBurnSpectacleType, number][] = [
     ['normal',      Math.max(55 - sb, 30)],
     ['golden',      7 + sb * 0.25],
     ['cherry',      6 + sb * 0.1],

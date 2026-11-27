@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { BurnSpectacle } from '../lib/fireBurnSpectacle';
-import { spectacles } from '../lib/fireBurnSpectacle';
+import { isPlusBurnSpectacle, spectacles } from '../lib/fireBurnSpectacle';
 import { PARTICLE_BURST_DURATION_S } from '../lib/fireAnimationConstants';
 import {
   difficultyVariants,
@@ -15,6 +15,7 @@ import {
 import type { FireSeed } from '../types/fireSeed';
 import { useBurnSequence, useFireParticles } from '../hooks/useBurnSequence';
 import { jp } from '../lib/japanesePhraseWrap';
+import { FlameArtwork } from './FlameArtwork';
 
 type BurningRitualProps = {
   seed: FireSeed;
@@ -36,7 +37,11 @@ const phaseLabels: Record<string, string> = {
 export function BurningRitual({ seed, spectacle = spectacles.normal, preview = false }: BurningRitualProps) {
   const { phase, scope, triggerBurn, shouldReduceMotion } = useBurnSequence();
 
-  const variantConfig = specialVariantConfigs[spectacle.type];
+  const type = spectacle.type;
+  const signature = isPlusBurnSpectacle(type);
+  const variantConfig = signature
+    ? { titleGlow: `drop-shadow(0 0 24px ${spectacle.bgGlowColor})`, particleCount: 32, burstScale: 1.25 }
+    : specialVariantConfigs[type];
   const isSpecial = spectacle.isSpecial;
 
   const { particles, burst } = useFireParticles(variantConfig.particleCount);
@@ -71,6 +76,7 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
         `ritual-phase-${phase}`,
         `spectacle-${spectacle.type}`,
         isSpecial ? 'is-special' : '',
+        signature ? 'is-signature' : '',
         preview ? 'is-preview' : '',
       ].join(' ').trim()}
       initial={{ opacity: 0 }}
@@ -86,8 +92,6 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
       ) : (
         <span className="ritual-live-copy">「{seed.title}」を燃やしています。</span>
       )}
-      {preview ? <p className="ritual-preview-tag" aria-hidden="true">試し見</p> : null}
-
       {/* ── SVG filter: turbulence displacement applied to the title wrapper ── */}
       <svg
         width="0"
@@ -126,6 +130,11 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
 
       {/* ── Background glow layer ── */}
       <div className="ritual-bg" aria-hidden="true" />
+      {signature ? (
+        <div className="ritual-signature" aria-hidden="true">
+          <FlameArtwork spectacle={spectacle} size={320} />
+        </div>
+      ) : null}
       <div className="ritual-heat-haze" aria-hidden="true" />
       <div className="ritual-shockwave" aria-hidden="true" />
       <div className="ritual-sparks" aria-hidden="true">
@@ -211,7 +220,8 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
         {isSpecial ? (
           <div className="ritual-spectacle-label">
             <span className="spectacle-rarity-badge">
-              {spectacle.rarity === 'legendary'
+              {signature ? 'Plus'
+                : spectacle.rarity === 'legendary'
                 ? '✦ 伝説 ✦'
                 : spectacle.rarity === 'rare'
                   ? '✦ レア ✦'
@@ -306,7 +316,9 @@ export function BurningRitual({ seed, spectacle = spectacles.normal, preview = f
     </motion.div>
   );
 
-  // createPortal renders the overlay above all stacking contexts.
+  // The sample stays in its dialog so the catalog remains reachable.
+  if (preview) return overlay;
+  // A real Fire takes over the screen.
   if (typeof document === 'undefined') return null;
   return createPortal(overlay, document.body);
 }

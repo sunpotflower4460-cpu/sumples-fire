@@ -1,6 +1,7 @@
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import { usePlus } from '../usePlus';
+import { SCENES } from '../scenes';
 import { PLUS_ENTRIES } from './PlusIntroScreen';
 
 /**
@@ -9,9 +10,17 @@ import { PLUS_ENTRIES } from './PlusIntroScreen';
  * lets people open it when they want to.
  */
 export function PlusSettingsCard() {
-  const { state, entitled } = usePlus();
+  const { state, entitled, effectivePreferences } = usePlus();
   const { store } = state;
   const restoring = store.restore === 'restoring';
+  const { flameMode, fixedFlame, favoriteFlames, scene } = effectivePreferences;
+  const entryDetail = {
+    flames: flameMode === 'fixed' ? getFlame(fixedFlame).label
+      : flameMode === 'favorites' ? `お気に入り${favoriteFlames.length}種類` : COPY.flameAuto,
+    scene: SCENES[scene].label,
+    monthly: '',
+    intro: '',
+  };
 
   const restoreMessage = store.restore === 'restored' ? COPY.storeRestored
     : store.restore === 'nothing' ? COPY.storeNothingToRestore
@@ -35,10 +44,14 @@ export function PlusSettingsCard() {
                 <button
                   type="button"
                   className="plus-entry"
+                  aria-label={entry.label}
                   onClick={(event) => plusStore.openScreen(entry.route, event.currentTarget)}
                 >
                   <span>{entry.label}</span>
-                  <span aria-hidden="true">›</span>
+                  <span className="plus-entry-detail">
+                    {entryDetail[entry.route]}
+                    <span aria-hidden="true">›</span>
+                  </span>
                 </button>
               </li>
             ))}
@@ -47,7 +60,7 @@ export function PlusSettingsCard() {
       ) : (
         <>
           <p className="plus-card-copy">{COPY.headline}</p>
-          <p className="plus-card-sub">9種類の炎の選択・自分の焚き火・炭の月別ふりかえり</p>
+          <p className="plus-card-sub">{COPY.catalogSummary}</p>
           <button
             type="button"
             className="plus-primary"
@@ -74,3 +87,4 @@ export function PlusSettingsCard() {
     </section>
   );
 }
+import { getFlame } from '../flames';

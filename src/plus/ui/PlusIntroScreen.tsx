@@ -1,13 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { FlameArtwork } from '../../components/FlameArtwork';
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import type { PlusRoute } from '../plusStore';
 import { usePlus } from '../usePlus';
-import { FlameGlyph } from './FlameGlyph';
 import { PlusDialog } from './PlusDialog';
 import { PurchaseButton, PurchaseStatus } from './PurchaseStatus';
 import { getFlame } from '../flames';
 import type { FlameId } from '../flames';
+import { SCENES } from '../scenes';
 
 const BENEFITS: { route: PlusRoute; title: string; body: string }[] = [
   { route: 'flames', title: COPY.benefitFlameTitle, body: COPY.benefitFlameBody },
@@ -27,6 +28,7 @@ export function PlusIntroScreen() {
   const headingId = useId();
   const thanksRef = useRef<HTMLHeadingElement | null>(null);
   const [applyError, setApplyError] = useState(false);
+  const [applying, setApplying] = useState(false);
   const { store } = state;
   const showThanks = entitled && store.justPurchased;
 
@@ -38,32 +40,34 @@ export function PlusIntroScreen() {
 
   const previewFlameId: FlameId = state.flameDraft?.flameMode === 'fixed'
     ? state.flameDraft.fixedFlame
-    : state.flameDraft?.favoriteFlames[0] ?? 'normal';
+    : state.flameDraft?.favoriteFlames[0] ?? 'aurora';
   const previewFlame = getFlame(previewFlameId);
 
   const canGoBack = state.routeStack.length > 1;
 
   const applyChosen = async () => {
+    if (applying) return;
     setApplyError(false);
-    const { flameDraft, sceneDraft, preferences } = plusStore.getState();
+    const { flameDraft, sceneDraft } = plusStore.getState();
     if (!flameDraft && !sceneDraft) {
       plusStore.acknowledgePurchase();
       plusStore.openScreen('flames');
       return;
     }
-    const merged = {
-      ...preferences,
+    setApplying(true);
+    const changes = {
       ...(flameDraft
         ? { flameMode: flameDraft.flameMode, fixedFlame: flameDraft.fixedFlame, favoriteFlames: flameDraft.favoriteFlames }
         : {}),
       ...(sceneDraft ? { scene: sceneDraft.scene, mix: sceneDraft.mix } : {}),
     };
-    const result = await plusStore.savePreferences(merged);
+    const result = await plusStore.savePreferences(changes);
     if (result.ok) {
       plusStore.acknowledgePurchase();
       plusStore.closeAll();
     } else {
       setApplyError(true);
+      setApplying(false);
     }
   };
 
@@ -78,12 +82,12 @@ export function PlusIntroScreen() {
     >
       {showThanks ? (
         <div className="plus-thanks">
-          <div className="plus-hero-flame"><FlameGlyph spectacle={previewFlame} size={64} /></div>
+          <div className="plus-hero-flame"><FlameArtwork spectacle={previewFlame} size={64} /></div>
           <h3 ref={thanksRef} tabIndex={-1} className="plus-hero-title">{COPY.thanks}</h3>
           <p className="plus-lead">{COPY.next}</p>
           <div className="plus-actions">
-            <button type="button" className="plus-primary" onClick={() => void applyChosen()}>
-              {COPY.setSelected}
+            <button type="button" className="plus-primary" onClick={() => void applyChosen()} disabled={applying}>
+              {applying ? COPY.saveSaving : state.flameDraft || state.sceneDraft ? COPY.setSelected : COPY.flameTitle}
             </button>
             <p className="plus-status is-error" role="status" aria-live="polite">
               {applyError ? COPY.saveFailed : ''}
@@ -102,33 +106,30 @@ export function PlusIntroScreen() {
         </div>
       ) : (
         <>
-          <p className="plus-kicker">いつもの Fire を、あなた好みに。</p>
-          <div className="plus-hero-flame"><FlameGlyph spectacle={previewFlame} size={64} /></div>
+          <div className="plus-intro-visual" aria-hidden="true">
+            <img src={SCENES.aurora.artwork} alt="" />
+            <div className="plus-hero-flame">
+              <FlameArtwork spectacle={getFlame('daybreak')} size={50} />
+              <FlameArtwork spectacle={getFlame('aurora')} size={82} />
+              <FlameArtwork spectacle={getFlame('lotus')} size={50} />
+            </div>
+          </div>
           <h3 className="plus-hero-title">{COPY.headline}</h3>
-          <p className="plus-lead">{COPY.description}</p>
-
-          <p className="plus-help">特典をタップして、{entitled ? '開きます' : '試してみる'}。</p>
-          <ol className="plus-benefits">
-            {BENEFITS.map((benefit, index) => (
+          <ul className="plus-benefits">
+            {BENEFITS.map((benefit) => (
               <li key={benefit.route}>
                 <button
                   type="button"
                   className="plus-benefit"
                   onClick={() => plusStore.openScreen(benefit.route)}
-                  aria-label={`${benefit.title}。${benefit.body}${entitled ? '' : ` ${COPY.tryIt}`}`}
                 >
-                  <span className="plus-benefit-index" aria-hidden="true">{index + 1}</span>
-                  <span className="plus-benefit-copy">
-                    <strong>{benefit.title}</strong>
-                    <span>{benefit.body}</span>
-                  </span>
+                  <strong>{benefit.title}</strong>
                   <span className="plus-benefit-cta" aria-hidden="true">{entitled ? '開く' : COPY.tryIt}</span>
+                  <span className="plus-benefit-description">{benefit.body}</span>
                 </button>
               </li>
             ))}
-          </ol>
-
-          <p className="plus-help">月別ふりかえりは、{COPY.historyAvailable}</p>
+          </ul>
 
           <div className="plus-purchase-area">
             {entitled ? (

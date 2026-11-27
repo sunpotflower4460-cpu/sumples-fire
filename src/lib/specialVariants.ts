@@ -1,5 +1,5 @@
 import type { Variants } from 'framer-motion';
-import type { BurnSpectacleType } from './fireBurnSpectacle';
+import type { AutoBurnSpectacleType } from './fireBurnSpectacle';
 import {
   BURN_EASE,
   BURST_SPRING,
@@ -16,7 +16,7 @@ export type SpecialVariantConfig = {
   burstScale: number;
 };
 
-export const specialVariantConfigs: Record<BurnSpectacleType, SpecialVariantConfig> = {
+export const specialVariantConfigs: Record<AutoBurnSpectacleType, SpecialVariantConfig> = {
   normal:      { titleGlow: 'drop-shadow(0 0 22px rgba(255,107,0,0.82))',    particleCount: 40, burstScale: 1.15 },
   blueGhost:   { titleGlow: 'drop-shadow(0 0 26px rgba(50,160,255,0.92))',   particleCount: 44, burstScale: 1.3 },
   golden:      { titleGlow: 'drop-shadow(0 0 30px rgba(232,185,35,0.96))',   particleCount: 52, burstScale: 1.4 },

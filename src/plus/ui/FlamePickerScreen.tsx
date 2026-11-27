@@ -1,16 +1,19 @@
 import { useId, useState } from 'react';
-import { FLAME_CATALOG, getFlame } from '../flames';
+import type { CSSProperties } from 'react';
+import { FlameArtwork } from '../../components/FlameArtwork';
+import { isPlusBurnSpectacle, PLUS_BURN_TYPES } from '../../lib/fireBurnSpectacle';
+import { AUTO_FLAME_IDS, getFlameEntry } from '../flames';
 import type { FlameId } from '../flames';
 import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import { validatePlusPreferences } from '../plusPreferences';
 import type { FlameMode, PlusPreferences } from '../plusPreferences';
 import { getEffectivePreferences, usePlus } from '../usePlus';
-import { FlameGlyph } from './FlameGlyph';
 import { PlusDialog } from './PlusDialog';
 import { useFlamePreview } from './useFlamePreview';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'failed';
+type Catalog = 'plus' | 'auto';
 
 const MODES: { id: FlameMode; label: string }[] = [
   { id: 'auto', label: COPY.flameAuto },
@@ -19,65 +22,70 @@ const MODES: { id: FlameMode; label: string }[] = [
 ];
 
 const MODE_HELP: Record<FlameMode, string> = {
-  auto: '炎の種類はおまかせです。いつもどおり、タスクや連続日数に応じて決まります。',
-  fixed: '選んだ1種類の炎で、毎回Fireします。',
-  favorites: '選んだ炎の中から、Fireのたびに選びます。前回と同じ炎は続けて出ません。',
+  auto: `タスクや連続日数に応じて、無料の${AUTO_FLAME_IDS.length}種類から決まります。`,
+  fixed: '選んだ炎を毎回使います。',
+  favorites: '登録した炎から選びます。2種類以上なら、前回と同じ炎は続けて出ません。',
 };
+
+const CATALOGS = {
+  plus: { label: 'Plus専用', ids: PLUS_BURN_TYPES },
+  auto: { label: 'おまかせの炎', ids: AUTO_FLAME_IDS },
+} as const;
 
 export function FlamePickerScreen() {
   const { state, entitled } = usePlus();
   const headingId = useId();
   const preview = useFlamePreview();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-  // The draft survives a trip to the purchase screen (it lives in the store).
   const [draft, setDraftState] = useState<PlusPreferences>(
     () => state.flameDraft ?? getEffectivePreferences(state.preferences, entitled),
   );
-  const [lastTapped, setLastTapped] = useState<FlameId | null>(null);
+  const [activeId, setActiveId] = useState<FlameId>(() => (
+    draft.flameMode === 'fixed'
+      ? draft.fixedFlame
+      : draft.flameMode === 'favorites' ? draft.favoriteFlames[0] ?? 'aurora' : 'aurora'
+  ));
+  const catalog: Catalog = isPlusBurnSpectacle(activeId) ? 'plus' : 'auto';
+  const active = getFlameEntry(activeId);
+  const validation = validatePlusPreferences(draft);
+  const saving = saveStatus === 'saving';
+  const choosing = draft.flameMode !== 'auto';
+  const favoriteCount = draft.favoriteFlames.length;
 
   const setDraft = (next: PlusPreferences) => {
     setDraftState(next);
     plusStore.setFlameDraft(next);
-    if (saveStatus !== 'idle') setSaveStatus('idle');
+    setSaveStatus('idle');
   };
 
-  const handleMode = (mode: FlameMode) => {
-    setDraft({ ...draft, flameMode: mode });
+  const showFlame = (id: FlameId) => {
+    if (activeId !== id) preview.stop();
+    setActiveId(id);
   };
 
   const handleCard = (id: FlameId) => {
-    let shouldPlay = true;
+    showFlame(id);
     if (draft.flameMode === 'fixed') {
       setDraft({ ...draft, fixedFlame: id });
     } else if (draft.flameMode === 'favorites') {
-      const on = draft.favoriteFlames.includes(id);
-      shouldPlay = !on;
       setDraft({
         ...draft,
-        favoriteFlames: on
+        favoriteFlames: draft.favoriteFlames.includes(id)
           ? draft.favoriteFlames.filter((flame) => flame !== id)
           : [...draft.favoriteFlames, id],
       });
     }
-    setLastTapped(id);
-    if (shouldPlay) preview.play(id);
   };
 
-  const isSelected = (id: FlameId) => (
+  const isChosen = (id: FlameId) => (
     draft.flameMode === 'fixed' ? draft.fixedFlame === id
-      : draft.flameMode === 'favorites' ? draft.favoriteFlames.includes(id)
-        : false
+      : draft.flameMode === 'favorites' && draft.favoriteFlames.includes(id)
   );
 
-  const validation = validatePlusPreferences(draft);
-  const needsSelection = draft.flameMode === 'favorites' && draft.favoriteFlames.length === 0;
-
   const handleSave = async () => {
-    if (validation || saveStatus === 'saving') return;
+    if (validation || saving) return;
     setSaveStatus('saving');
-    const committed = plusStore.getState().preferences;
     const result = await plusStore.savePreferences({
-      ...committed,
       flameMode: draft.flameMode,
       fixedFlame: draft.fixedFlame,
       favoriteFlames: draft.favoriteFlames,
@@ -85,27 +93,44 @@ export function FlamePickerScreen() {
     setSaveStatus(result.ok ? 'saved' : 'failed');
   };
 
-  const openPurchase = () => plusStore.openScreen('intro');
-
-  const previewLabel = lastTapped ? getFlame(lastTapped).label : null;
-  const canGoBack = state.routeStack.length > 1;
+  const purchaseLabel = !choosing ? 'Plusの購入内容を見る'
+    : draft.flameMode === 'fixed' ? 'Plusで、この炎を使う' : 'Plusで、お気に入りを使う';
 
   return (
     <PlusDialog
       titleId={headingId}
       title={COPY.flameTitle}
       screen="flames"
-      canGoBack={canGoBack}
+      canGoBack={state.routeStack.length > 1}
       onBack={() => plusStore.closeScreen()}
       onClose={() => plusStore.closeAll()}
+      footer={(
+        <div className="plus-actions">
+          <p
+            className={saveStatus === 'failed' || validation ? 'plus-status is-error' : 'plus-status'}
+            aria-live="polite"
+          >
+            {validation ?? (saveStatus === 'saved' ? COPY.saveSaved
+              : saveStatus === 'failed' ? COPY.saveFailed : '')}
+          </p>
+          {entitled ? (
+            <button type="button" className="plus-primary" onClick={handleSave} disabled={Boolean(validation) || saving}>
+              {saving ? COPY.saveSaving : 'この設定にする'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="plus-primary"
+              onClick={() => plusStore.openScreen('intro')}
+              disabled={Boolean(validation)}
+            >
+              {purchaseLabel}
+            </button>
+          )}
+        </div>
+      )}
     >
-      <div className="plus-section-head">
-        <h3>Fireのあとに咲く炎</h3>
-        {!entitled ? <span className="plus-badge">PLUS</span> : null}
-      </div>
-      <p className="plus-help">タップして、燃え方を試します。</p>
-
-      <fieldset className="plus-segmented">
+      <fieldset className="plus-segmented" aria-describedby={`${headingId}-mode-help`} disabled={saving}>
         <legend className="sr-only">炎の選び方</legend>
         {MODES.map((mode) => (
           <label key={mode.id} className={draft.flameMode === mode.id ? 'is-active' : undefined}>
@@ -114,32 +139,73 @@ export function FlamePickerScreen() {
               name="plus-flame-mode"
               value={mode.id}
               checked={draft.flameMode === mode.id}
-              onChange={() => handleMode(mode.id)}
+              onChange={() => setDraft({
+                ...draft,
+                flameMode: mode.id,
+                fixedFlame: mode.id === 'fixed' ? activeId : draft.fixedFlame,
+              })}
             />
             <span>{mode.label}</span>
           </label>
         ))}
       </fieldset>
-      <p className="plus-help" id="plus-flame-mode-help">{MODE_HELP[draft.flameMode]}</p>
+      <p className="plus-help" id={`${headingId}-mode-help`}>{MODE_HELP[draft.flameMode]}</p>
+
+      <section
+        className="plus-flame-spotlight"
+        aria-labelledby={`${headingId}-spotlight`}
+        style={{ '--spotlight-glow': active.spectacle.bgGlowColor } as CSSProperties}
+      >
+        <div className="plus-flame-stage">
+          <FlameArtwork spectacle={active.spectacle} size={104} />
+          {preview.layer}
+        </div>
+        <div className="plus-flame-details">
+          <h3 id={`${headingId}-spotlight`}>{active.label}</h3>
+          <p className="plus-help">{active.description}</p>
+          <button
+            type="button"
+            className="plus-secondary plus-preview-trigger"
+            onClick={() => preview.play(activeId)}
+            aria-disabled={preview.playing !== null}
+          >
+            {preview.playing ? '試し見中…' : COPY.previewLabel}
+          </button>
+        </div>
+      </section>
+
+      <fieldset className="plus-segmented plus-catalog-switch">
+        <legend className="sr-only">炎の種類</legend>
+        {(Object.entries(CATALOGS) as [Catalog, (typeof CATALOGS)[Catalog]][]).map(([id, group]) => (
+          <label key={id} className={catalog === id ? 'is-active' : undefined}>
+            <input
+              type="radio"
+              name="plus-flame-catalog"
+              checked={catalog === id}
+              onChange={() => showFlame(group.ids.find(isChosen) ?? group.ids[0])}
+            />
+            <span>{group.label} <small>{group.ids.length}</small></span>
+          </label>
+        ))}
+      </fieldset>
 
       <ul className="plus-flame-grid" aria-label="炎の一覧">
-        {FLAME_CATALOG.map((flame) => {
-          const selected = isSelected(flame.id);
-          const selectable = draft.flameMode !== 'auto';
-          const label = selectable
-            ? `${flame.label}${selected ? '、選択中' : ''}`
-            : `${flame.label}を試し見`;
+        {CATALOGS[catalog].ids.map((id) => {
+          const flame = getFlameEntry(id);
+          const selected = isChosen(id);
           return (
-            <li key={flame.id}>
+            <li key={id}>
               <button
                 type="button"
                 className={selected ? 'plus-flame-card is-selected' : 'plus-flame-card'}
-                aria-pressed={selectable ? selected : undefined}
-                aria-label={label}
-                data-flame-id={flame.id}
-                onClick={() => handleCard(flame.id)}
+                aria-pressed={choosing ? selected : undefined}
+                aria-current={id === activeId ? 'true' : undefined}
+                data-flame-id={id}
+                onClick={() => handleCard(id)}
+                disabled={saving}
+                style={{ '--spotlight-glow': flame.spectacle.bgGlowColor } as CSSProperties}
               >
-                <FlameGlyph spectacle={flame.spectacle} size={40} />
+                <FlameArtwork spectacle={flame.spectacle} size={42} />
                 <span className="plus-flame-name">{flame.label}</span>
                 {selected ? <span className="plus-flame-check" aria-hidden="true">✓</span> : null}
               </button>
@@ -148,52 +214,10 @@ export function FlamePickerScreen() {
         })}
       </ul>
 
-      <div className="plus-preview-note" role="status" aria-live="polite">
-        {preview.playing && previewLabel ? (
-          <strong>{previewLabel}の{COPY.previewLabel}中</strong>
-        ) : previewLabel ? (
-          <strong>{previewLabel}を{COPY.previewLabel}しました</strong>
-        ) : (
-          <strong>{COPY.previewLabel}ができます</strong>
-        )}
-        {needsSelection ? <span className="plus-warning">{COPY.flameFavoritesEmpty}</span> : null}
-      </div>
-      <p className="plus-help">試し見は無料です。タスクや炭ポイントには影響しません。</p>
-      <p className="plus-help">{COPY.freeAutoStillShowsAll}</p>
-
-      <div className="plus-actions">
-        {entitled ? (
-          <button
-            type="button"
-            className="plus-primary"
-            onClick={handleSave}
-            disabled={Boolean(validation) || saveStatus === 'saving'}
-          >
-            {saveStatus === 'saving' ? COPY.saveSaving : 'この設定にする'}
-          </button>
-        ) : draft.flameMode === 'auto' ? (
-          <p className="plus-help">おまかせは無料で、そのまま使えます。</p>
-        ) : (
-          <>
-            <button type="button" className="plus-primary" onClick={openPurchase}>
-              Plusで、この炎を使う
-            </button>
-            <p className="plus-help">{COPY.previewPlusSave}</p>
-          </>
-        )}
-        <p
-          className={saveStatus === 'failed' ? 'plus-status is-error' : 'plus-status'}
-          role="status"
-          aria-live="polite"
-        >
-          {saveStatus === 'saved' ? COPY.saveSaved : saveStatus === 'failed' ? COPY.saveFailed : ''}
-        </p>
-        {!entitled ? (
-          <button type="button" className="plus-link" onClick={openPurchase}>購入内容と価格を確認する</button>
-        ) : null}
-      </div>
-
-      {preview.layer}
+      {draft.flameMode === 'favorites' ? (
+        <p className="plus-help" role="status">お気に入りに{favoriteCount}種類を選択中</p>
+      ) : null}
+      <p className="plus-help">{COPY.previewNoRecord}</p>
     </PlusDialog>
   );
 }

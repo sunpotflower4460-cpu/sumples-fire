@@ -46,9 +46,11 @@ export function useBurnSequence() {
     setPhase('ignite');
     await sleep(BURN_TIMING.IGNITE_END * f);
 
+    if (!scope.current) return;
     setPhase('burning');
     await sleep((BURN_TIMING.BURNING_END - BURN_TIMING.IGNITE_END) * f);
 
+    if (!scope.current) return;
     setPhase('carbonizing');
     const carbonizeDurS = 0.6 * f;
     await animate(
@@ -62,6 +64,7 @@ export function useBurnSequence() {
     );
     await sleep(remainingCarbonizeMs);
 
+    if (!scope.current) return;
     setPhase('complete');
     await sleep((BURN_TIMING.COMPLETE_END - BURN_TIMING.CARBONIZING_END) * f);
   }, [scope, animate, shouldReduceMotion]);

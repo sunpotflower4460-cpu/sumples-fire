@@ -1,19 +1,14 @@
-import { FLAME_IDS, isFlameId } from './flames';
+import { AMBIENT_LAYERS, makeAmbientMix } from './ambientOptions';
+import type { AmbientMix } from './ambientOptions';
+import { isFlameId } from './flames';
 import type { FlameId } from './flames';
 import { PLUS_PREFERENCES_KEY } from './plusConstants';
+import { isSceneId } from './scenes';
+import type { SceneId } from './scenes';
 
 export { PLUS_PREFERENCES_KEY };
 
 export type FlameMode = 'auto' | 'fixed' | 'favorites';
-export type SceneId = 'night' | 'lake' | 'forest';
-
-/** Ambient layer volumes, 0–100. */
-export type AmbientMix = {
-  fire: number;
-  rain: number;
-  wind: number;
-};
-
 export type PlusPreferences = {
   version: 1;
   flameMode: FlameMode;
@@ -27,27 +22,6 @@ export type PlusPreferences = {
   mix: AmbientMix;
 };
 
-export const SCENE_IDS = ['night', 'lake', 'forest'] as const satisfies readonly SceneId[];
-
-export type SceneInfo = {
-  id: SceneId;
-  label: string;
-  /** Free scenes are available to everyone; the rest need Plus to be saved. */
-  plus: boolean;
-  /** Starting volumes when this scene is picked. Playing never starts by itself. */
-  preset: AmbientMix;
-};
-
-export const SCENES: Record<SceneId, SceneInfo> = {
-  night: { id: 'night', label: '夜の焚き火', plus: false, preset: { fire: 0, rain: 0, wind: 0 } },
-  lake: { id: 'lake', label: '星明かりの湖', plus: true, preset: { fire: 35, rain: 0, wind: 15 } },
-  forest: { id: 'forest', label: '雨あがりの森', plus: true, preset: { fire: 35, rain: 20, wind: 0 } },
-};
-
-export const isSceneId = (value: unknown): value is SceneId => (
-  typeof value === 'string' && (SCENE_IDS as readonly string[]).includes(value)
-);
-
 export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   version: 1,
   flameMode: 'auto',
@@ -55,7 +29,7 @@ export const DEFAULT_PLUS_PREFERENCES: PlusPreferences = {
   favoriteFlames: [],
   lastRealFlame: null,
   scene: 'night',
-  mix: { fire: 0, rain: 0, wind: 0 },
+  mix: makeAmbientMix(),
 };
 
 export const clampVolume = (value: unknown): number => {
@@ -91,7 +65,9 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
   if (raw.flameMode === 'fixed' && hasValidFixed) flameMode = 'fixed';
   if (raw.flameMode === 'favorites' && favorites.length > 0) flameMode = 'favorites';
 
-  const mix = isRecord(raw.mix) ? raw.mix : {};
+  const sourceMix = isRecord(raw.mix) ? raw.mix : {};
+  const mix = makeAmbientMix();
+  for (const layer of AMBIENT_LAYERS) mix[layer] = clampVolume(sourceMix[layer]);
 
   return {
     version: 1,
@@ -100,11 +76,7 @@ export const normalizePlusPreferences = (raw: unknown): PlusPreferences => {
     favoriteFlames: favorites,
     lastRealFlame: isFlameId(raw.lastRealFlame) ? raw.lastRealFlame : null,
     scene: isSceneId(raw.scene) ? raw.scene : 'night',
-    mix: {
-      fire: clampVolume(mix.fire),
-      rain: clampVolume(mix.rain),
-      wind: clampVolume(mix.wind),
-    },
+    mix,
   };
 };
 
@@ -128,5 +100,3 @@ export const validatePlusPreferences = (preferences: PlusPreferences): string | 
   }
   return null;
 };
-
-export const ALL_FLAME_IDS = FLAME_IDS;
