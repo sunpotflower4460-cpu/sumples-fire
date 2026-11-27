@@ -15,7 +15,7 @@ import { useAmbientStatus } from './useAmbientStatus';
  * no points, no growth speed and no second progression.
  */
 export function ScenePanel({ ashPoints }: { ashPoints: number }) {
-  const { entitled, effectivePreferences } = usePlus();
+  const { state, entitled, effectivePreferences } = usePlus();
   const status = useAmbientStatus();
   const stage = getCampfireStage(ashPoints);
   const sceneId = effectivePreferences.scene;
@@ -36,7 +36,7 @@ export function ScenePanel({ ashPoints }: { ashPoints: number }) {
 
   return (
     <section className="plus-scene-panel" aria-labelledby="plus-scene-title">
-      <CampfireScene scene={sceneId} stage={stage} />
+      <CampfireScene scene={sceneId} stage={stage} active={state.routeStack.length === 0} />
 
       <div className="plus-scene-meta">
         <h3 id="plus-scene-title">あなたの焚き火</h3>

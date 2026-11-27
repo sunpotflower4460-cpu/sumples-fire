@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { CombustionFlame } from '../../components/CombustionFlame';
 import { hasAmbientSound, type AmbientMix } from '../ambientOptions';
 import { SCENES, SCENE_IDS, type SceneId } from '../scenes';
+import { SceneLandscape } from '../ui/SceneLandscape';
 import { useAmbientStatus } from '../ui/useAmbientStatus';
 import styles from './showcase.module.css';
 
@@ -27,7 +29,10 @@ export function SceneAudition({ playSound, stopSound }: SceneAuditionProps) {
   return (
     <div className={styles.sceneDemo}>
       <figure className={styles.landscape}>
-        {scene.artwork && <img src={scene.artwork} alt="" loading="lazy" />}
+        <div className={styles.landscapeView}>
+          <SceneLandscape scene={sceneId} />
+          {sceneId === 'night' && <CombustionFlame flame="normal" size={192} motion="glimpse" />}
+        </div>
         <figcaption>
           <div aria-live="polite"><h3>{scene.label}</h3><p>{scene.description}</p></div>
           <button type="button" className={styles.secondary} disabled={!hasSound}

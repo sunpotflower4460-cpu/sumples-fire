@@ -160,7 +160,7 @@ test.describe('Plus introduction and purchase states', () => {
     await left.selectOption({ label: '希望の灯' });
     await expect(guide.locator('[data-guide-flame="voidFire"] picture img')).toHaveJSProperty('naturalWidth', 288);
     await guide.getByRole('link', { name: '動画', exact: true }).click();
-    const videos = guide.locator('video');
+    const videos = guide.locator('video[controls]');
     await expect(videos).toHaveCount(2);
     const origin = new URL(page.url()).origin;
     for (const video of await videos.all()) {
@@ -190,6 +190,27 @@ test.describe('Plus introduction and purchase states', () => {
     await picker.getByRole('button', { name: '試し見', exact: true }).click();
     await expect(picker.locator('.is-preview.spectacle-voidFire')).toBeVisible();
     expect(await storedJson(page, PREFS_KEY)).toMatchObject(prefs);
+  });
+
+  test('guide scenery loads motion only in view and honours reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await launch(page);
+    await goToTab(page, '設定');
+    await page.getByRole('button', { name: '紹介ページを見る', exact: true }).click();
+    const guide = plusDialog(page, 'Fire Task Plusの紹介');
+    await guide.getByRole('link', { name: '景色と音', exact: true }).click();
+    await guide.getByRole('button', { name: '夕凪の入り江', exact: true }).click();
+    const still = guide.locator('#scenes .scene-landscape img');
+    const motion = guide.locator('#scenes .scene-landscape-motion');
+    await expect(still).toHaveJSProperty('naturalWidth', 768);
+    await expect(motion).toHaveCount(0);
+
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await still.scrollIntoViewIfNeeded();
+    await expect(motion).toHaveAttribute('src', /coast-motion[^/]*\.mp4$/);
+    await expect(motion).toHaveJSProperty('muted', true);
+    await guide.getByRole('link', { name: '炎', exact: true }).click();
+    await expect(motion).toHaveCount(0);
   });
 
   test('shows the real price from the store, the one-time note, and what restore does and does not do', async ({ page }) => {
@@ -721,7 +742,9 @@ test.describe('campfire sets', () => {
     const sets = plusDialog(page, '焚き火セット');
     await expect(sets.getByRole('group', { name: 'おすすめの組み合わせ' }).getByRole('radio')).toHaveCount(6);
     await sets.getByRole('radio', { name: '波を待つ浜辺' }).check();
-    await expect(sets.getByRole('region', { name: '波を待つ浜辺' })).toContainText('海硝子の炎');
+    const preview = sets.getByRole('region', { name: '波を待つ浜辺' });
+    await expect(preview).toContainText('海硝子の炎');
+    await expect(preview.locator('.campfire-firebed .combustion-flame')).toHaveAttribute('data-flame', 'seaGlass');
     expect(await stored(page, PREFS_KEY)).toBeNull();
 
     await sets.getByRole('button', { name: 'Plusでこのセットを使う' }).click();

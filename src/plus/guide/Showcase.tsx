@@ -19,8 +19,8 @@ import review from './media/review-screen.webp';
 
 const chapters = [
   { name: '炎を選んでFireする', time: 3.2 },
-  { name: '景色と音量を選ぶ', time: 13.4 },
-  { name: '月の記録を開く', time: 21.64 },
+  { name: '景色と音量を選ぶ', time: 13.49 },
+  { name: '月の記録を開く', time: 21.7 },
 ];
 
 function Screen({ image, caption, alt }: { image: string; caption: string; alt: string }) {
@@ -52,8 +52,9 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
 
   useEffect(() => {
     if (!embedded && window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
-    const videos = root.current?.querySelectorAll('video');
-    const stop = () => { videos?.forEach((v) => v.pause()); stopSound(); };
+    const tourVideo = tour.current;
+    const filmVideo = film.current;
+    const stop = () => { tourVideo?.pause(); filmVideo?.pause(); stopSound(); };
     const onHide = () => { if (document.hidden) stop(); };
     document.addEventListener('visibilitychange', onHide);
     window.addEventListener('pagehide', stop);
@@ -87,8 +88,9 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
   return (
     <article ref={root} className={styles.page} id="top" tabIndex={-1} onClick={jump}
       onPlayCapture={(event) => {
-        if (event.target !== tour.current) tour.current?.pause();
-        if (event.target !== film.current) film.current?.pause();
+        if (event.target === tour.current) film.current?.pause();
+        else if (event.target === film.current) tour.current?.pause();
+        else return;
         stopSound();
       }}>
       {!embedded && <a className={styles.skip} href="#flames">炎の比較へ</a>}
@@ -147,15 +149,15 @@ export default function Showcase({ embedded = false }: { embedded?: boolean }) {
           <p className={styles.kicker}>おすすめ6種類・マイセット4枠</p><h2 id="guide-sets">焚き火をセットで選ぶ</h2>
           <p className={styles.lead}>「波を待つ浜辺」なら、海硝子の炎、入り江の景色、波音が一緒に切り替わります。自分で選んだ組み合わせにも名前を付けて保存できます。</p>
           <div className={styles.screens}>
-            <Screen image={presets} caption="おすすめの焚き火セット" alt="入り江と波音を選べる「波を待つ浜辺」の画面" />
-            <Screen image={personalSets} caption="名前を付けたマイセット" alt="「海辺のひと息」という名前で保存した設定" />
+            <Screen image={presets} caption="おすすめ「波を待つ浜辺」" alt="夕凪の入り江に海硝子の炎が揺れるセット選択画面" />
+            <Screen image={personalSets} caption="マイセット「海辺のひと息」" alt="海硝子の炎と波音の組み合わせを「海辺のひと息」として保存した画面" />
           </div>
         </div>
       </section>
       <section id="scenes" tabIndex={-1} className={styles.section} aria-labelledby="guide-scenes">
         <div className={styles.wrap}>
           <p className={styles.kicker}>9種類の景色・6種類の環境音</p><h2 id="guide-scenes">景色を見て、音を聴く。</h2>
-          <p className={styles.lead}>景色を選んで、初期設定の音を聴けます。Plusでは火の音や波音の音量を、景色ごとに調整できます。</p>
+          <p className={styles.lead}>オーロラがたなびき、入り江には波が寄せます。景色を選んで、動きと環境音を試せます。</p>
           <SceneAudition playSound={playSound} stopSound={stopSound} />
           <details className={styles.disclosure}>
             <summary>音量を調整する画面を見る</summary>

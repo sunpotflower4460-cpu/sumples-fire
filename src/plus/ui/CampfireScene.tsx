@@ -1,20 +1,23 @@
 import { CampfireVisual } from '../../components/CampfireVisual';
-import { SCENES } from '../scenes';
+import type { FlameId } from '../flames';
 import type { SceneId } from '../scenes';
+import { SceneLandscape } from './SceneLandscape';
 
 export function CampfireScene({
   scene,
   stage,
+  flame,
+  active,
 }: {
   scene: SceneId;
   stage: Parameters<typeof CampfireVisual>[0]['stage'];
+  flame?: FlameId;
+  active?: boolean;
 }) {
-  const artwork = SCENES[scene].artwork;
-
   return (
     <div className={`plus-scene scene-${scene} campfire-stage-${stage}`}>
-      {artwork ? <img className="plus-scene-art" src={artwork} alt="" decoding="async" /> : null}
-      <CampfireVisual stage={stage} />
+      <SceneLandscape scene={scene} active={active} />
+      <CampfireVisual stage={stage} flame={flame} />
     </div>
   );
 }

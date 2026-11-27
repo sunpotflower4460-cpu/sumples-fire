@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { FlameArtwork } from '../../components/FlameArtwork';
+import { CombustionFlame } from '../../components/CombustionFlame';
 import { getCampfireStage } from '../../lib/fireStreak';
 import { AMBIENT_LABELS, AMBIENT_LAYERS, hasAmbientSound } from '../ambientOptions';
 import { ambientPlayer } from '../ambientPlayer';
@@ -11,7 +11,6 @@ import {
   captureCampfireSet,
   describeSetFlame,
 } from '../campfireSets';
-import { getFlame } from '../flames';
 import { COPY } from '../plusCopy';
 import { CAMPFIRE_SET_NAME_LIMIT, CAMPFIRE_SET_SLOTS } from '../plusPreferences';
 import type { CampfireSet } from '../plusPreferences';
@@ -32,11 +31,12 @@ function SetPreview({ title, set, stage }: { title: string; set: CampfireSet; st
   const playing = status !== 'stopped';
   const sounds = AMBIENT_LAYERS.filter((id) => set.mix[id] > 0)
     .map((id) => `${AMBIENT_LABELS[id]}${set.mix[id]}%`);
-  const flame = set.flameMode === 'favorites' ? set.favoriteFlames[0] ?? set.fixedFlame : set.fixedFlame;
+  const flame = set.flameMode === 'fixed' ? set.fixedFlame
+    : set.flameMode === 'favorites' ? set.favoriteFlames[0] ?? 'normal' : 'normal';
 
   return (
     <section className="plus-set-preview" aria-label={title}>
-      <CampfireScene scene={set.scene} stage={stage} />
+      <CampfireScene scene={set.scene} stage={stage} flame={flame} />
       <div className="plus-set-detail">
         <div className="plus-section-head">
           <h3>{title}</h3>
@@ -52,7 +52,7 @@ function SetPreview({ title, set, stage }: { title: string; set: CampfireSet; st
         <dl className="plus-set-info">
           <div>
             <dt>炎</dt>
-            <dd><FlameArtwork spectacle={getFlame(flame)} size={20} />{describeSetFlame(set)}</dd>
+            <dd><CombustionFlame flame={flame} size={30} />{describeSetFlame(set)}</dd>
           </div>
           <div>
             <dt>景色</dt>

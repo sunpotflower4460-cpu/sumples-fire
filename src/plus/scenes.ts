@@ -8,6 +8,14 @@ import forest from './artwork/forest.webp';
 import lake from './artwork/lake.webp';
 import meadow from './artwork/meadow.webp';
 import summit from './artwork/summit.webp';
+import auroraMotion from './artwork/aurora-motion.mp4';
+import brookMotion from './artwork/brook-motion.mp4';
+import canyonMotion from './artwork/canyon-motion.mp4';
+import coastMotion from './artwork/coast-motion.mp4';
+import forestMotion from './artwork/forest-motion.mp4';
+import lakeMotion from './artwork/lake-motion.mp4';
+import meadowMotion from './artwork/meadow-motion.mp4';
+import summitMotion from './artwork/summit-motion.mp4';
 
 export const SCENE_IDS = ['night', 'lake', 'forest', 'aurora', 'summit', 'coast', 'brook', 'meadow', 'canyon'] as const;
 export type SceneId = (typeof SCENE_IDS)[number];
@@ -16,6 +24,7 @@ type SceneInfo = {
   label: string;
   description: string;
   artwork?: string;
+  motion?: string;
   preset: AmbientMix;
 };
 
@@ -29,48 +38,56 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     label: '星明かりの湖',
     description: '星と月明かりが、静かな水面に映る。',
     artwork: lake,
+    motion: lakeMotion,
     preset: makeAmbientMix({ fire: 35, wind: 15 }),
   },
   forest: {
     label: '雨あがりの森',
     description: '木立の間に霧が残り、葉先から雨が落ちる。',
     artwork: forest,
+    motion: forestMotion,
     preset: makeAmbientMix({ fire: 35, rain: 20 }),
   },
   aurora: {
     label: '雪原のオーロラ',
     description: '雪の稜線の上を、青緑の光がたなびく。',
     artwork: aurora,
+    motion: auroraMotion,
     preset: makeAmbientMix({ fire: 42, wind: 45 }),
   },
   summit: {
     label: '朝焼けの峰',
     description: '山の向こうから、雲海にあかね色が差す。',
     artwork: summit,
+    motion: summitMotion,
     preset: makeAmbientMix({ fire: 34, wind: 35 }),
   },
   coast: {
     label: '夕凪の入り江',
     description: '薄紫の空の下、白い波が入っては引く。',
     artwork: coast,
+    motion: coastMotion,
     preset: makeAmbientMix({ waves: 65, wind: 20, fire: 28 }),
   },
   brook: {
     label: '木漏れ日の渓流',
     description: '木漏れ日が、丸い石と流れる水を照らす。',
     artwork: brook,
+    motion: brookMotion,
     preset: makeAmbientMix({ stream: 60, fire: 25 }),
   },
   meadow: {
     label: '月夜の草原',
     description: '月明かりを受けたススキが、夜風に揺れる。',
     artwork: meadow,
+    motion: meadowMotion,
     preset: makeAmbientMix({ insects: 52, wind: 25, fire: 35 }),
   },
   canyon: {
     label: '夕映えの岩稜',
     description: '霧の奥で、夕日を浴びた岩肌がかすかに赤く染まる。',
     artwork: canyon,
+    motion: canyonMotion,
     preset: makeAmbientMix({ wind: 56, fire: 38 }),
   },
 };

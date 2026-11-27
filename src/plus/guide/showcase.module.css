@@ -148,12 +148,18 @@
 }
 .screen { min-inline-size: 0; text-align: center; }
 .screen img { inline-size: min(100%, 15rem); height: auto; margin-inline: auto; border: 1px solid var(--line); border-radius: 13px; }
-.sceneDemo { display: grid; grid-template-columns: minmax(0, 1fr); gap: .85rem; }
-.landscape { position: relative; display: grid; align-items: end; min-height: 15rem; border-radius: 14px; background: radial-gradient(ellipse at bottom, #542f19, #111316 75%); isolation: isolate; }
-.landscape img, .landscape::after { position: absolute; inset: 0; z-index: -1; inline-size: 100%; block-size: 100%; border-radius: inherit; }
-.landscape img { z-index: -2; object-fit: cover; }
-.landscape::after { content: ''; background: linear-gradient(transparent, #0d100dce 83%); }
-.landscape figcaption { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: .75rem; padding: 1rem; }
+.screens img { inline-size: min(100%, 21rem); }
+.sceneDemo { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: .85rem; }
+.landscape { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #211b18; }
+.landscapeView {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: end center;
+  aspect-ratio: 3 / 2;
+  background: radial-gradient(ellipse at 50% 95%, #542f19, #111316 66%);
+}
+.landscape figcaption { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: .75rem; margin: 0; padding: .85rem 1rem 1rem; }
 .secondary:disabled { opacity: .7; cursor: default; }
 .scenes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; }
 .scenes button { display: flex; flex-direction: column; min-inline-size: 0; align-items: stretch; padding: 0; background: #221d19; color: var(--paper); border: 1px solid var(--line); border-radius: 7px; }
@@ -175,5 +181,4 @@
 }
 @container showcase (min-width: 44rem) {
   .sceneDemo { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
-  .landscape { min-height: 20rem; }
 }
