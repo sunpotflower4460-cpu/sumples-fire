@@ -8,6 +8,7 @@ const FOCUSABLE_SELECTORS = [
   'textarea:not([disabled])',
   '[tabindex]:not([tabindex="-1"])',
   'details > summary',
+  'video[controls], audio[controls]',
 ].join(', ');
 
 const isHiddenInsideClosedDetails = (element: HTMLElement) => {
@@ -20,6 +21,7 @@ const isHiddenInsideClosedDetails = (element: HTMLElement) => {
 
 const isReachableFocusTarget = (element: HTMLElement) => {
   if (element.closest('[hidden], [aria-hidden="true"], [inert]')) return false;
+  if (element.hasAttribute('tabindex') && element.tabIndex < 0) return false;
   if (isHiddenInsideClosedDetails(element)) return false;
 
   const style = window.getComputedStyle(element);
@@ -90,18 +92,16 @@ export function useFocusTrap<T extends HTMLElement>(active: boolean) {
       const elements = getReachableFocusTargets(container);
       if (elements.length === 0) return;
 
-      const first = elements[0];
-      const last = elements[elements.length - 1];
+      // Safari can skip native buttons on Tab, sending focus to browser chrome
+      // even when there is another enabled control in the modal.
+      const currentIndex = elements.findIndex((element) => element === document.activeElement);
+      const direction = event.shiftKey ? -1 : 1;
+      const nextIndex = currentIndex < 0
+        ? (event.shiftKey ? elements.length - 1 : 0)
+        : (currentIndex + direction + elements.length) % elements.length;
 
-      if (event.shiftKey) {
-        if (document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        }
-      } else if (document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      event.preventDefault();
+      elements[nextIndex].focus();
     };
 
     document.addEventListener('keydown', handleKeyDown);

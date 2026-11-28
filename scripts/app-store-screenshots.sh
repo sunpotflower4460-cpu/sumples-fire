@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Prepares a simulator for App Store screenshots (6.9" = iPhone 17 Pro Max,
-# 1320x2868). Demo data goes straight into the simulator's UserDefaults, so
+# Prepares a dedicated iPhone simulator for App Store screenshots.
+# Run on a fresh Fire Task install. Demo data goes into simulator defaults, so
 # no fixture code exists in the shipped app.
 #
 # usage: scripts/app-store-screenshots.sh [device-name-or-udid] [path/to/App.app]
@@ -13,7 +13,8 @@ PREFIX="CapacitorStorage."
 cd "$(dirname "$0")/.."
 
 xcrun simctl boot "$DEVICE" 2>/dev/null || true
-open -a Simulator
+xcrun simctl bootstatus "$DEVICE" -b
+xcrun simctl ui "$DEVICE" appearance light
 if [[ -n "$APP" ]]; then
   xcrun simctl install "$DEVICE" "$APP"
 fi
@@ -24,9 +25,8 @@ xcrun simctl spawn "$DEVICE" defaults write "$BUNDLE_ID" "${PREFIX}sumples-fire-
 xcrun simctl spawn "$DEVICE" defaults write "$BUNDLE_ID" "${PREFIX}fire-task-sound-enabled-v1" -string "true"
 
 # Apple's marketing status bar: 9:41, full battery and signal.
-xcrun simctl status_bar "$DEVICE" override --time "9:41" --batteryState charged --batteryLevel 100 \
+xcrun simctl status_bar "$DEVICE" override --time "9:41" --batteryState discharging --batteryLevel 100 \
   --cellularMode active --cellularBars 4 --wifiBars 3 --dataNetwork wifi
 
 xcrun simctl launch "$DEVICE" "$BUNDLE_ID"
-echo "Ready. Capture each screen with:"
-echo "  xcrun simctl io \"$DEVICE\" screenshot docs/app-store-screenshots/01-home.png"
+echo "Ready for the AppStoreQA screenshot test on $DEVICE."

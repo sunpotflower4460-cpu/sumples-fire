@@ -239,6 +239,15 @@ test.describe('Plus introduction and purchase states', () => {
   test('Plus screens trap focus and isolate the background', async ({ page }) => {
     await launch(page);
     const dialog = await openIntro(page);
+    const close = dialog.getByRole('button', { name: '閉じる', exact: true }).first();
+    await expect(close).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(dialog.getByRole('button', { name: 'あとで', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(close).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(dialog.getByRole('button', { name: /好きな炎を選ぶ/ })).toBeFocused();
+
     for (let i = 0; i < 14; i += 1) {
       await page.keyboard.press('Tab');
       const inside = await page.evaluate(() => Boolean(document.activeElement?.closest('.plus-dialog')));
