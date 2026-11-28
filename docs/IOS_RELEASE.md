@@ -5,15 +5,16 @@ Web（Vite + React）を Capacitor 8.5 で iOS アプリとして配布します
 
 更新日 2026年11月28日（Xcode 26.2 / iOS 26.2 SDK）
 
-現行の提出候補は Fire Task Plus を含む 1.1 (1) です。掲載文と審査メモは [App Store 提出情報](APP_STORE_SUBMISSION.md) にあります。Xcode 26.2 / iOS 26.2 SDK は確認時点の提出要件を満たします。
+現行の提出候補は Fire Task Plus を含む 1.1 (2) です。掲載文と審査メモは [App Store 提出情報](APP_STORE_SUBMISSION.md) にあります。Xcode 26.2 / iOS 26.2 SDK は確認時点の提出要件を満たします。
 
 [Apple の SDK 要件](https://developer.apple.com/news/upcoming-requirements/)
 
 ### 今回のローカル検証
 
-- Node.js 24 で lint、型検査、Web 本番ビルド、iOS 向けバンドルを確認。単体テスト 426 件、WebKit E2E 50 件が成功し、npm 監査の検出は 0 件。
-- iPhone 17 Pro Max のシミュレータで、タスクの追加と再起動後の保存、Fire と取り消しを確認。ローカル StoreKit で価格取得、購入、再起動後の利用権、復元、返金の確認が成功。
-- 署名なし Archive の iOS arm64 バイナリ、iOS 26.2 SDK、最小 iOS 15.0、バージョン 1.1 (1)、同梱のプライバシーマニフェスト 3 件を照合。テスト用 StoreKit ファイルと模擬購入のコードは配布バンドルに含まれていません。
+- ビルド 2 は lint、型検査、Web 本番ビルド、iOS 向けバンドルの監査、単体テスト 429 件、WebKit E2E 50 件を通過しました。npm 監査の検出は 0 件です。
+- ビルド 2 のローカル StoreKit テストは、価格取得、購入、再起動後の利用権、復元、返金まで通過しました。
+- iPhone 17 Pro Max のシミュレータで、タスクの追加、再起動後の保存、Fire と取り消しも確認しました。
+- ビルド 2 の iOS arm64 Archive でアプリ ID、バージョン、プライバシーマニフェスト 3 件、テスト用 StoreKit ファイル・模擬購入コードの除外を照合しました。専用の開発プロファイルで署名し、iPhone SE（第3世代）で上書きインストールと起動を確認しました。
 
 ---
 
@@ -38,7 +39,7 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
 
 # 実機向け Archive（署名なし・コンパイル確認用）
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath build/app-store/FireTask-1.1-unsigned.xcarchive \
+  -destination 'generic/platform=iOS' -archivePath build/app-store/FireTask-1.1-2-unsigned.xcarchive \
   CODE_SIGNING_ALLOWED=NO archive
 ```
 

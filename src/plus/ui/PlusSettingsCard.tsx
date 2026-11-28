@@ -3,6 +3,7 @@ import { COPY } from '../plusCopy';
 import { plusStore } from '../plusStore';
 import { usePlus } from '../usePlus';
 import { SCENES } from '../scenes';
+import { canStartRestore } from '../storeState';
 import { PLUS_ENTRIES } from './PlusIntroScreen';
 
 /**
@@ -13,7 +14,6 @@ import { PLUS_ENTRIES } from './PlusIntroScreen';
 export function PlusSettingsCard() {
   const { state, entitled, effectivePreferences } = usePlus();
   const { store } = state;
-  const restoring = store.restore === 'restoring';
   const { flameMode, fixedFlame, favoriteFlames, scene } = effectivePreferences;
   const entryDetail = {
     flames: flameMode === 'fixed' ? getFlame(fixedFlame).label
@@ -86,7 +86,7 @@ export function PlusSettingsCard() {
         type="button"
         className="plus-link"
         onClick={() => void plusStore.restore()}
-        disabled={restoring}
+        disabled={!canStartRestore(store)}
       >
         {COPY.restore}
       </button>

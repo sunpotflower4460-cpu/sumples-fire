@@ -27,6 +27,12 @@ final class AppStoreUITests: XCTestCase {
         tap(titleField)
         titleField.typeText(title)
         XCTAssertEqual(titleField.value as? String, title)
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.exists {
+            // WebKit can report the save button as hittable while the keyboard covers it.
+            tap(app.toolbars.buttons["完了"])
+            XCTAssertTrue(keyboard.waitForNonExistence(timeout: 10))
+        }
         tap(app.buttons["タスクを薪にする"])
         let fire = app.buttons["「\(title)」を完了してFire"]
         XCTAssertTrue(fire.waitForExistence(timeout: 25))

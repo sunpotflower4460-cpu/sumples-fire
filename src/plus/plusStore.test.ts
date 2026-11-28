@@ -140,6 +140,43 @@ describe('plusStore — purchase flows', () => {
     expect(store.getState().store.entitlement).toBe('entitled');
   });
 
+  it.each([
+    { update: 'granted', initial: 'notEntitled', expected: 'entitled' },
+    { update: 'revoked', initial: 'entitled', expected: 'notEntitled' },
+  ] as const)('keeps a verified $update when an older entitlement check returns', async ({ update, initial, expected }) => {
+    const { store } = createStore();
+    const service = createFakeService({ entitlement: initial });
+    await store.init(service);
+
+    let completeCheck!: (result: EntitlementCheck) => void;
+    service.checkEntitlement = () => new Promise((resolve) => { completeCheck = resolve; });
+    const checking = store.recheckEntitlement();
+    service.emit(update);
+    completeCheck(initial);
+
+    await checking;
+    expect(store.getState().store.entitlement).toBe(expected);
+  });
+
+  it('does not start a restore while the Apple purchase sheet is open', async () => {
+    const { store } = createStore();
+    const service = createFakeService();
+    await store.init(service);
+
+    let completePurchase!: (result: PurchaseOutcome) => void;
+    service.purchase = () => new Promise((resolve) => { completePurchase = resolve; });
+    const purchasing = store.purchase();
+    service.emit('granted');
+    expect(store.getState().store.purchase).toBe('purchasing');
+    await store.restore();
+    expect(service.calls).not.toContain('restore');
+    completePurchase('cancelled');
+    await purchasing;
+
+    await store.restore();
+    expect(service.calls).toContain('restore');
+  });
+
   it('an unverified purchase does not unlock', async () => {
     const { store } = createStore();
     await store.init(createFakeService({ purchase: 'unverified' }));

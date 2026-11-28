@@ -1,6 +1,6 @@
 # Fire Task Plus — StoreKit テスト手順
 
-商品 ID は `com.sunpotflower.sumplesfire.plus` です。非消耗型の買い切りで、日本向けの価格候補は800円です。
+商品 ID は `com.sunpotflower.sumplesfire.plus` です。App Store Connect の提出準備中の商品は、非消耗型の買い切りで、日本向けに800円です。
 
 ## 1. ローカル StoreKit テスト
 
@@ -10,7 +10,12 @@ Xcode の Run で操作する場合も `AppStoreQA` を選びます。スキー�
 
 ## 2. Sandbox（実機）
 
-App Store Connect に商品を登録し（Paid Apps 契約・税務／銀行情報・商品のメタデータ）、Sandbox テスターで確認。
+1. `App` スキームの Release を、明示的な App ID `com.sunpotflower.sumplesfire` の開発プロファイルで署名して iPhone にインストールします。
+2. 設定の Fire Task Plus から「くわしく見る」を開き、日本のストアで800円が表示されることを確認します。商品設定の反映には最大1時間かかる場合があります。
+3. Sandbox Apple Account でサインインし、購入シートに `[Environment: Sandbox]` と表示された状態でテスト購入します。通常の Apple Account からサインアウトする必要はありません。
+4. アプリの再起動後に Plus が使えることを確認し、「購入を復元」を実行します。
+
+[Apple の実機 Sandbox テスト手順](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox)
 
 ## 3. 確認項目
 

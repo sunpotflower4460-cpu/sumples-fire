@@ -1,6 +1,6 @@
 # Fire Task 1.1 の App Store 提出情報
 
-現行の Fire Task Plus を含む iPhone 版の入力原稿です。Apple アカウントの情報、価格と配信地域は App Store Connect で確認してください。
+現行の Fire Task Plus を含む iPhone 版の入力原稿です。App Store Connect に Fire Task の iOS 版 1.1 と買い切り商品を登録済みです。どちらも提出準備中です。
 
 更新日 2026年11月28日
 
@@ -8,11 +8,11 @@
 
 | 項目 | 入力内容 |
 | --- | --- |
-| アプリ名 | Fire Task。名称の空き状況は App Store Connect で確認 |
+| アプリ名 | Fire Task |
 | サブタイトル | やりたくないタスクを、燃やして終わらせる |
 | Bundle ID | com.sunpotflower.sumplesfire |
-| SKU | sumplesfire-ios（新規登録時の候補） |
-| バージョンとビルド | 1.1 (1)。登録済みのビルド番号と重複する場合は番号を上げて再 Archive |
+| SKU | sumplesfire-ios |
+| バージョンとビルド | 1.1 (2)。登録済みのビルド番号と重複する場合は番号を上げて再 Archive |
 | 主言語 | 日本語 |
 | 対応端末 | iPhone、縦画面、iOS 15.0 以降 |
 | 価格 | アプリ本体は無料 |
@@ -98,12 +98,12 @@
 | 管理用参照名 | Fire Task Plus Lifetime Unlock |
 | 日本語の表示名 | Fire Task Plus |
 | 日本語の説明 | 22種の炎、焚き火セット、月別・年間ふりかえりを買い切りで。 |
-| 価格候補 | 日本を基準ストアに 800円。選べる価格ポイントと配信先は App Store Connect で確認 |
+| 価格・配信先 | 基準ストア・初期配信先は日本。800円 |
 | ファミリー共有 | オフ（現行設計） |
-| 審査用画像 | 提出素材の In-App Purchase 用画像。設定から開いた購入画面と購入ボタンを表示 |
-| 審査メモ | 下記の App Review メモの「In-app purchase」部分を使用 |
+| 審査用画像 | 購入画面と価格が見える画像を作成済み。App Store Connect への添付待ち |
+| 審査メモ | 購入・復元の導線と利用できる機能を登録済み |
 
-初回の非消耗型商品は、アプリのバージョンと同じ審査提出に含めます。商品登録・Sandbox 検証には明示的な App ID、Paid Apps 契約、税務と銀行情報の有効化が必要です。
+明示的な App ID を登録し、Paid Apps 契約、税務、銀行情報が有効であることを確認しました。初回の非消耗型商品は、アプリのバージョンと同じ審査提出に含めます。[Fire Task Plus の商品設定](https://appstoreconnect.apple.com/apps/6840262464/distribution/iaps/6840262963)
 
 [Apple の商品情報の仕様](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-information) ・ [初回のアプリ内購入の提出手順](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase/)
 

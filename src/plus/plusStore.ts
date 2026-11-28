@@ -12,7 +12,7 @@ import {
 import type { PlusPreferences } from './plusPreferences';
 import type { PlusPurchaseService } from './purchaseService';
 import { selectPurchaseService } from './selectPurchaseService';
-import { canStartPurchase, initialStoreState, isPlusActive, storeReducer } from './storeState';
+import { canStartPurchase, canStartRestore, initialStoreState, isPlusActive, storeReducer } from './storeState';
 import type { PlusStoreState, StoreAction } from './storeState';
 
 /** The Plus screens. Only one is shown at a time; the rest of the stack waits underneath. */
@@ -56,6 +56,7 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
   let service: PlusPurchaseService | null = null;
   let unsubscribeService: (() => void) | null = null;
   let initPromise: Promise<void> | null = null;
+  let entitlementCheckId = 0;
   let saveChain: Promise<unknown> = Promise.resolve();
   let returnFocus: HTMLElement | null = null;
 
@@ -87,7 +88,10 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
 
   const recheckEntitlement = async () => {
     if (!service) return;
+    const checkId = ++entitlementCheckId;
     const result = await service.checkEntitlement();
+    // A StoreKit update, completed transaction or newer check supersedes this snapshot.
+    if (checkId !== entitlementCheckId) return;
     if (result === 'entitled' && state.store.purchase === 'pending') {
       dispatch({ type: 'entitlementGranted' });
     } else {
@@ -101,6 +105,7 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     initPromise = (async () => {
       service = injected ?? await deps.createService();
       unsubscribeService = service.subscribe((update) => {
+        entitlementCheckId += 1;
         dispatch({ type: update === 'granted' ? 'entitlementGranted' : 'entitlementRevoked' });
       });
       await Promise.all([recheckEntitlement(), refreshProduct()]);
@@ -112,13 +117,15 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     if (!service || !canStartPurchase(state.store)) return;
     dispatch({ type: 'purchaseStarted' });
     const outcome = await service.purchase();
+    if (outcome === 'success') entitlementCheckId += 1;
     dispatch({ type: 'purchaseFinished', outcome });
   };
 
   const restore = async () => {
-    if (!service || state.store.restore === 'restoring') return;
+    if (!service || !canStartRestore(state.store)) return;
     dispatch({ type: 'restoreStarted' });
     const outcome = await service.restore();
+    if (outcome !== 'unavailable') entitlementCheckId += 1;
     dispatch({ type: 'restoreFinished', outcome });
   };
 
