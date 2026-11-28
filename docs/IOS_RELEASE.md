@@ -5,16 +5,16 @@ Web（Vite + React）を Capacitor 8.5 で iOS アプリとして配布します
 
 更新日 2026年11月28日（Xcode 26.2 / iOS 26.2 SDK）
 
-現行の提出候補は Fire Task Plus を含む 1.1 (2) です。掲載文と審査メモは [App Store 提出情報](APP_STORE_SUBMISSION.md) にあります。Xcode 26.2 / iOS 26.2 SDK は確認時点の提出要件を満たします。
+現行の提出候補は Fire Task Plus を含む 1.1 (3) です。掲載文と審査メモは [App Store 提出情報](APP_STORE_SUBMISSION.md) にあります。Xcode 26.2 / iOS 26.2 SDK は確認時点の提出要件を満たします。
 
 [Apple の SDK 要件](https://developer.apple.com/news/upcoming-requirements/)
 
 ### 今回のローカル検証
 
-- ビルド 2 は lint、型検査、Web 本番ビルド、iOS 向けバンドルの監査、単体テスト 429 件、WebKit E2E 50 件を通過しました。npm 監査の検出は 0 件です。
-- ビルド 2 のローカル StoreKit テストは、価格取得、購入、再起動後の利用権、復元、返金まで通過しました。
-- iPhone 17 Pro Max のシミュレータで、タスクの追加、再起動後の保存、Fire と取り消しも確認しました。
-- ビルド 2 の iOS arm64 Archive でアプリ ID、バージョン、プライバシーマニフェスト 3 件、テスト用 StoreKit ファイル・模擬購入コードの除外を照合しました。専用の開発プロファイルで署名し、iPhone SE（第3世代）で上書きインストールと起動を確認しました。
+- ビルド 3 は lint、型検査、Web 本番ビルド、iOS 向けバンドルの監査、単体テスト 434 件、WebKit E2E 50 件を通過しました。npm 監査の検出は 0 件です。
+- iPhone 17 Pro のローカル StoreKit テストで、価格取得、購入、再起動後の利用権、復元、返金を確認しました。StoreKit の通知が購入・復元と重なった場合は利用権を再確認し、アプリを再表示したときも最新の利用権を取得します。
+- iPhone SE（第3世代）のシミュレータで、ソフトウェアキーボードを開いたままの保存、再起動後の保存、Fire と取り消しを確認しました。
+- 専用の開発プロファイルで署名したビルド 3 の arm64 Archive で、プライバシーマニフェスト 3 件、配布する依存ライブラリのライセンス、テスト用 StoreKit ファイル・模擬購入コードの除外を照合しました。iPhone SE（第3世代）の実機で上書きインストールと起動を確認しました。実機での Apple Sandbox の購入・復元はテスターの作成とサインイン後に確認します。
 
 ---
 
@@ -28,6 +28,7 @@ npm run ios:open   # Xcode で開く
 
 - `--mode capacitor` は Cloudflare 用 Vite プラグインを外します。外さないと `wrangler.json`（開発機の絶対パス入り）がアプリに同梱されます。
 - `ios/App/App/public` と `capacitor.config.json` は生成物で Git 管理外です。`CapApp-SPM/Package.swift` と `Package.resolved` は Git 管理します。
+- 配布する依存ライブラリのライセンスは `public/third-party-notices.txt` にまとめ、iOS と Web の両方に同梱します。
 
 コマンドラインでの検証（署名なし）:
 
@@ -39,7 +40,7 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
 
 # 実機向け Archive（署名なし・コンパイル確認用）
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath build/app-store/FireTask-1.1-2-unsigned.xcarchive \
+  -destination 'generic/platform=iOS' -archivePath build/app-store/FireTask-1.1-3-unsigned.xcarchive \
   CODE_SIGNING_ALLOWED=NO archive
 ```
 

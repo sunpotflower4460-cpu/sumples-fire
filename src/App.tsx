@@ -152,6 +152,7 @@ export default function App() {
   const hadBurningTaskRef = useRef(false);
   const burnOriginRef = useRef<BurnOrigin | null>(null);
   const lastCompletedBurnOriginRef = useRef<BurnOrigin | null>(null);
+  const recordBackdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useFocusTrap<HTMLElement>(isRecordOpen);
   const sheetDragRef = useSheetDrag<HTMLElement>(isRecordOpen);
   const focusSeedTiltRef = usePointerTilt<HTMLElement>();
@@ -163,6 +164,32 @@ export default function App() {
     dialogRef.current = node;
     sheetDragRef.current = node;
   };
+
+  useLayoutEffect(() => {
+    const viewport = window.visualViewport;
+    const backdrop = recordBackdropRef.current;
+    if (!isRecordOpen || !viewport || !backdrop) return;
+
+    // iOS shrinks the visual viewport for the keyboard without shrinking CSS viewport units.
+    const syncViewport = () => {
+      const height = Math.floor(viewport.height);
+      const keyboardVisible = viewport.scale === 1 && height < document.documentElement.clientHeight;
+      backdrop.toggleAttribute('data-keyboard-viewport', keyboardVisible);
+      if (keyboardVisible) {
+        backdrop.style.setProperty('--record-viewport-top', `${Math.max(0, viewport.offsetTop)}px`);
+        backdrop.style.setProperty('--record-viewport-height', `${height}px`);
+      }
+    };
+
+    syncViewport();
+    viewport.addEventListener('resize', syncViewport);
+    viewport.addEventListener('scroll', syncViewport);
+    return () => {
+      viewport.removeEventListener('resize', syncViewport);
+      viewport.removeEventListener('scroll', syncViewport);
+    };
+  }, [isRecordOpen]);
+
   const {
     addSeed,
     addStarterSeeds,
@@ -831,7 +858,7 @@ export default function App() {
       </nav>
 
       {isRecordOpen ? (
-        <div className="sheet-backdrop" role="presentation" onClick={closeRecord}>
+        <div ref={recordBackdropRef} className="sheet-backdrop" role="presentation" onClick={closeRecord}>
           <section ref={bindRecordSheet} className="record-sheet" role="dialog" aria-modal="true" aria-labelledby="record-title" onClick={(event) => event.stopPropagation()}>
             <div
               className="sheet-drag-zone"

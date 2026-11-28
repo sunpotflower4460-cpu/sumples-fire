@@ -102,6 +102,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
           ...state,
           entitlement: 'notEntitled',
           revokedNotice: wasEntitled ? true : state.revokedNotice,
+          justPurchased: false,
         };
       }
       // Could not verify: never downgrade something that was already verified.

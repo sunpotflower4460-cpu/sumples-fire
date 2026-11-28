@@ -27,13 +27,15 @@ final class AppStoreUITests: XCTestCase {
         tap(titleField)
         titleField.typeText(title)
         XCTAssertEqual(titleField.value as? String, title)
+        let submit = app.buttons["タスクを薪にする"]
+        reveal(submit)
         let keyboard = app.keyboards.firstMatch
         if keyboard.exists {
-            // WebKit can report the save button as hittable while the keyboard covers it.
-            tap(app.toolbars.buttons["完了"])
-            XCTAssertTrue(keyboard.waitForNonExistence(timeout: 10))
+            let accessory = app.toolbars.firstMatch
+            let keyboardTop = accessory.exists ? min(accessory.frame.minY, keyboard.frame.minY) : keyboard.frame.minY
+            XCTAssertLessThanOrEqual(submit.frame.maxY, keyboardTop, "Save must stay above the software keyboard")
         }
-        tap(app.buttons["タスクを薪にする"])
+        submit.tap()
         let fire = app.buttons["「\(title)」を完了してFire"]
         XCTAssertTrue(fire.waitForExistence(timeout: 25))
 
@@ -64,7 +66,7 @@ final class AppStoreUITests: XCTestCase {
         launchApp()
         tap(app.buttons["設定"])
         XCTAssertTrue(text(containing: "購入済み").waitForExistence(timeout: 10))
-        tap(app.buttons["購入を復元"])
+        tapSettingsAction("購入を復元")
         XCTAssertTrue(text(containing: "Plusの購入を復元しました").waitForExistence(timeout: 40))
 
         let transaction = try XCTUnwrap(store.allTransactions().first { $0.productIdentifier == productID })
@@ -96,6 +98,11 @@ final class AppStoreUITests: XCTestCase {
         tap(app.buttons["今日"])
         tap(app.buttons["燃やしたいタスクを書く"])
         XCTAssertTrue(app.textFields.firstMatch.waitForExistence(timeout: 10))
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.exists {
+            tap(app.toolbars.buttons["完了"])
+            XCTAssertTrue(keyboard.waitForNonExistence(timeout: 10))
+        }
         attachScreenshot("04-capture")
         tap(app.buttons["閉じる"])
 
@@ -103,7 +110,7 @@ final class AppStoreUITests: XCTestCase {
         XCTAssertTrue(text(containing: "体験とアプリ設定").waitForExistence(timeout: 10))
         attachScreenshot("05-settings")
 
-        tap(app.buttons["くわしく見る"])
+        tapSettingsAction("くわしく見る")
         let preview = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "好きな炎を選ぶ")).firstMatch
         tap(preview)
         XCTAssertTrue(text(containing: "炎を選ぶ").waitForExistence(timeout: 10))
@@ -117,7 +124,17 @@ final class AppStoreUITests: XCTestCase {
 
     private func openPurchase() {
         tap(app.buttons["設定"])
-        tap(app.buttons["くわしく見る"])
+        tapSettingsAction("くわしく見る")
+    }
+
+    private func tapSettingsAction(_ label: String) {
+        let action = app.buttons[label]
+        reveal(action)
+        if action.frame.midY >= app.buttons["今日"].frame.minY {
+            // The WebView can report a click target behind the fixed tab bar on an iPhone SE.
+            app.swipeUp()
+        }
+        tap(action)
     }
 
     private func purchaseButton() -> XCUIElement {

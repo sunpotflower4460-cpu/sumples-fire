@@ -1,6 +1,6 @@
 # Fire Task 1.1 の App Store 提出情報
 
-現行の Fire Task Plus を含む iPhone 版の入力原稿です。App Store Connect に Fire Task の iOS 版 1.1 と買い切り商品を登録済みです。どちらも提出準備中です。
+Fire Task Plus を含む iPhone 版の提出情報です。App Store Connect に iOS 版 1.1 と買い切り商品を登録し、日本語の掲載文、サポート URL、App Review メモを保存しました。どちらも提出準備中です。[iOS 版 1.1 の下書き](https://appstoreconnect.apple.com/apps/6840262464/distribution/ios/version/inflight)
 
 更新日 2026年11月28日
 
@@ -12,13 +12,14 @@
 | サブタイトル | やりたくないタスクを、燃やして終わらせる |
 | Bundle ID | com.sunpotflower.sumplesfire |
 | SKU | sumplesfire-ios |
-| バージョンとビルド | 1.1 (2)。登録済みのビルド番号と重複する場合は番号を上げて再 Archive |
+| バージョンとビルド | 1.1 (3)。登録済みのビルド番号と重複する場合は番号を上げて再 Archive |
 | 主言語 | 日本語 |
 | 対応端末 | iPhone、縦画面、iOS 15.0 以降 |
-| 価格 | アプリ本体は無料 |
+| 価格と初回配信先 | アプリ本体は無料。日本で配信 |
 | アプリ内購入 | Fire Task Plus（非消耗型の買い切り） |
 | プライマリカテゴリ | 仕事効率化 |
-| 著作権 | 2026 に続けて、Apple Developer アカウントで使う権利者名を入力 |
+| 年齢制限 | 質問票を保存済み。日本のストアで 4+ |
+| 著作権 | 2026 に続けて正式な権利者名を入力。コンテンツ配信権は権利者の確認後に申告 |
 
 ### プロモーションテキスト
 
@@ -69,7 +70,7 @@
 | プライバシーポリシー | https://sumples-fire.vercel.app/privacy.html |
 | サポート | https://sumples-fire.vercel.app/support.html |
 
-両 URL とサポート先の GitHub Issues は 2026年11月28日に HTTP 200 を確認しました。現行版の説明はリポジトリの HTML に反映済みです。Web 版への反映後に公開ページの内容を再確認してください。配信地域で連絡先の開示が求められる場合は、公開できる窓口をサポートページに掲載してください。
+両 URL とサポート先の GitHub Issues は 2026年11月28日に HTTP 200 を確認しました。StoreKit と購入の復元を説明する最新版を `main` の `7190610` で公開し、Vercel の本番 URL がリポジトリの HTML と一致することを確認しました。App Privacy の「データの収集なし」は下書きに保存済みです。公開時の確認は App Store Connect の所有者が行います。
 
 | App Privacy | 入力案と根拠 |
 | --- | --- |
@@ -85,7 +86,7 @@
 - 暴力、性的表現、薬物、ホラー、ギャンブル、コンテストはありません。炎はタスクの完了を表す演出です。
 - 入力したタスクは私的な記録です。公開や共有、メッセージ、ユーザー間の交流機能はありません。
 - 無制限の Web ブラウズ機能、広告、位置情報共有、デート・恋愛機能、年齢確認はありません。
-- Apple の買い切りアプリ内購入があります。最終的な年齢区分は App Store Connect が回答に基づき算出します。
+- Apple の買い切りアプリ内購入があります。上記の回答から App Store Connect が算出した日本の年齢区分は 4+ です。
 
 [Apple の年齢制限の定義](https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/)
 
@@ -126,7 +127,7 @@
 
 ## スクリーンショット
 
-Release アプリを iPhone シミュレータで起動して撮影し、PNG の寸法と表示内容を確認しました。iPhone 向けの設定であるため iPad 掲載画像は不要です。
+Release アプリを iPhone シミュレータで起動して撮影し、PNG の寸法と表示内容を確認しました。入力画面はビルド 3 で中・大サイズを撮り直し、保存ボタンまで表示しています。iPhone 向けの設定であるため iPad 掲載画像は不要です。
 
 - iPhone 17 Pro（Dynamic Island、中サイズ）。1206 × 2622 px、下表の順に6枚。[iPhone 17 Pro の掲載画像](app-store-screenshots/1.1/iphone-17-pro/)
 - iPhone 17 Pro Max（Dynamic Island、大サイズ）。1320 × 2868 px、今日、入力、設定、Plus の順に4枚。[iPhone 17 Pro Max の掲載画像](app-store-screenshots/1.1/iphone-17-pro-max/)
@@ -146,11 +147,10 @@ Release アプリを iPhone シミュレータで起動して撮影し、PNG の
 
 ## App Store Connect で確認する項目
 
-1. Apple Developer のチームと明示的な App ID、配布署名
-2. App の登録状況、ビルド番号、権利者名、審査連絡先、価格と配信地域
-3. Paid Apps 契約、Fire Task Plus の商品登録、実機の Sandbox 購入・復元
-4. 更新した公開のプライバシーポリシーとサポートページ、App Privacy と年齢制限の回答
-5. 署名付き Archive の検証、アップロード、TestFlight の確認
-6. アプリバージョン、最初の Fire Task Plus 商品、審査メモとスクリーンショットの提出
+1. App Privacy の回答を確認して公開する。
+2. 権利者名、コンテンツ配信権、Apple 審査担当者向けの連絡先を入力する。
+3. 掲載用 iPhone 画像と Fire Task Plus の商品審査用画像を添付する。
+4. 配布署名と Xcode Organizer の検証を行い、ビルドをアップロードする。実機で Sandbox の価格、購入、復元を確認する。
+5. アプリのバージョンと初回の Fire Task Plus 商品を同じ審査提出に追加する。
 
 [Apple の App Review 提出手順](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app/)
