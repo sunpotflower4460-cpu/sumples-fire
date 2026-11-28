@@ -1,164 +1,156 @@
-# App Store 提出情報 — Fire Task
+# Fire Task 1.1 の App Store 提出情報
 
-App Store Connect に入力する内容をまとめたものです。
-「確定」は実装・設定から確認済みの事実、「候補」は人間が最終判断する提案、「要確認」は App Store Connect 上でしか確かめられない項目です。
+Fire Task Plus を含む iPhone 版の提出情報です。App Store Connect に iOS 版 1.1 と買い切り商品を登録し、日本語の掲載文、サポート URL、App Review メモを保存しました。どちらも提出準備中です。[iOS 版 1.1 の下書き](https://appstoreconnect.apple.com/apps/6840262464/distribution/ios/version/inflight)
 
-最終更新: 2026-09-24
+更新日 2026年11月28日
 
----
+## アプリ情報
 
-## 1. 基本情報
+| 項目 | 入力内容 |
+| --- | --- |
+| アプリ名 | Fire Task |
+| サブタイトル | やりたくないタスクを、燃やして終わらせる |
+| Bundle ID | com.sunpotflower.sumplesfire |
+| SKU | sumplesfire-ios |
+| バージョンとビルド | 1.1 (3)。登録済みのビルド番号と重複する場合は番号を上げて再 Archive |
+| 主言語 | 日本語 |
+| 対応端末 | iPhone、縦画面、iOS 15.0 以降 |
+| 価格と初回配信先 | アプリ本体は無料。日本で配信 |
+| アプリ内購入 | Fire Task Plus（非消耗型の買い切り） |
+| プライマリカテゴリ | 仕事効率化 |
+| 年齢制限 | 質問票を保存済み。日本のストアで 4+ |
+| 著作権 | 2026 に続けて正式な権利者名を入力。コンテンツ配信権は権利者の確認後に申告 |
 
-| 項目 | 値 | 状態 |
-|---|---|---|
-| アプリ名（App Store 表示名） | Fire Task | 候補（名称の空き状況は App Store Connect の新規作成時に要確認） |
-| ホーム画面の表示名 | Fire Task（`CFBundleDisplayName`） | 確定 |
-| Bundle ID | `com.sunpotflower.sumplesfire` | 確定（変更しない） |
-| SKU | `sumplesfire-ios`（任意の社内識別子） | 候補 |
-| バージョン / ビルド | 1.0 (1)（`MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`） | 確定 |
-| 主言語 | 日本語 | 確定（UI は日本語のみ、`CFBundleDevelopmentRegion = ja`） |
-| 対応端末 | iPhone のみ・縦画面のみ | 確定（`TARGETED_DEVICE_FAMILY = 1`） |
-| 最小 iOS | iOS 15.0 | 確定 |
-| 価格 | 無料 | 候補 |
-| アプリ内課金 / 広告 | なし（**v1.0**。v1.1のPlusは下記の注記を参照） | 確定 |
+### プロモーションテキスト
 
-「Fire Task」が既に使われていた場合の代替名候補（30文字以内）:
-- `Fire Task - 燃やすタスク管理`
-- `Fire Task: やりたくないを燃やす`
+> 先延ばししていること、気が重いこと。書いておいて、終わったら「Fire」。燃やした分だけ炭が積み上がり、焚き火が育ちます。アカウント登録不要。基本機能は無料です。
 
-## 2. ストア掲載文
+### 説明文
 
-### サブタイトル（30文字以内）候補
-- `やりたくないタスクを、燃やして終わらせる`（20文字）
-- `終わったらFire。先延ばしを炭に変える`（19文字）
+    Fire Task は、やりたくないタスクを「燃やして終わらせる」ためのタスクアプリです。
 
-### プロモーションテキスト（170文字以内）候補
-> 先延ばししていること、気が重いこと。書いておいて、終わったら「Fire」で燃やす。燃えた分だけ炭が積み上がり、焚き火が育っていきます。アカウント不要、データはこの iPhone の中だけ。
+    ■ 書く
+    先延ばししていることや気が重いことを、名前だけでさっと追加。
+    「最初の一歩」を書いて、次にすることを決めておけます。
 
-### 説明文 候補
-```
-Fire Task は、やりたくないタスクを「燃やして終わらせる」ためのタスクアプリです。
+    ■ 今日の火種を選ぶ
+    緊急度と重要度でタスクを4象限に分類します。今日取りかかるタスクは「今日の火種」で確認できます。
 
-■ 書く
-先延ばししていること、気が重いことを、名前だけでさっと追加。「最初の一歩」を書いておけば、手をつけるハードルが下がります。
+    ■ 終わったら Fire
+    「完了したら Fire」を押すと、燃焼の演出とともにタスクが炭ポイントになります。直後なら「元に戻す」で取り消せます。
 
-■ 並ぶ
-緊急度と重要度を選ぶと、4象限（今すぐ燃やす／大事に進める／先に片付ける／あとで燃やす）に自動で分類。いま燃やすべき「今日の火種」がひとつ目に表示されます。
+    ■ 炭の記録を振り返る
+    燃やしたタスク、炭ポイント、称号、連続日数を「炭」画面で確認できます。
 
-■ 燃やす
-終わったら「完了したら Fire」。燃焼の演出と効果音のあと、タスクの重さに応じた炭ポイントが加算されます。押し間違えても、直後なら「元に戻す」で取り消せます。
+    ■ Fire Task Plus（アプリ内購入・買い切り）
+    22種類の炎から選び、固定、お気に入り、全種類シャッフルを使えます。
+    9つの景色と6種類の環境音を組み合わせ、焚き火セットを使ったり、マイセットを4枠まで保存したりできます。
+    端末に保存された記録は、月別・年間表示で振り返れます。購入前に炎や景色、セット、ふりかえりの表示例を試せます。
+    タスクの追加、Fire、炭の記録は無料です。
 
-■ 積み上がる
-燃やしたタスクは「炭の記録」に残り、炭ポイントの合計、称号、連続日数、焚き火の成長で積み重ねを実感できます。
+    アカウント登録は不要です。タスクや設定は端末に保存されます。
+    ライト／ダークモードに対応。効果音は設定からオフにできます。
 
-■ 安心して使える
-・アカウント登録不要
-・タスクはこの端末の中だけに保存。外部への送信、広告、アクセス解析はありません
-・ライト／ダークモード対応
-・「視差効果を減らす」設定時は演出を短く控えめに
-・効果音は設定からオフにできます
-```
+### キーワード
 
-### キーワード（100バイト相当以内、カンマ区切り）候補
-```
-タスク,ToDo,やること,先延ばし,習慣,集中,生産性,モチベーション,完了,リスト,4象限,アイゼンハワー
-```
-※ アプリ名に含まれる語（Fire, Task）は重複させない。
+    タスク管理,ToDo,先延ばし,やること,焚き火,優先順位,チェックリスト
 
-### カテゴリ 候補
-- プライマリ: 仕事効率化（Productivity）
-- セカンダリ: ライフスタイル（任意）
+### アップデートの内容
 
-### 著作権表記 候補
-`© 2026 <開発者名>` — 開発者名は Apple Developer アカウントの表記に合わせて人間が入力。
+すでに App Store で旧版を配信している場合に入力します。
 
-## 3. URL
+> 買い切りの Fire Task Plus を追加しました。炎の選択やシャッフル、景色と環境音を組み合わせた焚き火セット、月別と年間のふりかえりを使えます。設定から購入前に試すことができます。
 
-| 項目 | URL | 状態 |
-|---|---|---|
-| プライバシーポリシー URL | https://sumples-fire.vercel.app/privacy.html | 公開中（HTTP 200 確認済み）。本ブランチを main にマージすると Vercel で内容が更新される |
-| サポート URL | https://sumples-fire.vercel.app/support.html | 同上 |
-| マーケティング URL | 空欄で可 | 候補 |
+[Apple の掲載情報と文字数の仕様](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information)
 
-サポートページの連絡手段は GitHub Issues と App Store レビューです。GitHub アカウントを持たない利用者向けに、問い合わせ用メールアドレスかフォームを追記することを推奨します（人間が公開してよい連絡先を決めてください）。
+## 公開 URL とプライバシー
 
-## 4. App のプライバシー（App Privacy / 栄養ラベル）
+| 項目 | URL |
+| --- | --- |
+| プライバシーポリシー | https://sumples-fire.vercel.app/privacy.html |
+| サポート | https://sumples-fire.vercel.app/support.html |
 
-| 質問 | 回答 | 根拠 |
-|---|---|---|
-| このアプリからデータを収集しますか？ | **いいえ（データの収集なし）** | アプリはネットワーク通信を一切行わない。`src/` に fetch / XHR / WebSocket / sendBeacon なし、解析・広告 SDK なし。保存先は端末内の UserDefaults のみ |
-| トラッキング | **なし** | `PrivacyInfo.xcprivacy` で `NSPrivacyTracking = false`、トラッキングドメインなし。ATT ダイアログ不要 |
+両 URL とサポート先の GitHub Issues は 2026年11月28日に HTTP 200 を確認しました。StoreKit と購入の復元を説明する最新版を `main` の `7190610` で公開し、Vercel の本番 URL がリポジトリの HTML と一致することを確認しました。App Privacy の「データの収集なし」は下書きに保存済みです。公開時の確認は App Store Connect の所有者が行います。
 
-Apple の定義では「収集」は端末外へ送信されデータにアクセスできる状態を指します。端末内にのみ保存されるタスクは収集に該当しません。
+| App Privacy | 入力案と根拠 |
+| --- | --- |
+| データの収集 | なし。タスク、完了履歴、設定は端末内に保存 |
+| トラッキング | なし。広告・広告識別子・アクセス解析 SDK は同梱なし |
+| 購入 | Apple の StoreKit が処理。アプリは端末上で商品情報と検証済みの利用権を扱う。入力したタスク、Apple Account の認証情報、支払い情報を開発者へ送信する実装はない |
+| 輸出コンプライアンス | Info.plist の ITSAppUsesNonExemptEncryption は false。アプリ独自の暗号実装はなく、StoreKit など OS 標準機能を使用 |
 
-## 5. 年齢制限（Age Rating）
+[Apple の App Privacy 申告ガイド](https://developer.apple.com/app-store/app-privacy-details/) ・ [輸出コンプライアンスの説明](https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance/)
 
-2026年の新しい年齢制限の質問票に回答します。判断材料:
-- 暴力・性的表現・ホラー・ギャンブル・薬物/アルコール/タバコ: なし（「燃やす」は比喩。燃焼演出は抽象的な炎のアニメーション）
-- ユーザー間のコミュニケーション・ユーザー生成コンテンツの共有: なし（入力内容は端末内のみ、他者に公開されない）
-- 無制限の Web アクセス: なし（アプリ内ブラウザ機能はない。サポートページの GitHub リンクは外部 Safari で開く）
-- 位置情報・医療/ウェルネス・課金・広告: なし
+## 年齢制限の回答資料
 
-想定結果は最も低い区分（4+ 相当）ですが、最終区分は回答後に App Store Connect が算出するため**要確認**です。
+- 暴力、性的表現、薬物、ホラー、ギャンブル、コンテストはありません。炎はタスクの完了を表す演出です。
+- 入力したタスクは私的な記録です。公開や共有、メッセージ、ユーザー間の交流機能はありません。
+- 無制限の Web ブラウズ機能、広告、位置情報共有、デート・恋愛機能、年齢確認はありません。
+- Apple の買い切りアプリ内購入があります。上記の回答から App Store Connect が算出した日本の年齢区分は 4+ です。
 
-## 6. 輸出コンプライアンス（Export Compliance）
+[Apple の年齢制限の定義](https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/)
 
-- `Info.plist` に `ITSAppUsesNonExemptEncryption = false` を設定済み。アップロード後の暗号化に関する質問は自動的にスキップされる想定。
-- 根拠: アプリは通信を行わず、独自の暗号化も実装していない（OS 標準機能のみ）。
+## In-App Purchase の登録情報
 
-## 7. 審査メモ（App Review Information）候補
+| 項目 | 入力内容 |
+| --- | --- |
+| 種類 | Non-Consumable（非消耗型） |
+| Product ID | com.sunpotflower.sumplesfire.plus |
+| 管理用参照名 | Fire Task Plus Lifetime Unlock |
+| 日本語の表示名 | Fire Task Plus |
+| 日本語の説明 | 22種の炎、焚き火セット、月別・年間ふりかえりを買い切りで。 |
+| 価格・配信先 | 基準ストア・初期配信先は日本。800円 |
+| ファミリー共有 | オフ（現行設計） |
+| 審査用画像 | 購入画面と価格が見える画像を作成済み。App Store Connect への添付待ち |
+| 審査メモ | 購入・復元の導線と利用できる機能を登録済み |
 
-- サインイン: **不要**（デモアカウントなし）
-- 連絡先: 人間が入力（氏名・電話・メール）
+明示的な App ID を登録し、Paid Apps 契約、税務、銀行情報が有効であることを確認しました。初回の非消耗型商品は、アプリのバージョンと同じ審査提出に含めます。[Fire Task Plus の商品設定](https://appstoreconnect.apple.com/apps/6840262464/distribution/iaps/6840262963)
 
-```
-Fire Task はアカウント不要のオフラインのタスクアプリです。サインインは不要です。
+[Apple の商品情報の仕様](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-information) ・ [初回のアプリ内購入の提出手順](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase/)
 
-確認手順:
-1. 「最初のタスクを書く」をタップし、タスク名を入力して「タスクを薪にする」をタップ
-2. 「今日の火種」に表示されたタスクの「完了したら Fire」をタップすると、約3秒の燃焼演出のあとに炭ポイントが加算されます
-3. 直後に表示される「元に戻す」で取り消しできます
-4. 「炭」タブで燃やした記録、「設定」タブで効果音のオン/オフとプライバシーポリシー・サポート情報を確認できます
+## App Review メモ
 
-データはすべて端末内（UserDefaults）に保存され、外部への送信はありません。効果音は Web Audio API で端末内で合成しており、マイクなどの権限は使用しません。
-```
+アプリのサインインは不要です。審査連絡先の氏名、国際形式の電話番号、メールアドレスを App Store Connect に登録してください。
 
-## 8. スクリーンショット
+    Fire Task is a Japanese-language task app. No app account or sign-in is required.
 
-必須: 6.9インチ（1320 × 2868 px、iPhone 17 Pro Max）。これより小さいサイズは自動で縮小使用されます。
+    Free task flow
+    1. In Today (今日), tap 最初のタスクを書く or the plus button. Enter a title, then tap タスクを薪にする.
+    2. Tap 完了したら Fire to complete the task. The animation is followed by a charcoal reward. Tap 元に戻す in the completion banner to undo it.
+    3. Open 炭 to view completed tasks and Settings (設定) for sound preferences, privacy policy, and support.
 
-`docs/app-store-screenshots/` に Release ビルドから撮影済み（1320 × 2868, RGB）:
+    In-app purchase
+    Fire Task Plus is a one-time non-consumable purchase with product ID com.sunpotflower.sumplesfire.plus.
+    Open Settings (設定), then Fire Task Plus > くわしく見る. Scroll down within the Plus screen for the localized price, purchase button, and 購入を復元 (Restore Purchase).
+    Before purchasing, you can preview the 22 flames, 9 campfire landscapes, 6 ambient sounds, 6 presets, and sample monthly and yearly reviews.
+    The purchase unlocks flame selection, favorites and shuffle, saved scene audio mixes, campfire presets and four custom slots, and reviews of completion records on the device. Restore Purchase restores the Plus entitlement. Task records are stored on the device.
 
-| 順 | ファイル | 見せたいこと | キャプション候補 |
-|---|---|---|---|
-| 1 | `01-home.png` | 今日の火種と「まずこれだけ」、4象限 | やりたくないことを、ひとつだけ |
-| 2 | `02-fire-ritual.png` | Fire の燃焼演出 | 終わったら、燃やす |
-| 3 | `03-ash-archive.png` | 炭ポイントと燃やした記録 | 燃やした分だけ、炭が積み上がる |
-| 4 | `04-capture.png` | 名前だけでさっと追加 | 書くのは名前だけでいい |
-| 5 | `05-settings.png` | 端末内保存・サウンド設定 | アカウント不要。データは端末の中だけ |
+## スクリーンショット
 
-撮り直す場合: `scripts/app-store-screenshots.sh "iPhone 17 Pro Max" <App.app>` でデモデータを投入し、ステータスバーを 9:41 に固定してから `xcrun simctl io` で撮影します（デモデータはシミュレータの UserDefaults に直接書き込むため、アプリ本体には含まれません）。
-`02-fire-ritual.png` は 3 秒の演出の最高潮を捉えるため、同じバンドルを WebKit で 1320 × 2868 にレンダリングし、シミュレータのステータスバーを合成しています。
+Release アプリを iPhone シミュレータで起動して撮影し、PNG の寸法と表示内容を確認しました。入力画面はビルド 3 で中・大サイズを撮り直し、保存ボタンまで表示しています。iPhone 向けの設定であるため iPad 掲載画像は不要です。
 
-## 9. App Store Connect で人間が入力・操作するもの
+- iPhone 17 Pro（Dynamic Island、中サイズ）。1206 × 2622 px、下表の順に6枚。[iPhone 17 Pro の掲載画像](app-store-screenshots/1.1/iphone-17-pro/)
+- iPhone 17 Pro Max（Dynamic Island、大サイズ）。1320 × 2868 px、今日、入力、設定、Plus の順に4枚。[iPhone 17 Pro Max の掲載画像](app-store-screenshots/1.1/iphone-17-pro-max/)
 
-1. 新規 App 作成（名前・主言語・Bundle ID・SKU）
-2. 価格と配信地域（EU で配信する場合は DSA のトレーダー情報の申告が必要）
-3. App のプライバシー: 「データの収集なし」
-4. 年齢制限の質問票
-5. カテゴリ、サブタイトル、説明文、キーワード、プロモーションテキスト、著作権
-6. プライバシーポリシー URL / サポート URL
-7. スクリーンショット（6.9インチ）
-8. 審査メモ・連絡先
-9. ビルドの選択（TestFlight 経由でアップロード済みのもの）
-10. 審査へ提出
+| 掲載順 | 画像名 | 内容 |
+| --- | --- | --- |
+| 1 | 01-home | 今日の火種と優先度 |
+| 2 | 02-fire-ritual | 完了時の燃焼演出 |
+| 3 | 03-ash-archive | 炭ポイントと完了記録 |
+| 4 | 04-capture | 名前でタスクを追加 |
+| 5 | 05-settings | 設定と Fire Task Plus への入口 |
+| 6 | 06-plus | Fire Task Plus の炎を購入前に試す画面 |
 
-## v1.1（Fire Task Plus）で変わる点 — v1.0 の提出には適用しない
+商品審査には、Plus の購入ボタンを表示した画像を App Review Screenshot に添付します。[iap-review.png](app-store-screenshots/1.1/iap-review.png)
 
-v1.0 の上記項目は変更しません。Plus（買い切りのアプリ内課金）を出す v1.1 では、提出前に次を更新します。実装は完了していますが、**以下は本人の作業で、未実施です**。
+[Apple のスクリーンショット仕様](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 
-- アプリ内課金：あり（非消耗型 `com.sunpotflower.sumplesfire.plus`、Apple決済）。年齢制限の「課金」の回答を更新。
-- プライバシー：タスクデータ・設定は端末内のみで外部送信なし、広告・解析・追跡なしは変わらない。ただし購入時は Apple と通信する。「データ収集なし」と「通信なし」は別のため、説明文・審査メモの表現を確認（設計 DESIGN §9.5 の文面を使用）。`public/privacy.html` と `support` の文言は v1.1 提出時に更新（今回は v1.0 の公開ページを変更していない）。
-- 審査メモ：設定 → Fire Task Plus → くわしく見る。購入前から炎22種類、焚き火9景色・環境音6種類、おすすめの焚き火セット6種類、月別・年間ふりかえりの表示例を確認できます。買い切り購入で炎の固定・お気に入り・全種類シャッフル、景色別の音量保存、焚き火セットの適用とマイセット4枠、端末に保存された記録のふりかえりを利用できます。「購入を復元」は設定とPlusの紹介画面にあります。
-- App Store Connect：商品登録と審査への添付、Paid Apps 契約、Small Business Program の確認。
+## App Store Connect で確認する項目
 
+1. App Privacy の回答を確認して公開する。
+2. 権利者名、コンテンツ配信権、Apple 審査担当者向けの連絡先を入力する。
+3. 掲載用 iPhone 画像と Fire Task Plus の商品審査用画像を添付する。
+4. 配布署名と Xcode Organizer の検証を行い、ビルドをアップロードする。実機で Sandbox の価格、購入、復元を確認する。
+5. アプリのバージョンと初回の Fire Task Plus 商品を同じ審査提出に追加する。
+
+[Apple の App Review 提出手順](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app/)

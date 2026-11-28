@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- No tracking, no tracking domains: the app makes no network requests. -->
+	<!-- No tracking or tracking domains. StoreKit handles App Store purchases. -->
 	<key>NSPrivacyTracking</key>
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
@@ -13,7 +13,7 @@
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
 		<!-- @capacitor/preferences (statically linked into this executable) stores the
-		     user's tasks, streak and sound setting in UserDefaults.standard, read and
+		     user's tasks, history and app settings in UserDefaults.standard, read and
 		     written only by this app. -->
 		<dict>
 			<key>NSPrivacyAccessedAPIType</key>

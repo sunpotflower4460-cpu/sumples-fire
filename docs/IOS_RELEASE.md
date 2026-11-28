@@ -3,9 +3,18 @@
 Web（Vite + React）を Capacitor 8.5 で iOS アプリとして配布します。
 このドキュメントは「どうビルドするか」「なぜこの設定なのか」「提出までに何が残っているか」をまとめたものです。
 
-最終更新: 2026-09-24（Xcode 26.2 / iOS 26.2 SDK で検証）
+更新日 2026年11月28日（Xcode 26.2 / iOS 26.2 SDK）
 
-> **v1.1（Plus）の追加:** `npm run build` / `build:ios` は最後に `scripts/check-release-bundle.mjs` を実行し、開発用の模擬購入がバンドルに混入していないこと、StoreKit ブリッジ（`PlusStore`）が含まれることを検査します。ネイティブ側は `PlusStorePlugin.swift` / `FireBridgeViewController.swift`（pbxprojに登録済み）で、Xcodeでのコンパイルは未確認です。StoreKitのテストは [docs/plus/STOREKIT_TESTING.md](plus/STOREKIT_TESTING.md)。
+現行の提出候補は Fire Task Plus を含む 1.1 (3) です。掲載文と審査メモは [App Store 提出情報](APP_STORE_SUBMISSION.md) にあります。Xcode 26.2 / iOS 26.2 SDK は確認時点の提出要件を満たします。
+
+[Apple の SDK 要件](https://developer.apple.com/news/upcoming-requirements/)
+
+### 今回のローカル検証
+
+- ビルド 3 は lint、型検査、Web 本番ビルド、iOS 向けバンドルの監査、単体テスト 434 件、WebKit E2E 50 件を通過しました。npm 監査の検出は 0 件です。
+- iPhone 17 Pro のローカル StoreKit テストで、価格取得、購入、再起動後の利用権、復元、返金を確認しました。StoreKit の通知が購入・復元と重なった場合は利用権を再確認し、アプリを再表示したときも最新の利用権を取得します。
+- iPhone SE（第3世代）のシミュレータで、ソフトウェアキーボードを開いたままの保存、再起動後の保存、Fire と取り消しを確認しました。
+- 専用の開発プロファイルで署名したビルド 3 の arm64 Archive で、プライバシーマニフェスト 3 件、配布する依存ライブラリのライセンス、テスト用 StoreKit ファイル・模擬購入コードの除外を照合しました。iPhone SE（第3世代）の実機で上書きインストールと起動を確認しました。実機での Apple Sandbox の購入・復元はテスターの作成とサインイン後に確認します。
 
 ---
 
@@ -19,6 +28,7 @@ npm run ios:open   # Xcode で開く
 
 - `--mode capacitor` は Cloudflare 用 Vite プラグインを外します。外さないと `wrangler.json`（開発機の絶対パス入り）がアプリに同梱されます。
 - `ios/App/App/public` と `capacitor.config.json` は生成物で Git 管理外です。`CapApp-SPM/Package.swift` と `Package.resolved` は Git 管理します。
+- 配布する依存ライブラリのライセンスは `public/third-party-notices.txt` にまとめ、iOS と Web の両方に同梱します。
 
 コマンドラインでの検証（署名なし）:
 
@@ -30,11 +40,11 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
 
 # 実機向け Archive（署名なし・コンパイル確認用）
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath build/App.xcarchive \
+  -destination 'generic/platform=iOS' -archivePath build/app-store/FireTask-1.1-3-unsigned.xcarchive \
   CODE_SIGNING_ALLOWED=NO archive
 ```
 
-どちらも警告は `appintentsmetadataprocessor: Metadata extraction skipped. No AppIntents.framework dependency found.`（App Intents 未使用の情報表示）のみ。
+Archive したアプリ内の Web バンドルも `node scripts/check-release-bundle.mjs <App.app>/public` で監査できます。
 
 ## 2. 品質ゲート
 
@@ -44,9 +54,10 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
 | `npm run test` | Vitest（ユニット） |
 | `npm run typecheck` | tsc |
 | `npm run build` | Web 本番ビルド（Vercel 用） |
+| `npm audit` | npm 依存関係の監査 |
 | `npm run test:e2e` | Playwright WebKit・iPhone サイズで主要導線とコントラストを検証。初回は `npx playwright install webkit` |
 
-GitHub Actions は `quality`（上4つ）と `e2e` の2ジョブ。
+GitHub Actions は Node.js 24 の `quality`（lint、unit、typecheck、build）と `e2e` の2ジョブ。
 
 ## 3. データ保存（重要）
 
@@ -78,12 +89,13 @@ Simulator での実証（Release ビルド）:
 | ライフサイクル | UIScene（`SceneDelegate`） | iOS 27 SDK で必須（Apple TN3187） |
 | `IPHONEOS_DEPLOYMENT_TARGET` | 15.0 | Capacitor 8 の最小要件。Apple の「iOS 13 以上」要件を満たす |
 | `UIRequiredDeviceCapabilities` | arm64 | テンプレートの armv7 は廃止済みアーキテクチャ |
-| `ITSAppUsesNonExemptEncryption` | false | 通信も独自暗号もない |
+| `ITSAppUsesNonExemptEncryption` | false | 独自の暗号化は使わず、購入通信には Apple の StoreKit を利用 |
 | `CFBundleDevelopmentRegion` | ja | UI は日本語のみ |
-| 署名 | Automatic、Team 未設定 | Team は人間が Xcode で選択 |
+| 署名 | Automatic、Team 未設定 | 配布に使う Apple Developer チームを Xcode で選択 |
 | Release の `CAPACITOR_DEBUG` | 空（= false） | `debug.xcconfig` は Debug 構成にのみ適用 |
+| In-App Purchase | 有効 | StoreKit 2 の非消耗型商品。配布には明示的な App ID を使用 |
 | 権限（カメラ・位置情報など） | なし | 使用していないため Usage Description も不要 |
-| App Transport Security | 既定 | 外部通信なし |
+| App Transport Security | 既定 | アプリ独自の通信先や例外設定はなし |
 
 ## 5. Privacy Manifest（`ios/App/App/PrivacyInfo.xcprivacy`）
 
@@ -111,20 +123,36 @@ Simulator での実証（Release ビルド）:
 - 起動直後、WebView がバンドルを読み込むまでの間は HTML の背景色（ライト: クリーム / ダーク: 黒）が表示されます
 - Web 版（Vercel）の privacy / support ページが App Store Connect に登録する公開 URL です。main にマージすると更新されます
 
-## 8. 提出までの手順
+## 8. ネイティブ確認と撮影
 
-1. ✅ 自動監査（lint / unit / typecheck / build / audit）
-2. ✅ E2E（Playwright WebKit）
-3. ✅ Capacitor sync
-4. ✅ Simulator（Release）で起動・操作・永続化・移行
-5. ✅ `xcodebuild` Release ビルド / 署名なし Archive
-6. ⬜ このブランチを main にマージ（Vercel の privacy / support が更新される）
-7. ⬜ Xcode で Signing & Capabilities → Team を選択
-8. ⬜ iPhone 実機で `docs/RELEASE_MANUAL_TEST.md`
-9. ⬜ Product → Archive
-10. ⬜ Organizer → Validate App
-11. ⬜ Distribute App → App Store Connect → Upload
-12. ⬜ TestFlight で内部テスト
-13. ⬜ TestFlight 版で `docs/RELEASE_MANUAL_TEST.md` の C・E を再確認
-14. ⬜ App Store Connect に `docs/APP_STORE_SUBMISSION.md` の内容を入力
-15. ⬜ 審査へ提出
+`AppStoreQA` は Release アプリをシミュレータで開くスキームです。タスクを追加して再起動した後、Fire と取り消しを確認します。StoreKit Test では、テスト用商品の価格表示、購入、再起動後の利用権、復元、返金を確認します。
+
+```bash
+npm ci
+npm run ios:sync
+# simulator_id には新規の QA シミュレータの UDID を指定
+xcodebuild -project ios/App/App.xcodeproj -scheme AppStoreQA \
+  -destination "platform=iOS Simulator,id=$simulator_id" \
+  -derivedDataPath build/app-store/DerivedData -parallel-testing-enabled NO \
+  -skip-testing:AppStoreUITests/AppStoreUITests/testCaptureStoreScreenshots \
+  CODE_SIGN_IDENTITY=- test
+```
+
+シミュレータではローカルのアドホック署名を使います。商品ファイルと UI テストはテストターゲットだけに入ります。配布用 Archive には `App` スキームを使います。
+
+スクリーンショットの撮影には、Fire Task の保存データがない専用シミュレータを使います。`scripts/app-store-screenshots.sh "$simulator_id" <App.app>` を実行し、上記の `-skip-testing` を `-only-testing:AppStoreUITests/AppStoreUITests/testCaptureStoreScreenshots` に置き換えます。`-resultBundlePath build/app-store/screenshots.xcresult` を指定すると、次のコマンドで添付画像を取り出せます。
+
+```bash
+xcrun xcresulttool export attachments --path build/app-store/screenshots.xcresult \
+  --output-path build/app-store/screenshot-attachments
+```
+
+商品審査用の画像は、StoreKit テストの `iap-review` 添付から取得します。
+
+## 9. 配布と提出
+
+1. Web 版に更新したプライバシーポリシーとサポートページを反映し、公開 URL を照合します。
+2. Apple Developer の明示的な App ID、配布署名、App Store Connect のアプリレコードと Paid Apps 契約を確認します。
+3. 署名した Release を実機で確認し、App Store Connect の商品を Sandbox で購入・復元します。[実機確認項目](RELEASE_MANUAL_TEST.md)
+4. `App` スキームから配布用 Archive を作成し、Organizer で Validate App を実行して TestFlight にアップロードします。
+5. TestFlight の実機確認後、審査メモ、スクリーンショットと初回の Plus 商品を該当バージョンの審査提出に添付します。[提出情報](APP_STORE_SUBMISSION.md)

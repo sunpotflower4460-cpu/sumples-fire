@@ -1,6 +1,6 @@
 import { COPY, purchaseButtonLabel } from '../plusCopy';
 import { plusStore } from '../plusStore';
-import { canStartPurchase } from '../storeState';
+import { canStartPurchase, canStartRestore } from '../storeState';
 import type { PlusStoreState } from '../storeState';
 
 /**
@@ -21,7 +21,6 @@ export function PurchaseStatus({ store, showRestore = true }: { store: PlusStore
   if (store.restore === 'nothing') messages.push(COPY.storeNothingToRestore);
   if (store.restore === 'unavailable') messages.push(COPY.storeRestoreUnavailable);
 
-  const restoreBusy = store.restore === 'restoring';
   const canRecheck = store.purchase === 'pending';
 
   return (
@@ -42,7 +41,7 @@ export function PurchaseStatus({ store, showRestore = true }: { store: PlusStore
             type="button"
             className="plus-link"
             onClick={() => void plusStore.restore()}
-            disabled={restoreBusy}
+            disabled={!canStartRestore(store)}
           >
             {COPY.restore}
           </button>

@@ -176,7 +176,7 @@ npm run ios:open   # Xcode で開く
 - Apple Developer Program へのログイン
 - Bundle ID作成
 - 証明書 / 署名設定
-- Xcode Archive
+- 配布用の署名付き Xcode Archive
 - TestFlightアップロード
 - App Store Connectでの新規アプリ作成
 - App Store審査提出
@@ -185,9 +185,9 @@ npm run ios:open   # Xcode で開く
 
 ## 安全方針
 
-外部API、認証、DB接続、課金、広告、アクセス解析、APIキー、token、.env は使っていません。
+タスクと設定は端末内に保存します。アプリへのアカウント登録は不要です。iPhone 版のタスク管理と炭の記録はオフラインで使えます。
 
-iOS アプリはネットワーク通信を行わず、保存は端末内のみです。外部送信なし・アカウント不要・端末内保存の方針です。
+Fire Task Plus の価格取得、買い切り購入、復元は Apple の StoreKit が処理します。タスクや記録を送信する機能、広告とアクセス解析 SDK はありません。
 
 ## Phase
 

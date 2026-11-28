@@ -1,18 +1,21 @@
 # Fire Task Plus — StoreKit テスト手順
 
-商品ID：`com.sunpotflower.sumplesfire.plus`（非消耗型、設計価格 800円）。Bundle ID は変更しません。**以下は本人の Mac / Apple Developer アカウントで行う作業です。**
+商品 ID は `com.sunpotflower.sumplesfire.plus` です。App Store Connect の提出準備中の商品は、非消耗型の買い切りで、日本向けに800円です。
 
-## 1. ローカル StoreKit テスト（App Store Connect 登録前でも可）
+## 1. ローカル StoreKit テスト
 
-1. `npm run build:ios && npm run ios:sync` の後、`ios/App/App.xcodeproj` を Xcode で開く。
-2. `ios/App/Configuration.storekit` が正しく読み込めることを確認（読み込めない場合は Xcode の StoreKit Configuration で同じ商品を作り直す）。
-   - 参照ID `com.sunpotflower.sumplesfire.plus`、種類 Non-Consumable、日本のストア、800円。
-3. Scheme → Run → Options → StoreKit Configuration で `Configuration.storekit` を選ぶ（**提出用の Archive では外す／本番ビルドに影響しない設定にする**）。
-4. Simulator で実行し、下の確認を行う。Xcode の Debug → StoreKit → Manage Transactions で、承認待ち・返金・購入削除・エラー注入ができる。
+[ネイティブ確認のコマンド](../IOS_RELEASE.md#8-ネイティブ確認と撮影)で `AppStoreQA` スキームを専用の iPhone シミュレータに対して実行します。`testLocalStoreKitPurchaseRestoreAndRefund` は Release の WebView からネイティブの StoreKit 2 ブリッジを通って、商品の表示価格、購入、再起動後の利用権、購入の復元、返金を確認します。
+
+Xcode の Run で操作する場合も `AppStoreQA` を選びます。スキームの Run に `Configuration.storekit` を設定してあります。StoreKit Transaction Manager で承認待ち、返金、エラーをシミュレートできます。配布用の `App` スキームは通常の StoreKit を使います。
 
 ## 2. Sandbox（実機）
 
-App Store Connect に商品を登録し（Paid Apps 契約・税務／銀行情報・商品のメタデータ）、Sandbox テスターで確認。
+1. `App` スキームの Release を、明示的な App ID `com.sunpotflower.sumplesfire` の開発プロファイルで署名して iPhone にインストールします。
+2. 設定の Fire Task Plus から「くわしく見る」を開き、日本のストアで800円が表示されることを確認します。商品設定の反映には最大1時間かかる場合があります。
+3. Sandbox Apple Account でサインインし、購入シートに `[Environment: Sandbox]` と表示された状態でテスト購入します。通常の Apple Account からサインアウトする必要はありません。
+4. アプリの再起動後に Plus が使えることを確認し、「購入を復元」を実行します。
+
+[Apple の実機 Sandbox テスト手順](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox)
 
 ## 3. 確認項目
 
@@ -30,10 +33,10 @@ App Store Connect に商品を登録し（Paid Apps 契約・税務／銀行情�
 | 購入制限（スクリーンタイム） | 購入ボタンなし、理由の表示 |
 | Fire / Undo 中 | 購入案内が出ない |
 
-## 4. 審査・提出前の本人作業
+## 4. App Store Connect と配布
 
 - Apple Developer へのログイン、署名・プロビジョニング、Paid Apps 契約
 - App Store Connect で非消耗型商品の登録（参照名、商品ID、価格、ローカライズ、審査用スクリーンショット）
-- App Store 説明文・審査メモ（DESIGN §9.5）・プライバシー回答の更新（「アプリ内購入あり、Apple決済」。タスクデータは送信しない。**「データ収集なし」と「通信なし」は別**）
+- [現行版の掲載文、プライバシー回答、審査メモ](../APP_STORE_SUBMISSION.md)の登録
 - TestFlight で Sandbox 購入・復元を実機確認
 - 審査に商品を添付して提出

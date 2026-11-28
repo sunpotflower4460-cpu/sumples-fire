@@ -10,6 +10,19 @@
   overflow: hidden;
 }
 
+.sheet-backdrop[data-keyboard-viewport] {
+  top: var(--record-viewport-top);
+  bottom: auto;
+  height: var(--record-viewport-height);
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.sheet-backdrop[data-keyboard-viewport] > .record-sheet {
+  height: auto;
+  max-height: 100%;
+}
+
 /* Fixed bottom navigation and the elevated create action must never cover the
    last piece of scrollable content. Preserve the existing compact floor on
    ordinary phones, then add clearance only when the device safe area needs it. */

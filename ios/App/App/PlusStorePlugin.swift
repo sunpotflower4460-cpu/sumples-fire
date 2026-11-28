@@ -60,16 +60,24 @@ public class PlusStorePlugin: CAPPlugin, CAPBridgedPlugin {
                 await transaction.finish()
                 return
             }
-            if transaction.revocationDate != nil {
-                notifyListeners("entitlementChanged", data: ["state": "revoked"])
-            } else {
-                notifyListeners("entitlementChanged", data: ["state": "granted"])
-            }
-            // The app reacts to the event above before the transaction is finished.
+            let state = transaction.revocationDate == nil ? "granted" : "revoked"
+            publishEntitlementUpdate(state)
             await transaction.finish()
         case .unverified:
             // Never grant on a transaction that failed verification.
             break
+        }
+    }
+
+    private func publishEntitlementUpdate(_ state: String) {
+        let deliver = { [weak self] in
+            self?.notifyListeners("entitlementChanged", data: ["state": state], retainUntilConsumed: true)
+        }
+        if let capacitorBridge = bridge as? CapacitorBridge {
+            // The bridge registers and removes JavaScript listeners on this queue.
+            capacitorBridge.dispatchQueue.async { deliver() }
+        } else {
+            deliver()
         }
     }
 

@@ -177,7 +177,10 @@ test('privacy and support pages open and lead back to the app', async ({ page })
 
   await page.goto('/support.html');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('サポート');
-  await expect(page.getByRole('link', { name: /github\.com/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'GitHub Issues' })).toHaveAttribute(
+    'href', 'https://github.com/sunpotflower4460-cpu/sumples-fire/issues',
+  );
+  await expect(page.getByRole('link', { name: 'Apple サポート' })).toBeVisible();
   await page.getByRole('link', { name: '← アプリに戻る' }).click();
   await expect(page.locator('#app-screen-title')).toBeVisible();
 });

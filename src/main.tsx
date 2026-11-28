@@ -1,4 +1,5 @@
 import { StrictMode } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { createRoot } from 'react-dom/client';
 import { MotionConfig } from 'framer-motion';
 import App from './App';
@@ -53,6 +54,11 @@ void initializeAppStorage().finally(() => {
   // first render. Talking to the store (price, entitlement) never delays it.
   plusStore.hydrate();
   void plusStore.init();
+  if (Capacitor.isNativePlatform()) {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') void plusStore.recheckEntitlement();
+    });
+  }
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

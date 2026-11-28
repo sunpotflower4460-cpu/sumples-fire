@@ -140,6 +140,43 @@ describe('plusStore — purchase flows', () => {
     expect(store.getState().store.entitlement).toBe('entitled');
   });
 
+  it.each([
+    { update: 'granted', initial: 'notEntitled', expected: 'entitled' },
+    { update: 'revoked', initial: 'entitled', expected: 'notEntitled' },
+  ] as const)('keeps a verified $update when an older entitlement check returns', async ({ update, initial, expected }) => {
+    const { store } = createStore();
+    const service = createFakeService({ entitlement: initial });
+    await store.init(service);
+
+    let completeCheck!: (result: EntitlementCheck) => void;
+    service.checkEntitlement = () => new Promise((resolve) => { completeCheck = resolve; });
+    const checking = store.recheckEntitlement();
+    service.emit(update);
+    completeCheck(initial);
+
+    await checking;
+    expect(store.getState().store.entitlement).toBe(expected);
+  });
+
+  it('does not start a restore while the Apple purchase sheet is open', async () => {
+    const { store } = createStore();
+    const service = createFakeService();
+    await store.init(service);
+
+    let completePurchase!: (result: PurchaseOutcome) => void;
+    service.purchase = () => new Promise((resolve) => { completePurchase = resolve; });
+    const purchasing = store.purchase();
+    service.emit('granted');
+    expect(store.getState().store.purchase).toBe('purchasing');
+    await store.restore();
+    expect(service.calls).not.toContain('restore');
+    completePurchase('cancelled');
+    await purchasing;
+
+    await store.restore();
+    expect(service.calls).toContain('restore');
+  });
+
   it('an unverified purchase does not unlock', async () => {
     const { store } = createStore();
     await store.init(createFakeService({ purchase: 'unverified' }));
@@ -162,6 +199,42 @@ describe('plusStore — purchase flows', () => {
     }
   });
 
+  it.each([
+    { response: 'nothing', initial: 'notEntitled', update: 'granted', check: 'entitled', entitlement: 'entitled', restore: 'restored' },
+    { response: 'restored', initial: 'entitled', update: 'revoked', check: 'unknown', entitlement: 'notEntitled', restore: 'nothing' },
+  ] as const)('reconciles a $response restore response with a verified $update', async ({ response, initial, update, check, entitlement, restore }) => {
+    const { store } = createStore();
+    const service = createFakeService({ entitlement: initial });
+    await store.init(service);
+
+    let completeRestore!: (result: RestoreOutcome) => void;
+    service.restore = () => new Promise((resolve) => { completeRestore = resolve; });
+    const restoring = store.restore();
+    service.checkEntitlement = async () => check;
+    service.emit(update);
+    completeRestore(response);
+
+    await restoring;
+    expect(store.getState().store).toMatchObject({ entitlement, restore });
+  });
+
+  it.each(['entitled', 'notEntitled'] as const)('rechecks a purchase success that races with a revocation: %s', async (entitlement) => {
+    const { store } = createStore();
+    const service = createFakeService();
+    await store.init(service);
+
+    let completePurchase!: (result: PurchaseOutcome) => void;
+    service.purchase = () => new Promise((resolve) => { completePurchase = resolve; });
+    const purchasing = store.purchase();
+    service.checkEntitlement = vi.fn(async () => entitlement);
+    service.emit('revoked');
+    completePurchase('success');
+
+    await purchasing;
+    expect(service.checkEntitlement).toHaveBeenCalledOnce();
+    expect(store.getState().store).toMatchObject({ entitlement, justPurchased: entitlement === 'entitled' });
+  });
+
   it('a refund arriving later locks the extras but keeps saved preferences for a future restore', async () => {
     const saved = JSON.stringify({ ...favorites(), version: 1 });
     const { store } = createStore(saved);
@@ -182,6 +255,16 @@ describe('plusStore — purchase flows', () => {
     result = 'unknown';
     await store.recheckEntitlement();
     expect(store.getState().store.entitlement).toBe('entitled');
+  });
+
+  it('clears the purchase confirmation when a recheck finds the entitlement is gone', async () => {
+    const { store } = createStore();
+    await store.init(createFakeService());
+    await store.purchase();
+    expect(store.getState().store.justPurchased).toBe(true);
+
+    await store.recheckEntitlement();
+    expect(store.getState().store).toMatchObject({ entitlement: 'notEntitled', justPurchased: false, revokedNotice: true });
   });
 });
 

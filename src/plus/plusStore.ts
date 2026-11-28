@@ -12,8 +12,8 @@ import {
 import type { PlusPreferences } from './plusPreferences';
 import type { PlusPurchaseService } from './purchaseService';
 import { selectPurchaseService } from './selectPurchaseService';
-import { canStartPurchase, initialStoreState, isPlusActive, storeReducer } from './storeState';
-import type { PlusStoreState, StoreAction } from './storeState';
+import { canStartPurchase, canStartRestore, initialStoreState, isPlusActive, storeReducer } from './storeState';
+import type { EntitlementCheck, PlusStoreState, StoreAction } from './storeState';
 
 /** The Plus screens. Only one is shown at a time; the rest of the stack waits underneath. */
 export type PlusRoute = 'guide' | 'intro' | 'flames' | 'scene' | 'sets' | 'monthly';
@@ -56,6 +56,8 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
   let service: PlusPurchaseService | null = null;
   let unsubscribeService: (() => void) | null = null;
   let initPromise: Promise<void> | null = null;
+  let entitlementCheckId = 0;
+  let entitlementEventVersion = 0;
   let saveChain: Promise<unknown> = Promise.resolve();
   let returnFocus: HTMLElement | null = null;
 
@@ -85,14 +87,35 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     else dispatch({ type: 'productUnavailable' });
   };
 
+  const readEntitlement = async (purchaseService: PlusPurchaseService) => {
+    const checkId = ++entitlementCheckId;
+    const result = await purchaseService.checkEntitlement();
+    // A StoreKit update, completed transaction or newer check supersedes this snapshot.
+    return checkId === entitlementCheckId ? result : undefined;
+  };
+
   const recheckEntitlement = async () => {
     if (!service) return;
-    const result = await service.checkEntitlement();
+    const result = await readEntitlement(service);
+    if (result === undefined) return;
     if (result === 'entitled' && state.store.purchase === 'pending') {
       dispatch({ type: 'entitlementGranted' });
     } else {
       dispatch({ type: 'entitlementChecked', result });
     }
+  };
+
+  const confirmTransactionEntitlement = async (
+    purchaseService: PlusPurchaseService,
+    reported: Exclude<EntitlementCheck, 'unknown'>,
+    eventVersionAtStart: number,
+  ) => {
+    if (eventVersionAtStart === entitlementEventVersion || reported === state.store.entitlement) return reported;
+
+    // The operation and a StoreKit notification disagree. Read the current receipt
+    // again and keep the verified state if StoreKit cannot answer.
+    const current = await readEntitlement(purchaseService);
+    return current === 'entitled' || current === 'notEntitled' ? current : state.store.entitlement;
   };
 
   /** Start talking to the store. Idempotent; never blocks the app. */
@@ -101,6 +124,8 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
     initPromise = (async () => {
       service = injected ?? await deps.createService();
       unsubscribeService = service.subscribe((update) => {
+        entitlementEventVersion += 1;
+        entitlementCheckId += 1;
         dispatch({ type: update === 'granted' ? 'entitlementGranted' : 'entitlementRevoked' });
       });
       await Promise.all([recheckEntitlement(), refreshProduct()]);
@@ -110,15 +135,28 @@ export const createPlusStore = (deps: PlusStoreDeps) => {
 
   const purchase = async () => {
     if (!service || !canStartPurchase(state.store)) return;
+    const eventVersion = entitlementEventVersion;
     dispatch({ type: 'purchaseStarted' });
-    const outcome = await service.purchase();
+    let outcome = await service.purchase();
+    if (outcome === 'success') {
+      const confirmed = await confirmTransactionEntitlement(service, 'entitled', eventVersion);
+      entitlementCheckId += 1;
+      if (confirmed !== 'entitled') outcome = 'failed';
+    }
     dispatch({ type: 'purchaseFinished', outcome });
   };
 
   const restore = async () => {
-    if (!service || state.store.restore === 'restoring') return;
+    if (!service || !canStartRestore(state.store)) return;
+    const eventVersion = entitlementEventVersion;
     dispatch({ type: 'restoreStarted' });
-    const outcome = await service.restore();
+    let outcome = await service.restore();
+    if (outcome !== 'unavailable') {
+      const reported = outcome === 'restored' ? 'entitled' : 'notEntitled';
+      const confirmed = await confirmTransactionEntitlement(service, reported, eventVersion);
+      entitlementCheckId += 1;
+      outcome = confirmed === 'entitled' ? 'restored' : 'nothing';
+    }
     dispatch({ type: 'restoreFinished', outcome });
   };
 

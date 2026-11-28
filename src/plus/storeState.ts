@@ -80,6 +80,7 @@ export type StoreAction =
   | { type: 'acknowledgePurchase' };
 
 export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusStoreState => {
+  const purchaseAfterUpdate = state.purchase === 'purchasing' ? state.purchase : 'idle';
   switch (action.type) {
     case 'productLoaded':
       return { ...state, product: { status: 'ready', displayPrice: action.displayPrice } };
@@ -92,7 +93,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
 
     case 'entitlementChecked': {
       if (action.result === 'entitled') {
-        return { ...state, entitlement: 'entitled', revokedNotice: false, purchase: 'idle' };
+        return { ...state, entitlement: 'entitled', revokedNotice: false, purchase: purchaseAfterUpdate };
       }
       if (action.result === 'notEntitled') {
         // A *verified* "no entitlement" after owning it means a refund/revocation.
@@ -101,6 +102,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
           ...state,
           entitlement: 'notEntitled',
           revokedNotice: wasEntitled ? true : state.revokedNotice,
+          justPurchased: false,
         };
       }
       // Could not verify: never downgrade something that was already verified.
@@ -113,7 +115,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
         ...state,
         entitlement: 'entitled',
         revokedNotice: false,
-        purchase: 'idle',
+        purchase: purchaseAfterUpdate,
         // A pending purchase that completed later: thank them, but only quietly.
         justPurchased: state.purchase === 'pending' ? true : state.justPurchased,
       };
@@ -123,7 +125,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
         ...state,
         entitlement: 'notEntitled',
         revokedNotice: true,
-        purchase: 'idle',
+        purchase: purchaseAfterUpdate,
         justPurchased: false,
       };
 
@@ -147,7 +149,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
           // No message: the person simply changed their mind.
           return { ...state, purchase: 'idle' };
         case 'pending':
-          return { ...state, purchase: 'pending' };
+          return { ...state, purchase: isPlusActive(state) ? 'idle' : 'pending' };
         case 'unverified':
           return { ...state, purchase: 'unverified' };
         case 'restricted':
@@ -159,7 +161,7 @@ export const storeReducer = (state: PlusStoreState, action: StoreAction): PlusSt
     }
 
     case 'restoreStarted':
-      if (state.restore === 'restoring') return state;
+      if (!canStartRestore(state)) return state;
       return { ...state, restore: 'restoring' };
 
     case 'restoreFinished': {
@@ -205,4 +207,9 @@ export const canStartPurchase = (state: PlusStoreState): boolean => (
   && state.purchase !== 'purchasing'
   && state.purchase !== 'pending'
   && state.restore !== 'restoring'
+);
+
+/** StoreKit can open a system sheet for either purchase or restore. */
+export const canStartRestore = (state: PlusStoreState): boolean => (
+  state.restore !== 'restoring' && state.purchase !== 'purchasing'
 );
